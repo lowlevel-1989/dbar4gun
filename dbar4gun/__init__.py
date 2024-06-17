@@ -4,7 +4,7 @@ specifically designed to be small and function as 4 light guns.
 """
 
 __title__    = "dbar4gun"
-__version__  = "0.1.0"
+__version__  = "0.1.1"
 __author__   = "Vinicio Valbuena"
 __credits__  = ["Vinicio Valbuena"]
 __license__  = "MIT"
