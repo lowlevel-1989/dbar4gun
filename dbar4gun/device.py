@@ -23,10 +23,12 @@ class WiiMoteDevice(object):
     REPORT_MODE = b"\x36"
     DATA_FORMAT = ">B2s5s5s9x"
 
-    def __init__(self, io):
+    def __init__(self, hidraw_io, queue):
         # TODO: colocar a False y trabajar el flujo de conexiones
-        self.is_pair = True
-        self.io = io
+        self.is_pair = False
+
+        self.queue   = queue
+        self.io      = hidraw_io
 
         ##                     ID     BB   IR_L   IR_R   OTHER
         self.buf = bytearray(0x01 + 0x02 + 0x05 + 0x05 + 0x09 )
@@ -40,7 +42,12 @@ class WiiMoteDevice(object):
             "pos_mid_nor":  [  1.0,   1.0],
         }
 
-        # self.enable_ir()
+        self.reset()
+
+    def reset(self):
+        print(dir(self.io))
+        #self.io.write(bytearray(b"\x11\xf0"))
+        #self.enable_ir()
 
     def enable_ir(self):
         # ENABLE IR
@@ -152,7 +159,7 @@ class WiiMoteDevice(object):
             int(self.ir_status["pos_mid_nor"][_Y] * 1080),
         ]
 
-    def read(self):
+    def run(self):
         self.io.readinto(self.buf)
         report_id, button, ir_dots_far, ir_dots_unknown = \
                                 struct.unpack(self.DATA_FORMAT, self.buf)
@@ -160,4 +167,7 @@ class WiiMoteDevice(object):
         self.parser_ir(ir_dots_far)
         self.buttons_status = button
 
-        return (self.buttons_status, self.ir_status)
+        if report_id == 0x36:
+            self.queue.put(["status", self.buttons_status, self.ir_status])
+        else:
+            print(f"report: {report_id:02X} ", self.buf)

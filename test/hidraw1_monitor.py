@@ -18,6 +18,12 @@ mouse_cap = {
 }
 
 mouse = evdev.UInput(mouse_cap, name="Mouse Test")
+print(mouse.name)
+print(mouse.vendor)
+print(mouse.phys)
+print(mouse.device)
+print(mouse.device.path)
+print(mouse.devnode)
 
 
 WIIMOTE_CORE_BUTTON_LEFT_MASK  = 0x01
@@ -58,6 +64,15 @@ class WiiMoteDevice(object):
             "pos_mid_raw":  [0xfff, 0xfff],
             "pos_mid_nor":  [  1.0,   1.0],
         }
+
+        time.sleep(0.1)
+        self.device.write(bytearray(b"\x11\xf0"))
+
+        # request state
+        # time.sleep(0.1)
+        # self.device.write(bytearray(b"\x15\x00"))
+        # time.sleep(0.1)
+        # self.device.write(bytearray(b"\x15\x00"))
 
         self.enable_ir()
 
