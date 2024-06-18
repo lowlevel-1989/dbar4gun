@@ -1,4 +1,3 @@
-import evdev
 import pyudev
 
 

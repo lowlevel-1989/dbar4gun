@@ -23,14 +23,15 @@ class WiiMoteDevice(object):
     REPORT_MODE = b"\x36"
     DATA_FORMAT = ">B2s5s5s9x"
 
-    def __init__(self, hidraw_io, queue):
-        # TODO: colocar a False y trabajar el flujo de conexiones
+    def __init__(self, hidraw_io, player, width=1920, height=1080):
         self.is_pair = False
 
-        self.queue   = queue
         self.io      = hidraw_io
+        self.player  = player
+        self.width   = width
+        self.height  = height
 
-        ##                     ID     BB   IR_L   IR_R   OTHER
+        ##                     ID     BB   IR_F   IR_B   OTHER
         self.buf = bytearray(0x01 + 0x02 + 0x05 + 0x05 + 0x09 )
 
         self.buttons_status = b"\x00\x00"
@@ -45,9 +46,15 @@ class WiiMoteDevice(object):
         self.reset()
 
     def reset(self):
-        print(dir(self.io))
-        #self.io.write(bytearray(b"\x11\xf0"))
-        #self.enable_ir()
+        try:
+            self.set_player()
+            self.enable_ir()
+            self.is_pair = True
+        except:
+            self.is_pair = False
+
+    def set_player(self):
+        self.io.write(bytearray(b"\x11\xf0"))
 
     def enable_ir(self):
         # ENABLE IR
@@ -155,11 +162,14 @@ class WiiMoteDevice(object):
 
     def get_cursor_position(self):
         return [
-            int(self.ir_status["pos_mid_nor"][_X] * 1920),
-            int(self.ir_status["pos_mid_nor"][_Y] * 1080),
+            int(self.ir_status["pos_mid_nor"][_X] * self.width),
+            int(self.ir_status["pos_mid_nor"][_Y] * self.height),
         ]
 
-    def run(self):
+    def read(self):
+        if not self.is_pair:
+            self.reset()
+
         self.io.readinto(self.buf)
         report_id, button, ir_dots_far, ir_dots_unknown = \
                                 struct.unpack(self.DATA_FORMAT, self.buf)
@@ -167,7 +177,5 @@ class WiiMoteDevice(object):
         self.parser_ir(ir_dots_far)
         self.buttons_status = button
 
-        if report_id == 0x36:
-            self.queue.put(["status", self.buttons_status, self.ir_status])
-        else:
-            print(f"report: {report_id:02X} ", self.buf)
+        # TODO: report id 0x36, status 0x20 working
+        return [self.buttons_status, self.ir_status]

@@ -3,32 +3,50 @@ import time
 import io
 import os
 import signal
+import argparse
 
 from io import FileIO
-from multiprocessing import Process, Queue
+from multiprocessing import Process
+from multiprocessing import Queue
+from multiprocessing import Value
 
 import info
 
-from device  import WiiMoteDevice
-from monitor import Monitor
+from wiimote    import WiiMoteDevice
+from virtualgun import VirtualGunDevice
+from monitor    import Monitor
 
 __main_pid  = os.getpid()
 __hidraw_io = []
 __workers   = []
 
-def virtualgun_worker(hidraw_io, queue):
-    device = WiiMoteDevice(hidraw_io, Queue())
+config = None
+
+def virtualgun_worker(hidraw_io):
+    player = Value("i", 0)
+
+    wiimote = WiiMoteDevice(hidraw_io, player, config.width, config.height)
+
+    # virtualgun -> mouse / joy
+    virtualgun = VirtualGunDevice(player, config.width, config.height)
+
+    while 1:
+        button, ir = wiimote.read()
+        cursor = wiimote.get_cursor_position()
+        virtualgun.set_cursor(cursor)
+        virtualgun.sync()
+
+        print(cursor)
 
 def remove_virtualgun_worker(hidraw_path):
     pass
 
 def create_virtualgun_worker(hidraw_path):
-    fd        = os.open(hidraw_path, os.O_RDWR | os.O_NONBLOCK)
+    fd        = os.open(hidraw_path, os.O_RDWR)
     hidraw_io = io.FileIO(fd, "rb+", closefd=False)
 
-
     worker = Process(
-                target=virtualgun_worker, args=(hidraw_io, Queue()))
+                target=virtualgun_worker, args=(hidraw_io,))
 
     worker.start()
 
@@ -66,7 +84,7 @@ def SignalHandler(SignalNumber, Frame):
     free()
 
     # wait finish main process
-    if monitor_event_process.is_alive() and __main_pid == os.getpid():
+    if __main_pid == os.getpid() and __main_pid == os.getpid():
         monitor_event_process.join()
     exit(0)
 
@@ -76,6 +94,15 @@ if __name__ == '__main__':
 
     signal.signal(signal.SIGINT,  SignalHandler)
     signal.signal(signal.SIGTERM, SignalHandler)
+
+    parser = argparse.ArgumentParser(
+                prog=info.__title__,
+                description="dbar4gun is a Linux userspace driver for the DolphinBar x4 Wiimote")
+
+    parser.add_argument("--width",  type=int, default=1920, help="Width of the screen")
+    parser.add_argument("--height", type=int, default=1080, help="Width of the screen")
+
+    config = parser.parse_args()
 
     monitor = Monitor(queue = Queue())
 
