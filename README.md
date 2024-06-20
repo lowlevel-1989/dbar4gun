@@ -18,26 +18,26 @@ dbar4gun is a Linux userspace driver for the DolphinBar x4 Wiimote, specifically
 ### Steps
 #### build
 ~~~
-$ git clone https://github.com/lowlevel-1989/dbar4gun.git
-$ docker build -t dbar4gun:0.3.0 dbar4gun
+git clone https://github.com/lowlevel-1989/dbar4gun.git
+docker build -t dbar4gun:0.3.0 dbar4gun
 ~~~
 
 ### Use
 #### run service
 ~~~
-$ docker container run --name dbar4gun -d --restart unless-stopped --privileged dbar4gun:0.3.0 --width 1920 --height 1080
+docker container run --name dbar4gun -d --restart unless-stopped --privileged dbar4gun:0.3.0 --width 1920 --height 1080
 ~~~
 #### stop
 ~~~
-$ docker container stop dbar4gun
+docker container stop dbar4gun
 ~~~
 #### remove
 ~~~
-$ docker container rm dbar4gun
+docker container rm dbar4gun
 ~~~
 #### logs
 ~~~
-$ docker container logs dbar4gun
+docker container logs dbar4gun
 ~~~
 
 ## Installing without Docker
@@ -51,16 +51,16 @@ $ docker container logs dbar4gun
 ### Steps with root
 #### build
 ~~~
-$ cd dbar4gun
-$ python -m venv env
-$ source env/bin/activate
-$ pip install .
+cd dbar4gun
+python -m venv env
+source env/bin/activate
+pip install .
 ~~~
 
 ### Use
 #### run service with root
 ~~~
-$ dbar4gun --width 1920 --height 1080
+dbar4gun --width 1920 --height 1080
 ~~~
 
 ## To Do
