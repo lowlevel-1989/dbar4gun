@@ -1,3 +1,4 @@
+import os
 import evdev
 
 VIRTUALGUN_BUTTON_LEFT_MASK   = 0x01
@@ -22,7 +23,7 @@ class VirtualGunDevice(object):
         self.cursor  = [0, 0]
         self.buttons = b"\x00\x00"
 
-        gun_cap = {
+        self.gun_cap = {
             evdev.ecodes.EV_KEY: [
                 # mouse buttons
                 evdev.ecodes.BTN_LEFT,           # WIIMOTE BUTTON A
@@ -57,7 +58,8 @@ class VirtualGunDevice(object):
 
     def update_index(self, first=0):
         index = len(self.get_list_mice()) + first
-        self.virtualgun = evdev.UInput(gun_cap, name="VirtualGun {:03X}".format(index))
+        if first:
+            self.virtualgun = evdev.UInput(self.gun_cap, name="VirtualGun {:03X}".format(index))
 
         with self.player.get_lock():
             self.player.value = index

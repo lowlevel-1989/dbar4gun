@@ -31,20 +31,20 @@ __queue     = Queue()
 
 config = None
 
-def virtualgun_worker(hidraw_io, lock):
+def virtualgun_worker(hidraw_io, lock, width, height):
     player = Value("i", 0)
 
-    wiimote = WiiMoteDevice(hidraw_io, player, config.width, config.height)
+    wiimote = WiiMoteDevice(hidraw_io, player, width, height)
 
     # virtualgun -> mouse / joy
-    virtualgun = VirtualGunDevice(player, config.width, config.height)
-    time.sleep(1)
+    virtualgun = VirtualGunDevice(player, width, height)
+    time.sleep(0.5)
 
     lock.release()
 
     try:
         while 1:
-            wiimote.refresh_status()
+            wiimote.update_index()
             buttons, _ = wiimote.read()
 
             cursor = wiimote.get_cursor_position()
@@ -53,7 +53,8 @@ def virtualgun_worker(hidraw_io, lock):
             virtualgun.set_buttons(buttons)
             virtualgun.set_cursor(cursor)
             virtualgun.sync()
-    except:
+    except Exception as e:
+        print(e)
         pass
     finally:
         free()
@@ -62,21 +63,21 @@ def virtualgun_worker(hidraw_io, lock):
 def remove_virtualgun_worker(hidraw_path, lock):
     pass
 
-def create_virtualgun_worker(hidraw_path, lock):
+def create_virtualgun_worker(hidraw_path, lock, width, height):
     lock.acquire()
 
     fd        = os.open(hidraw_path, os.O_RDWR)
     hidraw_io = io.FileIO(fd, "rb+", closefd=False)
 
     worker = Process(
-                target=virtualgun_worker, args=(hidraw_io, lock))
+                target=virtualgun_worker, args=(hidraw_io, lock, width, height))
 
     worker.start()
 
     __hidraw_io.append([fd, hidraw_io])
     __workers.append(worker)
 
-def monitor_handle_events(queue):
+def monitor_handle_events(queue, width, height):
     # handle exceptions for (controlled termination)
     try:
         lock = Lock() # events, register new virtualgun device
@@ -87,7 +88,7 @@ def monitor_handle_events(queue):
             elif event[0] == "remove":
                 remove_virtualgun_worker(event[1], lock)
             else:
-                create_virtualgun_worker(event[1], lock)
+                create_virtualgun_worker(event[1], lock, width, height)
 
             print("monitor: {} {}".format(*event))
     except:
@@ -105,12 +106,14 @@ def free():
         except:
             pass
 
+    """
     for worker in __workers:
         try:
             worker.terminate()
             print("kill worker {}".format(worker.pid))
         except:
             pass
+    """
 
 
 def SignalHandler(SignalNumber, Frame):
@@ -141,7 +144,8 @@ def dbar4gun_run():
     monitor = Monitor(queue = __queue)
 
     monitor_event_process = Process(
-            target=monitor_handle_events, args=(monitor.queue,))
+            target=monitor_handle_events,
+            args=(monitor.queue, config.width, config.height))
 
     monitor_event_process.start()
 
