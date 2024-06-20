@@ -8,3 +8,4 @@ from dbar4gun.info import __version__
 from dbar4gun.info import __author__
 from dbar4gun.info import __credits__
 from dbar4gun.info import __license__
+from dbar4gun.info import __email__
