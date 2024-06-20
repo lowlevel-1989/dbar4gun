@@ -16,6 +16,7 @@ dbar4gun is a Linux userspace driver for the DolphinBar x4 Wiimote, specifically
 - docker or podman
 
 ### Steps
+#### build
 ~~~
 $ git clone https://github.com/lowlevel-1989/dbar4gun.git
 $ docker build -t dbar4gun:0.3.0 dbar4gun
@@ -45,6 +46,7 @@ $ docker container logs dbar4gun
 - python
 
 ### Steps with root
+#### build
 ~~~
 $ cd dbar4gun
 $ python -m venv env
