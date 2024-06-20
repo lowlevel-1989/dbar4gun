@@ -146,6 +146,7 @@ def dbar4gun_run():
     monitor_event_process.start()
 
     print("{} v{}".format(info.__title__,  info.__version__))
+    print("\t\tSCREEN {}x{}".format(config.width, config.height))
     print("\t\tmonitor started, ctrl+c to exit or sudo kill -SIGTERM {}".format(__main_pid))
 
     # handle exceptions for (controlled termination)

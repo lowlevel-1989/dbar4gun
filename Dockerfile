@@ -13,4 +13,4 @@ FROM python:slim
 COPY --from=build /usr/local/lib    /usr/local/lib
 COPY --from=build /usr/local/bin    /usr/local/bin
 
-ENTRYPOINT dbar4gun
+ENTRYPOINT ["/usr/local/bin/dbar4gun"]

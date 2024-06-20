@@ -25,7 +25,7 @@ $ docker build -t dbar4gun:0.3.0 dbar4gun
 ### Use
 #### run service
 ~~~
-$ docker container run --name dbar4gun -d --restart unless-stopped --privileged dbar4gun:0.3.0
+$ docker container run --name dbar4gun -d --restart unless-stopped --privileged dbar4gun:0.3.0 --width 1920 --height 1080
 ~~~
 #### stop
 ~~~
@@ -60,7 +60,7 @@ $ pip install .
 ### Use
 #### run service with root
 ~~~
-$ dbar4gun
+$ dbar4gun --width 1920 --height 1080
 ~~~
 
 ## To Do
