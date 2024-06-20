@@ -46,8 +46,7 @@ dbar4gun --width 1920 --height 1080
 5. Class Manage Device
 
 
-
-## Installing with Docker
+## Installing with Docker (it does not work)
 ### Dependencies
 - git
 - docker or podman
