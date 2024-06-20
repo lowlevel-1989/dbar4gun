@@ -8,7 +8,9 @@ import math
 from pprint import pprint
 
 mouse_cap = {
-    evdev.ecodes.EV_KEY: [evdev.ecodes.BTN_LEFT, evdev.ecodes.BTN_RIGHT],
+    evdev.ecodes.EV_KEY: [
+        evdev.ecodes.BTN_LEFT, evdev.ecodes.BTN_RIGHT,
+        ],
     evdev.ecodes.EV_ABS: [
         (evdev.ecodes.ABS_X, evdev.AbsInfo(value=0,
                 min=0, max=1920, fuzz=0, flat=0, resolution=0)),
@@ -17,7 +19,10 @@ mouse_cap = {
     ]
 }
 
-mouse = evdev.UInput(mouse_cap, name="VirtualGun mouse", product=0x19, vendor=0x89, version=0x01)
+mouse = evdev.UInput(mouse_cap,
+                     name="VirtualGun mouse",
+                     ID_INPUT_JOYSTICK=1,
+                     product=0x19, vendor=0x89, version=0x01)
 
 
 print(mouse.name)
@@ -29,6 +34,8 @@ print(mouse.device)
 print(mouse.device.path)
 print(mouse.devnode)
 
+while 1:
+    time.sleep(1)
 
 WIIMOTE_CORE_BUTTON_LEFT_MASK  = 0x01
 WIIMOTE_CORE_BUTTON_RIGHT_MASK = 0x02

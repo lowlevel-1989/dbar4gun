@@ -1,5 +1,6 @@
 import time
 import struct
+import os
 
 WIIMOTE_CORE_BUTTON_LEFT_MASK  = 0x01
 WIIMOTE_CORE_BUTTON_RIGHT_MASK = 0x02
@@ -23,12 +24,12 @@ class WiiMoteDevice(object):
     REPORT_MODE = b"\x36"
     DATA_FORMAT = ">B2s5s5s9x"
 
-    def __init__(self, hidraw_io, player, width=1920, height=1080):
+    def __init__(self, hidraw_io, width=1920, height=1080):
         self.is_pair = False
 
         self.io           = hidraw_io
-        self.player       = player
-        self.prev_player  = player.value
+        self.player       = 0
+        self.prev_player  = 0
         self.width        = width
         self.height       = height
 
@@ -48,22 +49,35 @@ class WiiMoteDevice(object):
 
     def reset(self):
         try:
-            self.update_index()
+            # self.update_index()
             self.enable_ir()
             self.is_pair = True
         except:
             self.is_pair = False
 
-    def update_index(self):
+    def update_index(self, player):
         try:
-            if not self.player.value or self.player.value > 0xf:
+            self.player = player
+            if not self.player or self.player > 0xf:
                 self.io.write(bytearray(b"\x11\xf0"))
 
-            elif self.player.value != self.prev_player:
-                player  = (self.player.value & 0x0f) << 4
+            elif self.player != self.prev_player:
+                print("HI ", self.io)
+                print("PID ", os.getpid())
+                print(self.player)
+                print(self.prev_player)
+                index  = 0x00
+                if player & 0x01:
+                    index = index | 0x80
+                if player & 0x02:
+                    index = index | 0x40
+                if player & 0x04:
+                    index = index | 0x20
+                if player & 0x08:
+                    index = index | 0x10
 
-                self.io.write(bytearray(b"\x11") + bytearray(bytes.fromhex("{:02x}".format(player))))
-                self.prev_player = self.player.value
+                self.io.write(bytearray(b"\x11") + bytearray(bytes.fromhex("{:02x}".format(index))))
+                self.prev_player = self.player
 
             self.is_pair = True
         except:
@@ -187,6 +201,7 @@ class WiiMoteDevice(object):
         report_id, button, ir_dots_far, ir_dots_unknown = \
                                 struct.unpack(self.DATA_FORMAT, self.buf)
 
+        # print(ir_dots_far)
         self.parser_ir(ir_dots_far)
         self.buttons_status = button
 

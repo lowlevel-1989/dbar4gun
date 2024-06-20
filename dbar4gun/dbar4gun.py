@@ -8,7 +8,6 @@ import argparse
 from io import FileIO
 from multiprocessing import Process
 from multiprocessing import Queue
-from multiprocessing import Value
 from multiprocessing import Lock
 
 try:
@@ -32,24 +31,24 @@ __queue     = Queue()
 config = None
 
 def virtualgun_worker(hidraw_io, lock, width, height):
-    player = Value("i", 0)
 
-    wiimote = WiiMoteDevice(hidraw_io, player, width, height)
+    wiimote = WiiMoteDevice(hidraw_io, width, height)
 
     # virtualgun -> mouse / joy
-    virtualgun = VirtualGunDevice(player, width, height)
+    virtualgun = VirtualGunDevice(width, height)
     time.sleep(0.5)
 
     lock.release()
 
+    # TODO: update led
+    #index = virtualgun.get_index()
+    #wiimote.update_index(index)
     try:
         while 1:
-            wiimote.update_index()
-            buttons, _ = wiimote.read()
+            buttons, ir = wiimote.read()
 
             cursor = wiimote.get_cursor_position()
 
-            virtualgun.update_index()
             virtualgun.set_buttons(buttons)
             virtualgun.set_cursor(cursor)
             virtualgun.sync()
@@ -58,7 +57,7 @@ def virtualgun_worker(hidraw_io, lock, width, height):
         pass
     finally:
         free()
-        print("bye VirtualGun {:03X}".format(player.value))
+        print("bye VirtualGun {:03X}".format(wiimote.player))
 
 def remove_virtualgun_worker(hidraw_path, lock):
     pass

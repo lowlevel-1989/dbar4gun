@@ -18,25 +18,28 @@ _X = 0
 _Y = 1
 
 class VirtualGunDevice(object):
-    def __init__(self, player, width, height):
-        self.player  = player
+    def __init__(self, width, height):
         self.cursor  = [0, 0]
         self.buttons = b"\x00\x00"
 
         self.gun_cap = {
             evdev.ecodes.EV_KEY: [
                 # mouse buttons
-                evdev.ecodes.BTN_LEFT,           # WIIMOTE BUTTON A
-                evdev.ecodes.BTN_RIGHT,          # WIIMOTE BUTTON B
+                evdev.ecodes.BTN_LEFT,           # WIIMOTE BUTTON B
+                evdev.ecodes.BTN_RIGHT,          # WIIMOTE BUTTON A
+                evdev.ecodes.BTN_MIDDLE,         # BUTTON 1
+                evdev.ecodes.BTN_SIDE,           # BUTTON 2
+                # evdev.ecodes.BTN_EXTRA,          # NUNCKUK BUTTON Z
+                # evdev.ecodes.BTN_TOUCH,          # NUNCKUK BUTTON C
 
                 # joy button
                 evdev.ecodes.BTN_MODE,           # WIIMOTE BUTTON HOME
                 evdev.ecodes.BTN_START,          # WIIMOTE BUTTON +
                 evdev.ecodes.BTN_SELECT,         # WIIMOTE BUTTON -
-                evdev.ecodes.BTN_A,              # WIIMOTE BUTTON 1
-                evdev.ecodes.BTN_B,              # WIIMOTE BUTTON 2
-                evdev.ecodes.BTN_X,              # NUNCHUK BUTTON Z
-                evdev.ecodes.BTN_Y,              # NUNCKUK BUTTON C
+                # evdev.ecodes.BTN_A,              # WIIMOTE BUTTON 1
+                # evdev.ecodes.BTN_B,              # WIIMOTE BUTTON 2
+                # evdev.ecodes.BTN_X,              # NUNCHUK BUTTON Z
+                # evdev.ecodes.BTN_Y,              # NUNCKUK BUTTON C
             ],
             evdev.ecodes.EV_ABS: [
                 # mouse cursor
@@ -56,13 +59,15 @@ class VirtualGunDevice(object):
 
         self.update_index(first=1)
 
+    def get_index(self):
+        return self.update_index()
+
     def update_index(self, first=0):
         index = len(self.get_list_mice()) + first
         if first:
             self.virtualgun = evdev.UInput(self.gun_cap, name="VirtualGun {:03X}".format(index))
 
-        with self.player.get_lock():
-            self.player.value = index
+        return index
 
     def get_list_mice(self):
         mice = []
@@ -84,8 +89,8 @@ class VirtualGunDevice(object):
                 (not not (self.buttons[0] & VIRTUALGUN_BUTTON_RIGHT_MASK)) - \
                 (not not (self.buttons[0] & VIRTUALGUN_BUTTON_LEFT_MASK)))
         self.virtualgun.write(evdev.ecodes.EV_ABS, evdev.ecodes.ABS_HAT0Y,
-                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_UP_MASK)) - \
-                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_DOWN_MASK)))
+                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_DOWN_MASK)) - \
+                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_UP_MASK)))
 
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_START,
                 (not not (self.buttons[0] & VIRTUALGUN_BUTTON_PLUS_MASK)))
@@ -93,14 +98,14 @@ class VirtualGunDevice(object):
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_SELECT,
                 (not not (self.buttons[1] & VIRTUALGUN_BUTTON_MINUS_MASK)))
 
-        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_LEFT,
-                (not not (self.buttons[1] & VIRTUALGUN_BUTTON_A_MASK)))
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_RIGHT,
+                (not not (self.buttons[1] & VIRTUALGUN_BUTTON_A_MASK)))
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_LEFT,
                 (not not (self.buttons[1] & VIRTUALGUN_BUTTON_B_MASK)))
 
-        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_A,
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_MIDDLE,
                 (not not (self.buttons[1] & VIRTUALGUN_BUTTON_ONE_MASK)))
-        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_B,
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_SIDE,
                 (not not (self.buttons[1] & VIRTUALGUN_BUTTON_TWO_MASK)))
 
         # cursor
