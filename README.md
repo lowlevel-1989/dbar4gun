@@ -20,13 +20,13 @@ dbar4gun is a Linux userspace driver for the DolphinBar x4 Wiimote, specifically
 #### build
 ~~~
 git clone https://github.com/lowlevel-1989/dbar4gun.git
-docker build -t dbar4gun:0.3.0 dbar4gun
+docker build -t dbar4gun:0.3.1 dbar4gun
 ~~~
 
 ### Use
 #### run service
 ~~~
-docker container run --name dbar4gun -d --restart unless-stopped --privileged dbar4gun:0.3.0 --width 1920 --height 1080
+docker container run --name dbar4gun -d --restart unless-stopped --privileged dbar4gun:0.3.1 --width 1920 --height 1080
 ~~~
 #### stop
 ~~~
@@ -69,6 +69,7 @@ dbar4gun --width 1920 --height 1080
 1. Update README
 2. Smoothed axes
 3. Support nunchuck
+4. Class Manage Device
 
 ## References
 
