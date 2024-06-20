@@ -41,9 +41,12 @@ $ docker container logs dbar4gun
 ~~~
 
 ## Installing without Docker
-### Dependencies
+### System dependencies
 - git
 - python
+### Python dependencies
+- evdev>=0.3.0
+- pyudev>=0.16
 
 ### Steps with root
 #### build
