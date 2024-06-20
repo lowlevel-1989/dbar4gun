@@ -26,10 +26,11 @@ class WiiMoteDevice(object):
     def __init__(self, hidraw_io, player, width=1920, height=1080):
         self.is_pair = False
 
-        self.io      = hidraw_io
-        self.player  = player
-        self.width   = width
-        self.height  = height
+        self.io           = hidraw_io
+        self.player       = player
+        self.prev_player  = player.value
+        self.width        = width
+        self.height       = height
 
         ##                     ID     BB   IR_F   IR_B   OTHER
         self.buf = bytearray(0x01 + 0x02 + 0x05 + 0x05 + 0x09 )
@@ -47,14 +48,26 @@ class WiiMoteDevice(object):
 
     def reset(self):
         try:
-            self.set_player()
+            self.update_index()
             self.enable_ir()
             self.is_pair = True
         except:
             self.is_pair = False
 
-    def set_player(self):
-        self.io.write(bytearray(b"\x11\xf0"))
+    def update_index(self):
+        try:
+            if not self.player.value or self.player.value > 0xf:
+                self.io.write(bytearray(b"\x11\xf0"))
+
+            elif self.player.value != self.prev_player:
+                player  = (self.player.value & 0x0f) << 4
+
+                self.io.write(bytearray(b"\x11") + bytearray(bytes.fromhex("{:02x}".format(player))))
+                self.prev_player = self.player.value
+
+            self.is_pair = True
+        except:
+            self.is_pair = False
 
     def enable_ir(self):
         # ENABLE IR

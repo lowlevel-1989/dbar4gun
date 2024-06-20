@@ -17,10 +17,13 @@ mouse_cap = {
     ]
 }
 
-mouse = evdev.UInput(mouse_cap, name="VirtualGun mouse")
+mouse = evdev.UInput(mouse_cap, name="VirtualGun mouse", product=0x19, vendor=0x89, version=0x01)
+
 
 print(mouse.name)
+print(mouse.product)
 print(mouse.vendor)
+print(mouse.version)
 print(mouse.phys)
 print(mouse.device)
 print(mouse.device.path)

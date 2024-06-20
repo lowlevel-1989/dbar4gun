@@ -26,6 +26,7 @@ class Monitor(object):
             if device.get("ID_MODEL_FROM_DATABASE") != "Wii Remote Controller RVL-003":
                 continue
 
+
             hidraw_path = device.get("DEVNAME")
             if not hidraw_path:
                 continue

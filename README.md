@@ -2,9 +2,67 @@
 
 dbar4gun is a Linux userspace driver for the DolphinBar x4 Wiimote, specifically designed to be small and function as 4 light guns.
 
-## Todos
+## Feature support
+- N Mayflash Dolphinbar
+- 4 wiimote x Dolphinbar
+- wiimote with individual buttons
+- working in linux
+- working in retropie
+- working in raspbian
 
-1. ALL
+## Installing with Docker
+### Dependencies
+- git
+- docker or podman
+
+### Steps
+~~~
+$ git clone https://github.com/lowlevel-1989/dbar4gun.git
+$ docker build -t dbar4gun:0.3.0 dbar4gun
+~~~
+
+### Use
+#### run service
+~~~
+$ docker container run --name dbar4gun -d --restart unless-stopped --privileged dbar4gun:0.3.0
+~~~
+#### stop
+~~~
+$ docker container stop dbar4gun
+~~~
+#### remove
+~~~
+$ docker container rm dbar4gun
+~~~
+#### logs
+~~~
+$ docker container logs dbar4gun
+~~~
+
+## Installing without Docker
+### Dependencies
+- git
+- python
+
+### Steps with root
+~~~
+$ cd dbar4gun
+$ python -m venv env
+$ source env/bin/activate
+$ pip install .
+~~~
+
+### Use
+#### run service with root
+~~~
+$ dbar4gun
+~~~
+
+## To Do
+
+1. Update README
+2. Smoothed axes
+3. Support nunchuck
 
 ## References
 
