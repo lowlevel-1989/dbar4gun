@@ -8,7 +8,6 @@ import argparse
 from io import FileIO
 from multiprocessing import Process
 from multiprocessing import Queue
-from multiprocessing import Lock
 
 try:
     import info
@@ -30,15 +29,13 @@ __queue     = Queue()
 
 config = None
 
-def virtualgun_worker(hidraw_io, lock, width, height):
+def virtualgun_worker(hidraw_io, width, height):
 
     wiimote = WiiMoteDevice(hidraw_io, width, height)
 
     # virtualgun -> mouse / key
     virtualgun = VirtualGunDevice(width, height)
     time.sleep(0.5)
-
-    lock.release()
 
     while 1:
         index = virtualgun.get_index()
@@ -49,6 +46,7 @@ def virtualgun_worker(hidraw_io, lock, width, height):
 
     try:
         while 1:
+            wiimote.check_is_alive()
             buttons, _ = wiimote.read()
 
             cursor = wiimote.get_cursor_position()
@@ -63,17 +61,16 @@ def virtualgun_worker(hidraw_io, lock, width, height):
         free()
         print("bye VirtualGun {:03X}".format(wiimote.player))
 
-def remove_virtualgun_worker(hidraw_path, lock):
+def remove_virtualgun_worker(hidraw_path):
     pass
 
-def create_virtualgun_worker(hidraw_path, lock, width, height):
-    lock.acquire()
+def create_virtualgun_worker(hidraw_path, width, height):
 
     fd        = os.open(hidraw_path, os.O_RDWR)
     hidraw_io = io.FileIO(fd, "rb+", closefd=False)
 
     worker = Process(
-                target=virtualgun_worker, args=(hidraw_io, lock, width, height))
+                target=virtualgun_worker, args=(hidraw_io, width, height))
 
     worker.start()
 
@@ -83,15 +80,14 @@ def create_virtualgun_worker(hidraw_path, lock, width, height):
 def monitor_handle_events(queue, width, height):
     # handle exceptions for (controlled termination)
     try:
-        lock = Lock() # events, register new virtualgun device
         while 1:
             event = queue.get()
             if event[0] == "__EXIT__":
                 break
             elif event[0] == "remove":
-                remove_virtualgun_worker(event[1], lock)
+                remove_virtualgun_worker(event[1])
             else:
-                create_virtualgun_worker(event[1], lock, width, height)
+                create_virtualgun_worker(event[1], width, height)
 
             print("monitor: {} {}".format(*event))
     except:

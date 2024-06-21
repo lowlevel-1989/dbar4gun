@@ -49,14 +49,19 @@ class WiiMoteDevice(object):
 
     def reset(self):
         try:
-            self.update_index()
             self.enable_ir()
-            self.is_pair = True
+            self.update_index()
         except:
             self.is_pair = False
 
+    def check_is_alive(self):
+        self.update_index(self.player)
+
     def update_index(self, player=0):
         try:
+            if not self.is_pair:
+                self.enable_ir()
+
             self.player = player
             if not self.player or self.player > 0xf:
                 self.io.write(bytearray(b"\x11\xf0"))
@@ -82,6 +87,7 @@ class WiiMoteDevice(object):
             return False
 
     def enable_ir(self):
+        print("report enable ir")
         # ENABLE IR
         # REF: https://www.wiibrew.org/wiki/Wiimote
         # ==== IR Set1 Report (Output) ====

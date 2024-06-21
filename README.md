@@ -1,4 +1,4 @@
-# dbar4gun 0.4.2
+# dbar4gun 0.5.0
 
 dbar4gun is a Linux userspace driver for the DolphinBar x4 Wiimote, specifically designed to be small and function as 4 light guns.
 
@@ -12,23 +12,32 @@ dbar4gun is a Linux userspace driver for the DolphinBar x4 Wiimote, specifically
 - works on retropie
 - works on raspbian
 
-| device    | button    | map           | shared | state                              |
-|-----------|-----------|---------------|--------|------------------------------------|
-| wiimote   | a         | mouse right   | false  | ok                                 |
-| wiimote   | b         | mouse left    | false  | ok                                 |
-| wiimote   | 1         | mouse middle  | false  | ok                                 |
-| wiimote   | 2         | mouse touch   | false  | working                                 |
-| wiimote   | d-pad     | mouse wheel   | false  | ok                                 |
-| wiimote   | ir        | mouse cursor  | false  | ok                                 |
-| wiimote   | plus      | mouse side    | false  | ok  retroarch > 1.19.1             |
-| wiimote   | minus     | mouse extra   | false  | ok  retroarch > 1.19.1             |
-| wiimote   | home      | mouse forward | false  | working add support retroarch      |
-| nunchuck  | z         | mouse back    | false  | working add support retroarch      |
-| nunchuck  | c         | mouse task    | false  | working add support retroarch      |
-| nunchuck  | stick     | mouse wheel   | false  | working                            |
-| combo     | b + minus | key escape    | true   | working                            |
-| combo     | b + plus  | key enter     | true   | working                            |
-| combo     | b + home  | key tab       | true   | working                            |
+| device    | button    | map                  | shared | state                              |
+|-----------|-----------|----------------------|--------|------------------------------------|
+| wiimote   | ir        | mouse cursor         | false  | ok                                 |
+| wiimote   | a         | mouse right          | false  | ok                                 |
+| wiimote   | b         | mouse left           | false  | ok                                 |
+| wiimote   | home      | mouse middle         | false  | working                            |
+| wiimote   | 1         | auto key             | false  | ok                                 |
+| wiimote   | 2         | auto key             | false  | ok                                 |
+| wiimote   | plus      | auto key             | false  | ok                                 |
+| wiimote   | minus     | auto key             | false  | ok                                 |
+| wiimote   | d-pad     | auto key             | false  | ok                                 |
+| nunchuck  | z         | auto key             | false  | working add support retroarch      |
+| nunchuck  | c         | auto key             | false  | working add support retroarch      |
+| nunchuck  | stick     | wiimote d-pad        | false  | working add support retroarch      |
+| wiimote   | 1         | mouse forward        | false  | working add support retroarch      |
+| wiimote   | 2         | mouse touch          | false  | working add support retroarch      |
+| wiimote   | d-pad     | mouse wheel          | false  | working add support retroarch      |
+| wiimote   | plus      | mouse side           | false  | working add support retroarch      |
+| wiimote   | minus     | mouse extra          | false  | working add support retroarch      |
+| nunchuck  | z         | mouse back           | false  | working add support retroarch      |
+| nunchuck  | c         | mouse task           | false  | working add support retroarch      |
+| combo     | b + minus | key escape           | true   | working                            |
+| combo     | b + plus  | key enter            | true   | working                            |
+| combo     | b + home  | key tab              | true   | working                            |
+| combo     | b + 1     | - (Mame Volume Down) | true   | working                            |
+| combo     | b + 2     | = (Mame Volume Up)   | true   | working                            |
 
 ## To Do
 1. Support all buttons
