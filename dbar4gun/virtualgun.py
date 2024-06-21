@@ -27,8 +27,8 @@ _MAP_INDEX_DOWN  = 2
 _MAP_INDEX_UP    = 3
 _MAP_INDEX_PLUS  = 4
 _MAP_INDEX_MINUS = 5
-_MAP_INDEX_ONE   = 6
-_MAP_INDEX_TWO   = 7
+_MAP_INDEX_TWO   = 6
+_MAP_INDEX_ONE   = 7
 _MAP_INDEX_MAX   = 8
 
 # TODO: add 16 gun
@@ -37,7 +37,7 @@ _MAP = [
     evdev.ecodes.KEY_LEFT,         evdev.ecodes.KEY_RIGHT,
     evdev.ecodes.KEY_DOWN,         evdev.ecodes.KEY_UP,
     evdev.ecodes.KEY_1,            evdev.ecodes.KEY_5,
-    evdev.ecodes.KEY_LEFTALT,      evdev.ecodes.KEY_SPACE,
+    evdev.ecodes.KEY_B,            evdev.ecodes.KEY_SPACE,
 
     # gun 2
     evdev.ecodes.KEY_D,            evdev.ecodes.KEY_G,
