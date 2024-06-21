@@ -75,7 +75,7 @@ class VirtualGunDevice(object):
         self.index_map = off
 
         keys = []
-        for key in range(off, off + l):
+        for key in range(off, off + _MAP_INDEX_MAX):
             keys.append(_MAP[key])
 
         gun_cap = {
@@ -96,8 +96,11 @@ class VirtualGunDevice(object):
         return gun_cap
 
     def create_virtual_device(self):
+        gunname = "VirtualGun {:03X}".format(self.index)
         self.virtualgun = evdev.UInput(self.__get_capabilities(),
-                                    name="VirtualGun {:03X}".format(self.index))
+                                    name=gunname)
+        print(gunname)
+        print(self.virtualgun.capabilities(verbose=True))
 
     def get_index(self):
         self.index = len(self.get_list_mice()) + 1
