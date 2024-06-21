@@ -87,7 +87,6 @@ class WiiMoteDevice(object):
             return False
 
     def enable_ir(self):
-        print("report enable ir")
         # ENABLE IR
         # REF: https://www.wiibrew.org/wiki/Wiimote
         # ==== IR Set1 Report (Output) ====
