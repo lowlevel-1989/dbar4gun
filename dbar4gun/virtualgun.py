@@ -21,6 +21,7 @@ class VirtualGunDevice(object):
     def __init__(self, width, height):
         self.cursor  = [0, 0]
         self.buttons = b"\x00\x00"
+        self.index   = 0
 
         self.gun_cap = {
             evdev.ecodes.EV_KEY: [
@@ -31,6 +32,10 @@ class VirtualGunDevice(object):
                 evdev.ecodes.BTN_SIDE,           # WIIMOTE BUTTON +
                 evdev.ecodes.BTN_EXTRA,          # WIIMOTE BUTTON -
                 # evdev.ecodes.BTN_MODE,         # WIIMOTE BUTTON HOME
+            ],
+            evdev.ecodes.EV_REL: [
+                evdev.ecodes.REL_WHEEL,
+                evdev.ecodes.REL_HWHEEL,
             ],
             evdev.ecodes.EV_ABS: [
                 # mouse cursor
@@ -44,20 +49,15 @@ class VirtualGunDevice(object):
                 #        min=-1, max=1, fuzz=0, flat=0, resolution=0)),
                 # (evdev.ecodes.ABS_HAT0Y, evdev.AbsInfo(value=0,
                 #        min=-1, max=1, fuzz=0, flat=0, resolution=0)),
-            ]
+            ],
         }
 
-        self.update_index(first=1)
+    def create_virtual_device(self):
+        self.virtualgun = evdev.UInput(self.gun_cap, name="VirtualGun {:03X}".format(self.index))
 
     def get_index(self):
-        return self.update_index()
-
-    def update_index(self, first=0):
-        index = len(self.get_list_mice()) + first
-        if first:
-            self.virtualgun = evdev.UInput(self.gun_cap, name="VirtualGun {:03X}".format(index))
-
-        return index
+        self.index = len(self.get_list_mice()) + 1
+        return self.index
 
     def get_list_mice(self):
         mice = []
@@ -75,12 +75,12 @@ class VirtualGunDevice(object):
 
     def sync(self):
         # d-pad
-        # self.virtualgun.write(evdev.ecodes.EV_ABS, evdev.ecodes.ABS_HAT0X,
-        #        (not not (self.buttons[0] & VIRTUALGUN_BUTTON_RIGHT_MASK)) - \
-        #        (not not (self.buttons[0] & VIRTUALGUN_BUTTON_LEFT_MASK)))
-        # self.virtualgun.write(evdev.ecodes.EV_ABS, evdev.ecodes.ABS_HAT0Y,
-        #        (not not (self.buttons[0] & VIRTUALGUN_BUTTON_DOWN_MASK)) - \
-        #        (not not (self.buttons[0] & VIRTUALGUN_BUTTON_UP_MASK)))
+        self.virtualgun.write(evdev.ecodes.EV_REL, evdev.ecodes.REL_WHEEL,
+                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_RIGHT_MASK)) - \
+                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_LEFT_MASK)))
+        self.virtualgun.write(evdev.ecodes.EV_REL, evdev.ecodes.REL_HWHEEL,
+                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_DOWN_MASK)) - \
+                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_UP_MASK)))
 
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_SIDE,
                 (not not (self.buttons[0] & VIRTUALGUN_BUTTON_PLUS_MASK)))

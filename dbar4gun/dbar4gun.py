@@ -34,18 +34,22 @@ def virtualgun_worker(hidraw_io, lock, width, height):
 
     wiimote = WiiMoteDevice(hidraw_io, width, height)
 
-    # virtualgun -> mouse / joy
+    # virtualgun -> mouse / key
     virtualgun = VirtualGunDevice(width, height)
     time.sleep(0.5)
 
     lock.release()
 
-    # TODO: update led
-    #index = virtualgun.get_index()
-    #wiimote.update_index(index)
+    while 1:
+        index = virtualgun.get_index()
+        if wiimote.update_index(index):
+            wiimote.create_virtual_device()
+            break
+        time.sleep(0.3)
+
     try:
         while 1:
-            buttons, ir = wiimote.read()
+            buttons, _ = wiimote.read()
 
             cursor = wiimote.get_cursor_position()
 

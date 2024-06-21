@@ -49,23 +49,19 @@ class WiiMoteDevice(object):
 
     def reset(self):
         try:
-            # self.update_index()
+            self.update_index()
             self.enable_ir()
             self.is_pair = True
         except:
             self.is_pair = False
 
-    def update_index(self, player):
+    def update_index(self, player=0):
         try:
             self.player = player
             if not self.player or self.player > 0xf:
                 self.io.write(bytearray(b"\x11\xf0"))
 
             elif self.player != self.prev_player:
-                print("HI ", self.io)
-                print("PID ", os.getpid())
-                print(self.player)
-                print(self.prev_player)
                 index  = 0x00
                 if player & 0x01:
                     index = index | 0x80
@@ -80,8 +76,10 @@ class WiiMoteDevice(object):
                 self.prev_player = self.player
 
             self.is_pair = True
+            return True
         except:
             self.is_pair = False
+            return False
 
     def enable_ir(self):
         # ENABLE IR
