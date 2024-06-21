@@ -12,7 +12,7 @@ dbar4gun is a Linux userspace driver for the DolphinBar x4 Wiimote, specifically
 - works on raspbian
 
 | device    | button    | map           | shared | state                              |
-|-----------|-----------|---------------|---------------------------------------------|
+|-----------|-----------|---------------|--------|------------------------------------|
 | wiimote   | a         | mouse right   | false  | ok                                 |
 | wiimote   | b         | mouse left    | false  | ok                                 |
 | wiimote   | 1         | mouse middle  | false  | ok                                 |
