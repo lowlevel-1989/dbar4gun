@@ -75,12 +75,12 @@ class VirtualGunDevice(object):
 
     def sync(self):
         # d-pad
-        self.virtualgun.write(evdev.ecodes.EV_REL, evdev.ecodes.REL_WHEEL,
-                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_RIGHT_MASK)) - \
-                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_LEFT_MASK)))
         self.virtualgun.write(evdev.ecodes.EV_REL, evdev.ecodes.REL_HWHEEL,
-                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_DOWN_MASK)) - \
-                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_UP_MASK)))
+                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_LEFT_MASK)) - \
+                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_RIGHT_MASK)))
+        self.virtualgun.write(evdev.ecodes.EV_REL, evdev.ecodes.REL_WHEEL,
+                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_UP_MASK)) - \
+                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_DOWN_MASK)))
 
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_SIDE,
                 (not not (self.buttons[0] & VIRTUALGUN_BUTTON_PLUS_MASK)))
