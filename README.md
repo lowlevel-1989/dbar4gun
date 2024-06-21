@@ -1,4 +1,4 @@
-# dbar4gun 0.4.0
+# dbar4gun 0.4.1
 
 dbar4gun is a Linux userspace driver for the DolphinBar x4 Wiimote, specifically designed to be small and function as 4 light guns.
 
@@ -7,6 +7,7 @@ dbar4gun is a Linux userspace driver for the DolphinBar x4 Wiimote, specifically
 - N Mayflash Dolphinbar
 - 4 wiimote x Dolphinbar
 - wiimote with individual buttons
+- multiplayer
 - works on linux
 - works on retropie
 - works on raspbian
@@ -19,8 +20,8 @@ dbar4gun is a Linux userspace driver for the DolphinBar x4 Wiimote, specifically
 | wiimote   | 2         | mouse touch   | false  | ok                                 |
 | wiimote   | d-pad     | mouse wheel   | false  | ok                                 |
 | wiimote   | ir        | mouse cursor  | false  | ok                                 |
-| wiimote   | plus      | mouse side    | false  | ok                                 |
-| wiimote   | minus     | mouse extra   | false  | ok                                 |
+| wiimote   | plus      | mouse side    | false  | ok  retroarch > 1.19.1             |
+| wiimote   | minus     | mouse extra   | false  | ok  retroarch > 1.19.1             |
 | wiimote   | home      | mouse forward | false  | working add support retroarch      |
 | nunchuck  | z         | mouse back    | false  | working add support retroarch      |
 | nunchuck  | c         | mouse task    | false  | working add support retroarch      |

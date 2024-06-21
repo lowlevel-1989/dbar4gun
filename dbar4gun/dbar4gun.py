@@ -43,7 +43,7 @@ def virtualgun_worker(hidraw_io, lock, width, height):
     while 1:
         index = virtualgun.get_index()
         if wiimote.update_index(index):
-            wiimote.create_virtual_device()
+            virtualgun.create_virtual_device()
             break
         time.sleep(0.3)
 
