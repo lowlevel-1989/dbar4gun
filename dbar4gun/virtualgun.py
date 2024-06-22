@@ -37,7 +37,7 @@ _MAP = [
     evdev.ecodes.KEY_LEFT,         evdev.ecodes.KEY_RIGHT,
     evdev.ecodes.KEY_DOWN,         evdev.ecodes.KEY_UP,
     evdev.ecodes.KEY_1,            evdev.ecodes.KEY_5,
-    evdev.ecodes.KEY_B,            evdev.ecodes.KEY_SPACE,
+    evdev.ecodes.KEY_B,            evdev.ecodes.KEY_LEFTALT,
 
     # gun 2
     evdev.ecodes.KEY_D,            evdev.ecodes.KEY_G,
