@@ -2,7 +2,7 @@
 dbar4gun is a Linux userspace driver for the DolphinBar x4 Wiimote, specifically designed to be small and function as 4 light guns.
 
 ## Recommendation
-Use the original Wiimote with the motion plus inside for better gaming.
+This software works best with modern wiimote models with integrated wiimotion plus support. Older wiimotes with an external wiimotion accessory are discouraged as they tend to behave erratically.
 
 It is important to remember to disconnect the Wiimote using the power button at the end of playing to increase the lifespan of the infrared LEDs.
 
