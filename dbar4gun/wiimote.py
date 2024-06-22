@@ -66,7 +66,7 @@ class WiiMoteDevice(object):
             if not self.player or self.player > 0xf:
                 self.io.write(bytearray(b"\x11\xf0"))
 
-            elif self.player != self.prev_player:
+            else:
                 index  = 0x00
                 if player & 0x01:
                     index = index | 0x80

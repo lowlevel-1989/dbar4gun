@@ -27,7 +27,7 @@ _MAP_INDEX_DOWN  = 2
 _MAP_INDEX_UP    = 3
 _MAP_INDEX_PLUS  = 4
 _MAP_INDEX_MINUS = 5
-_MAP_INDEX_TWO   = 6
+_MAP_INDEX_A     = 6
 _MAP_INDEX_ONE   = 7
 _MAP_INDEX_MAX   = 8
 
@@ -139,10 +139,10 @@ class VirtualGunDevice(object):
 
         self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_ONE],
                 (not not (self.buttons[1] & VIRTUALGUN_BUTTON_ONE_MASK)))
-        self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_TWO],
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_RIGHT,
                 (not not (self.buttons[1] & VIRTUALGUN_BUTTON_TWO_MASK)))
 
-        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_RIGHT,
+        self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_A],
                 (not not (self.buttons[1] & VIRTUALGUN_BUTTON_A_MASK)))
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_LEFT,
                 (not not (self.buttons[1] & VIRTUALGUN_BUTTON_B_MASK)))
