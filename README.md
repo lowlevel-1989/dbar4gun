@@ -46,12 +46,14 @@ It is important to remember to disconnect the Wiimote using the power button at 
 | nunchuck  | c         | mouse task     | false  |                     | working support retroarch |
 
 ## To Do
-2. Smoothed cursor
-3. Haptic Mode
-4. Support nunchuck
-5. Class Manage Device
-6. Class Log System
-7. Docker Version
+1. Smoothed cursor
+2. Haptic Mode
+3. Support nunchuck
+4. Retropie Setup
+5. Systemd
+6. Class Manage Device
+7. Class Log System
+8. Docker Version
 
 ## Installing without Docker
 ### System dependencies
