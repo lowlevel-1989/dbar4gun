@@ -83,6 +83,13 @@ class VirtualGunDevice(object):
                 evdev.ecodes.BTN_LEFT,           # WIIMOTE BUTTON B
                 evdev.ecodes.BTN_RIGHT,          # WIIMOTE BUTTON A
                 evdev.ecodes.BTN_MIDDLE,         # BUTTON HOME
+
+                # combos
+                evdev.ecodes.KEY_ENTER,  # b + plus
+                evdev.ecodes.KEY_ESC,    # b + minus
+                evdev.ecodes.KEY_TAB,    # b + home
+                evdev.ecodes.KEY_MINUS,  # b + 1
+                evdev.ecodes.KEY_EQUAL,  # b + 2
             ] + keys,
             evdev.ecodes.EV_ABS: [
                 # mouse cursor
@@ -130,26 +137,43 @@ class VirtualGunDevice(object):
         self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_DOWN],
                 (not not (self.buttons[0] & VIRTUALGUN_BUTTON_DOWN_MASK)))
 
-
-        self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_PLUS],
-                (not not (self.buttons[0] & VIRTUALGUN_BUTTON_PLUS_MASK)))
-
-        self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_MINUS],
-                (not not (self.buttons[1] & VIRTUALGUN_BUTTON_MINUS_MASK)))
-
-        self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_ONE],
-                (not not (self.buttons[1] & VIRTUALGUN_BUTTON_ONE_MASK)))
-        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_RIGHT,
-                (not not (self.buttons[1] & VIRTUALGUN_BUTTON_TWO_MASK)))
-
-        self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_A],
-                (not not (self.buttons[1] & VIRTUALGUN_BUTTON_A_MASK)))
-        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_LEFT,
-                (not not (self.buttons[1] & VIRTUALGUN_BUTTON_B_MASK)))
-
         # cursor
         self.virtualgun.write(evdev.ecodes.EV_ABS, evdev.ecodes.ABS_X, self.cursor[_X])
         self.virtualgun.write(evdev.ecodes.EV_ABS, evdev.ecodes.ABS_Y, self.cursor[_Y])
+
+        self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_A],
+                (not not (self.buttons[1] & VIRTUALGUN_BUTTON_A_MASK)))
+
+        # with combo
+        button_b     = (not not (self.buttons[1] & VIRTUALGUN_BUTTON_B_MASK))
+        button_home  = (not not (self.buttons[1] & VIRTUALGUN_BUTTON_HOME_MASK))
+        button_one   = (not not (self.buttons[1] & VIRTUALGUN_BUTTON_ONE_MASK))
+        button_two   = (not not (self.buttons[1] & VIRTUALGUN_BUTTON_TWO_MASK))
+        button_plus  = (not not (self.buttons[0] & VIRTUALGUN_BUTTON_PLUS_MASK))
+        button_minus = (not not (self.buttons[1] & VIRTUALGUN_BUTTON_MINUS_MASK))
+
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_ENTER, button_b & button_plus)
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_ESC,   button_b & button_minus)
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_TAB,   button_b & button_home)
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_MINUS, button_b & button_one)
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_EQUAL, button_b & button_two)
+
+        if button_b  & button_home  or \
+            button_b & button_plus  or \
+            button_b & button_minus or \
+            button_b & button_one   or \
+            button_b & button_two:
+            self.virtualgun.syn()
+            return
+
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_LEFT,                   button_b)
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_MIDDLE,                 button_home)
+
+        self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_ONE],   button_one)
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_RIGHT,                  button_two)
+
+        self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_PLUS],  button_plus)
+        self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_MINUS], button_minus)
 
         self.virtualgun.syn()
 

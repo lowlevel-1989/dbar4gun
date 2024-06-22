@@ -21,9 +21,9 @@ mouse_cap = {
 
 mouse = evdev.UInput(mouse_cap,
                      name="VirtualGun mouse",
-                     ID_INPUT_JOYSTICK=1,
                      product=0x19, vendor=0x89, version=0x01)
 
+print(mouse.capabilities(verbose=True))
 
 print(mouse.name)
 print(mouse.product)
@@ -33,9 +33,6 @@ print(mouse.phys)
 print(mouse.device)
 print(mouse.device.path)
 print(mouse.devnode)
-
-while 1:
-    time.sleep(1)
 
 WIIMOTE_CORE_BUTTON_LEFT_MASK  = 0x01
 WIIMOTE_CORE_BUTTON_RIGHT_MASK = 0x02
