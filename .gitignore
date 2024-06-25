@@ -143,3 +143,10 @@ GitHub.sublime-settings
 !.vscode/launch.json 
 !.vscode/extensions.json 
 .history
+
+# virtualenv
+bin
+include
+lib
+lib64
+pyvenv.cfg

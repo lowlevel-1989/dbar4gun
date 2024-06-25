@@ -7,7 +7,7 @@ import dbar4gun
 setup(name=dbar4gun.__title__,
       version=dbar4gun.__version__,
       description="dbar4gun is a Linux userspace driver for the DolphinBar.",
-      url="https://github.com/lowlevel-1989/dbar4gun",
+      url=dbar4gun.__repo___,
       author=dbar4gun.__author__,
       author_email=dbar4gun.__email__,
       license=dbar4gun.__license__,
@@ -16,7 +16,12 @@ setup(name=dbar4gun.__title__,
         "console_scripts": ["dbar4gun=dbar4gun.dbar4gun:dbar4gun_run"]
       },
       packages=["dbar4gun",],
-      install_requires=["evdev>=0.3.0", "pyudev>=0.16"],
+      install_requires=[
+          "evdev>=0.3.0",
+          "pyudev>=0.16",
+          "numpy>=2.0.0",
+          "opencv-python>=4.10.0",
+      ],
       classifiers=[
         "Environment :: Console",
         "License :: OSI Approved :: MIT License",

@@ -1,11 +1,13 @@
 import time
-
+import sys
 import io
 import os
 import signal
 import argparse
 
-from io import FileIO
+from io          import FileIO
+from collections import deque
+
 from multiprocessing import Process
 from multiprocessing import Queue
 from multiprocessing import Lock
@@ -28,15 +30,13 @@ __hidraw_io = []
 __workers   = []
 __queue     = Queue()
 
-config = None
+def virtualgun_worker(hidraw_io, lock, config):
 
-def virtualgun_worker(hidraw_io, lock, width, height):
-
-    wiimote = WiiMoteDevice(hidraw_io, width, height)
+    wiimote = WiiMoteDevice(hidraw_io, config.width, config.height)
 
     # virtualgun -> mouse / key
-    virtualgun = VirtualGunDevice(width, height)
-    time.sleep(0.5)
+    virtualgun = VirtualGunDevice(config.width, config.height)
+    time.sleep(0.1)
     lock.release()
 
     while 1:
@@ -47,18 +47,27 @@ def virtualgun_worker(hidraw_io, lock, width, height):
         time.sleep(0.3)
 
     try:
+        history_x = deque(maxlen=config.smoothing_level)
+        history_y = deque(maxlen=config.smoothing_level)
+
+        cursor_prev = [0, 0]
         while 1:
             wiimote.check_is_alive()
-            buttons, _ = wiimote.read()
+            buttons, ir, nunchuck = wiimote.read()
+            history_x.append(ir["pos_mid_nor"][0])
+            history_y.append(ir["pos_mid_nor"][1])
 
-            cursor = wiimote.get_cursor_position()
+            ir["pos_mid_nor"][0] = sum(history_x) / config.smoothing_level
+            ir["pos_mid_nor"][1] = sum(history_y) / config.smoothing_level
 
-            virtualgun.set_buttons(buttons)
+            cursor = wiimote.get_cursor_position(ir)
+            cursor_prev = cursor[:]
+
+            virtualgun.set_buttons(buttons, nunchuck)
             virtualgun.set_cursor(cursor)
             virtualgun.sync()
     except Exception as e:
         print(e)
-        pass
     finally:
         free()
         print("bye VirtualGun {:03X}".format(wiimote.player))
@@ -66,21 +75,22 @@ def virtualgun_worker(hidraw_io, lock, width, height):
 def remove_virtualgun_worker(hidraw_path, lock):
     pass
 
-def create_virtualgun_worker(hidraw_path, lock, width, height):
+def create_virtualgun_worker(hidraw_path, lock, config):
     lock.acquire()
 
     fd        = os.open(hidraw_path, os.O_RDWR)
     hidraw_io = io.FileIO(fd, "rb+", closefd=False)
 
     worker = Process(
-                target=virtualgun_worker, args=(hidraw_io, lock, width, height))
+                target=virtualgun_worker, args=(hidraw_io, lock, config))
 
     worker.start()
 
     __hidraw_io.append([fd, hidraw_io])
     __workers.append(worker)
 
-def monitor_handle_events(queue, width, height):
+def monitor_handle_events(queue, config):
+
     # handle exceptions for (controlled termination)
     try:
         lock = Lock() # events, register new virtualgun device
@@ -91,11 +101,11 @@ def monitor_handle_events(queue, width, height):
             elif event[0] == "remove":
                 remove_virtualgun_worker(event[1], lock)
             else:
-                create_virtualgun_worker(event[1], lock, width, height)
+                create_virtualgun_worker(event[1], lock, config)
 
             print("monitor: {} {}".format(*event))
-    except:
-        pass
+    except Exception as e:
+        print(e)
     finally:
         free()
         print("bye monitor")
@@ -106,32 +116,35 @@ def free():
             hidraw_io[1].close()
             os.close(hidraw_io[0])
             print("free: {:04d} {}".format(hidraw_io[0], hidraw_io[2]),)
+
         except:
             pass
 
-    """
-    for worker in __workers:
-        try:
-            worker.terminate()
-            print("kill worker {}".format(worker.pid))
-        except:
-            pass
-    """
-
+        for work in __workers:
+            try:
+                work.kill()
+            except:
+                pass
 
 def SignalHandler(SignalNumber, Frame):
-    print()
     free()
-
-    __queue.put(["__EXIT__", "__EXIT__"])
-
-    # wait finish main process
-    if __main_pid == os.getpid() and __main_pid == os.getpid():
-        monitor_event_process.join()
-
     exit(0)
 
+
 def dbar4gun_run():
+
+    if os.path.exists("/var/run/dbar4gun.pid"):
+        with open("/var/run/dbar4gun.pid", "r") as f:
+            try:
+                pid = int(f.readline())
+                os.kill(pid, signal.SIGTERM)
+                if len(sys.argv) > 1 and sys.argv[1].lower() == "stop":
+                    print("ok")
+                    exit(0)
+            except Exception as e:
+                print(e)
+                exit(1)
+
     signal.signal(signal.SIGINT,  SignalHandler)
     signal.signal(signal.SIGTERM, SignalHandler)
 
@@ -139,22 +152,30 @@ def dbar4gun_run():
                 prog=info.__title__,
                 description="dbar4gun is a Linux userspace driver for the DolphinBar x4 Wiimote")
 
-    parser.add_argument("--width",  type=int, default=1920, help="Width of the screen")
-    parser.add_argument("--height", type=int, default=1080, help="Width of the screen")
+    parser.add_argument("--width",           type=int, default=1920, help="Width of the screen")
+    parser.add_argument("--height",          type=int, default=1080, help="Width of the screen")
+    parser.add_argument("--smoothing-level", type=int, default=3,    help="smoothing level")
 
     config = parser.parse_args()
+
+    if config.smoothing_level < 1:
+        config.smoothing_level = 1
 
     monitor = Monitor(queue = __queue)
 
     monitor_event_process = Process(
             target=monitor_handle_events,
-            args=(monitor.queue, config.width, config.height))
+            args=(monitor.queue, config))
 
     monitor_event_process.start()
 
     print("{} v{}".format(info.__title__,  info.__version__))
+    print("\t\t{}".format(info.__repo___))
     print("\t\tSCREEN {}x{}".format(config.width, config.height))
     print("\t\tmonitor started, ctrl+c to exit or sudo kill -SIGTERM {}".format(__main_pid))
+
+    with open("/var/run/dbar4gun.pid", "w") as f:
+        f.write(str(__main_pid))
 
     # handle exceptions for (controlled termination)
     try:
@@ -164,7 +185,9 @@ def dbar4gun_run():
     finally:
         __queue.put(["__EXIT__", "__EXIT__"])
         free()
-        print("bye")
+        if os.path.exists("/var/run/dbar4gun.pid"):
+            os.remove("/var/run/dbar4gun.pid")
+        print("\nbye")
 
 if __name__ == '__main__':
     dbar4gun_run()
