@@ -26,7 +26,13 @@ function sources_dbar4gun() {
 }
 
 function install_dbar4gun() {
-    # build the driver in a virtualenv created in $md_inst
+    md_ret_files=(
+        'dbar4gun'
+        'setup.py'
+        'LICENSE'
+        'README.md'
+    )
+
     python3 -m venv "$md_inst"
     source "$md_inst/bin/activate"
     pip3 install .
