@@ -34,6 +34,7 @@ function install_dbar4gun() {
 
 function enable_dbar4gun() {
     $md_inst/bin/dbar4gun --width $1 --height $2
+    printMsgs "dialog" "dbar4gun enabled."
 }
 
 function disable_dbar4gun() {
