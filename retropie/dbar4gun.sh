@@ -22,14 +22,14 @@ function depends_dbar4gun() {
 }
 
 function sources_dbar4gun() {
-    gitPullOrClone "$md_inst"
+    gitPullOrClone
 }
 
 function install_dbar4gun() {
     # build the driver in a virtualenv created in $md_inst
     python3 -m venv "$md_inst"
     source "$md_inst/bin/activate"
-    pip3 install "$md_inst"
+    pip3 install .
     deactivate
 }
 
