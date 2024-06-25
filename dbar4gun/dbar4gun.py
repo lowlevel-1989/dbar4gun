@@ -133,6 +133,10 @@ def SignalHandler(SignalNumber, Frame):
 
 def dbar4gun_run():
 
+    if len(sys.argv) > 1 and sys.argv[1].lower() == "version":
+        print("{} v{}".format(info.__title__,  info.__version__))
+        exit(0)
+
     if os.path.exists("/var/run/dbar4gun.pid"):
         with open("/var/run/dbar4gun.pid", "r") as f:
             try:

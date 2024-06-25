@@ -1,4 +1,4 @@
-# dbar4gun 0.7.1
+# dbar4gun 0.8.0
 
 dbar4gun is a Linux userspace driver for the DolphinBar, specifically designed to be small and function as 4 light guns.
 
@@ -93,7 +93,6 @@ cd dbar4gun
 python -m venv $(pwd)
 source $(pwd)/bin/activate
 pip install $(pwd)
-deactivate
 ```
 
 ### Use
@@ -113,7 +112,39 @@ dbar4gun --width 1920 --height 1080
 #### stop service with root
 
 ```
+dbar4gun version
+```
+
+#### stop service with root
+
+```
 dbar4gun stop
+```
+
+## Installing with RetroPie-Setup
+
+### Download dbar4gun installer
+
+```
+cd ~/RetroPie-Setup/scriptmodules/supplementary
+curl -LO https://raw.githubusercontent.com/lowlevel-1989/dbar4gun/master/retropie/dbar4gun.sh
+```
+
+### Open RetroPie-Setup
+
+```
+*Manage packages \~ driver \~ dbar4gun \~ Install*  
+```
+
+### Run service
+
+```
+*Manage packages \~ driver \~ dbar4gun \~ Configuration \~ Enable/Restart dbar4gun*  
+```
+
+### stop service
+```
+*Manage packages \~ driver \~ dbar4gun \~ Configuration \~ Disable dbar4gun*  
 ```
 
 ## Installing with Docker (it does not work)
