@@ -22,7 +22,7 @@ function depends_dbar4gun() {
 }
 
 function sources_dbar4gun() {
-    gitPullOrClone
+    gitPullOrClone "$md_inst"
 }
 
 function install_dbar4gun() {
