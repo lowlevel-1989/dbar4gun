@@ -204,8 +204,8 @@ class VirtualGunDevice(object):
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_ENTER, button_b & button_plus)
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_ESC,   button_b & button_minus)
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_TAB,   button_b & button_home)
-        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_MINUS, button_b & button_one)
-        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_EQUAL, button_b & button_two)
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_EQUAL, button_b & button_one)
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_MINUS, button_b & button_two)
 
         if button_b  & button_home  or \
             button_b & button_plus  or \
@@ -223,22 +223,6 @@ class VirtualGunDevice(object):
 
         self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_PLUS],  button_plus)
         self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_MINUS], button_minus)
-
-
-        """
-            THRESHOLD = 35
-
-
-            print("nunchuck")
-            print(nunchuck_joy_x)
-            print(nunchuck_joy_y)
-            print("left  ",  left)
-            print("right ", right)
-            print("up    ",    up)
-            print("down  ",  down)
-            print(not (nunchuck_buttons & 0x01))
-            print(not (nunchuck_buttons & 0x02))
-        """
 
         self.virtualgun.syn()
 

@@ -1,4 +1,4 @@
-# dbar4gun 0.7.0
+# dbar4gun 0.7.1
 
 dbar4gun is a Linux userspace driver for the DolphinBar, specifically designed to be small and function as 4 light guns.
 
@@ -40,13 +40,13 @@ It is important to remember to disconnect the Wiimote using the power button at 
 | wiimote  | minus     | auto key      | false  | 1 coin              |
 | wiimote  | d-pad     | auto key      | false  | direction           |
 | nunchuck | stick     | wiimote d-pad | false  | direction           |
-| nunchuck | z         | auto key      | false  | aux a (retroarch)   |
+| nunchuck | z         | auto key      | false  |                     |
 | nunchuck | c         | auto key      | false  |                     |
 | combo    | b + minus | key esc       | true   | exit (retroarch)    |
 | combo    | b + plus  | key enter     | true   | select              |
 | combo    | b + home  | key tab       | true   | menu                |
-| combo    | b + 1     | key -         | true   | machine volume down |
-| combo    | b + 2     | key =         | true   | machine volume up   |
+| combo    | b + 1     | key =         | true   | machine volume up   |
+| combo    | b + 2     | key -         | true   | machine volume down |
 | combo    | a + plus  |               | false  | start calibration   |
 | combo    | a + minus |               | false  | reset calibration   |
 
@@ -63,7 +63,7 @@ Once you've completed these steps, your Light Gun will be calibrated and ready t
 
 ## To Do
 
-1. Retropie Setup
+1. Retropie Setup (Working)
 2. Systemd
 3. Class Manage Device
 4. Class Log System
