@@ -26,7 +26,7 @@ It is important to remember to disconnect the Wiimote using the power button at 
 - works on retropie
 - works on raspbian
 
-![Standard configuration for Wii sensor](.docs/setup.jpeg)
+![Standard configuration for Wii sensor](docs/setup.jpeg)
 
 | device   | button    | map           | shared | mame default        |
 |----------|-----------|---------------|--------|---------------------|
