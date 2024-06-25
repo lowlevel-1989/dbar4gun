@@ -26,13 +26,6 @@ function sources_dbar4gun() {
 }
 
 function install_dbar4gun() {
-    md_ret_files=(
-        'dbar4gun'
-        'setup.py'
-        'LICENSE'
-        'README.md'
-    )
-
     python3 -m venv "$md_inst"
     source "$md_inst/bin/activate"
     pip3 install .
@@ -40,7 +33,7 @@ function install_dbar4gun() {
 }
 
 function enable_dbar4gun() {
-    $md_inst/bin/dbar4gun --with $1 --height $2
+    $md_inst/bin/dbar4gun --width $1 --height $2
 }
 
 function disable_dbar4gun() {
