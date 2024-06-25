@@ -70,7 +70,7 @@ Once you've completed these steps, your Light Gun will be calibrated and ready t
 5. Docker Version
 6. Bluetooth (low priority)
 
-## Installing without Docker
+## Installing
 
 ### System dependencies
 
