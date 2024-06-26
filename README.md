@@ -1,4 +1,4 @@
-# dbar4gun 0.8.0
+# dbar4gun 0.9.0
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support, specifically designed to be small and function as 4 light guns.
 
