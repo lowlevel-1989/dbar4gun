@@ -1,6 +1,6 @@
 # dbar4gun 0.8.0
 
-dbar4gun is a Linux userspace driver for the DolphinBar, specifically designed to be small and function as 4 light guns.
+dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support, specifically designed to be small and function as 4 light guns.
 
 ## Recommendation
 
@@ -10,6 +10,7 @@ It is important to remember to disconnect the Wiimote using the power button at 
 
 ## Feature support
 
+- Bluetooth
 - Only DolphinBar in mode 4
 - N Mayflash Dolphinbar  (recommended at the moment)
 - 4 wiimote x Dolphinbar (slow with a single bar)
@@ -65,11 +66,42 @@ Once you've completed these steps, your Light Gun will be calibrated and ready t
 
 1. DolphinBar (optimizing communication)
 2. Retropie Setup (Working)
-3. Bluetooth (high priority)
 4. Systemd
 5. Class Manage Device
 6. Class Log System
 7. Docker Version
+
+## Installing with RetroPie-Setup
+
+### Download dbar4gun installer
+
+```
+cd ~/RetroPie-Setup/scriptmodules/supplementary
+curl -LO https://raw.githubusercontent.com/lowlevel-1989/dbar4gun/master/retropie/dbar4gun.sh
+```
+
+### Open RetroPie-Setup
+
+```
+*Manage packages \~ driver \~ dbar4gun \~ Install*  
+```
+
+### Run service
+
+```
+*Manage packages \~ driver \~ dbar4gun \~ Configuration \~ Enable/Restart dbar4gun*  
+```
+
+### stop service
+```
+*Manage packages \~ driver \~ dbar4gun \~ Configuration \~ Disable dbar4gun*  
+```
+
+### Bluetooth
+
+You have a Raspberry Pi 3 or for Raspberry Pi 2 and below, you need a Bluetooth dongle (sometimes called Bluetooth adapter). For a list of dongles known to work with Raspberry Pi see ![https://elinux.org/RPi_USB_Bluetooth_adapters#Working_Bluetooth_adapters](https://elinux.org/RPi_USB_Bluetooth_adapters#Working_Bluetooth_adapters) ).
+
+![adding-a-bluetooth-controller-to-retropie](https://retropie.org.uk/docs/Bluetooth-Controller/#adding-a-bluetooth-controller-to-retropie)
 
 ## Installing
 
@@ -77,6 +109,7 @@ Once you've completed these steps, your Light Gun will be calibrated and ready t
 
 - git
 - python
+- bluez >= 5.0
 
 ### Python dependencies
 
@@ -120,32 +153,6 @@ dbar4gun version
 
 ```
 dbar4gun stop
-```
-
-## Installing with RetroPie-Setup
-
-### Download dbar4gun installer
-
-```
-cd ~/RetroPie-Setup/scriptmodules/supplementary
-curl -LO https://raw.githubusercontent.com/lowlevel-1989/dbar4gun/master/retropie/dbar4gun.sh
-```
-
-### Open RetroPie-Setup
-
-```
-*Manage packages \~ driver \~ dbar4gun \~ Install*  
-```
-
-### Run service
-
-```
-*Manage packages \~ driver \~ dbar4gun \~ Configuration \~ Enable/Restart dbar4gun*  
-```
-
-### stop service
-```
-*Manage packages \~ driver \~ dbar4gun \~ Configuration \~ Disable dbar4gun*  
 ```
 
 ## Installing with Docker (it does not work)

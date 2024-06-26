@@ -6,12 +6,12 @@ import dbar4gun
 
 setup(name=dbar4gun.__title__,
       version=dbar4gun.__version__,
-      description="dbar4gun is a Linux userspace driver for the DolphinBar.",
+      description="dbar4gun is a Linux userspace driver for the wiimote.",
       url=dbar4gun.__repo___,
       author=dbar4gun.__author__,
       author_email=dbar4gun.__email__,
       license=dbar4gun.__license__,
-      long_description="dbar4gun is a Linux userspace driver for the DolphinBar.",
+      long_description="dbar4gun is a Linux userspace driver for the wiimote.",
       entry_points={
         "console_scripts": ["dbar4gun=dbar4gun.dbar4gun:dbar4gun_run"]
       },
