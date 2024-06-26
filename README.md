@@ -11,8 +11,8 @@ It is important to remember to disconnect the Wiimote using the power button at 
 ## Feature support
 
 - Only DolphinBar in mode 4
-- N Mayflash Dolphinbar
-- 4 wiimote x Dolphinbar
+- N Mayflash Dolphinbar  (recommended at the moment)
+- 4 wiimote x Dolphinbar (slow with a single bar)
 - wiimote with individual buttons
 - multiplayer
 - nunchuck
@@ -63,12 +63,13 @@ Once you've completed these steps, your Light Gun will be calibrated and ready t
 
 ## To Do
 
-1. Retropie Setup (Working)
-2. Systemd
-3. Class Manage Device
-4. Class Log System
-5. Docker Version
-6. Bluetooth (low priority)
+1. DolphinBar (optimizing communication)
+2. Retropie Setup (Working)
+3. Bluetooth (high priority)
+4. Systemd
+5. Class Manage Device
+6. Class Log System
+7. Docker Version
 
 ## Installing
 
