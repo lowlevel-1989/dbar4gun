@@ -1,6 +1,9 @@
 import pyudev
 
 
+# udevadm info --query=all --name=/dev/hidraw0
+# udevadm info -a -n /dev/hidraw0
+
 class Monitor(object):
     def __init__(self, queue):
         self.queue = queue
@@ -11,7 +14,8 @@ class Monitor(object):
     def __first_scan(self):
         devices = self.__context.list_devices(subsystem="hidraw")
         for device in devices:
-            if device.get("ID_MODEL_FROM_DATABASE") != "Wii Remote Controller RVL-003":
+            if device.get("ID_MODEL_FROM_DATABASE") != "Wii Remote Controller RVL-003" \
+                    and device.parent.driver != "wiimote":
                 continue
 
             hidraw_path = device.get("DEVNAME")
@@ -23,9 +27,9 @@ class Monitor(object):
 
         self.__monitor.filter_by(subsystem="hidraw")
         for action, device in self.__monitor:
-            if device.get("ID_MODEL_FROM_DATABASE") != "Wii Remote Controller RVL-003":
+            if device.get("ID_MODEL_FROM_DATABASE") != "Wii Remote Controller RVL-003" \
+                    and device.parent.driver != "wiimote":
                 continue
-
 
             hidraw_path = device.get("DEVNAME")
             if not hidraw_path:
