@@ -274,9 +274,8 @@ class WiiMoteDevice(object):
     def calibration_set(self, button_trigger):
         # center
         if self.calibration_on == 0:
-            self.io.write(bytearray(b"\x11\x40"))
+            self.io.write(bytearray(b"\x11\x60"))
             self.calibration_on = 1
-            self.calibration_dots_gun_buf = []
 
         elif self.calibration_on == 1 and button_trigger:
             self.calibration.set_gun_point2(self.get_cursor_position_raw(self.ir_status))

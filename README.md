@@ -1,4 +1,4 @@
-# dbar4gun 0.10.0
+# dbar4gun 0.10.1
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support, specifically designed to be small and function as 4 light guns.
 
@@ -57,13 +57,10 @@ For additional Wiimotes, connect them directly via Bluetooth since DolphinBar be
 
 ## Calibration wherever
 
-- **Initiate calibration:** Press the A + plus button simultaneously. When all four LEDs light up, calibration has begun.
-- **Step 1:** Shoot at the center of the screen. The first LED will light up.
-- **Step 2:** Shoot at the top-left corner of the screen. The second LED will light up.
-- **Step 3:** Shoot at the top-right corner of the screen. The third LED will light up.
-- **Step 4:** Shoot at the bottom-left corner of the screen. The fourth LED will light up.
-- **Step 5:** Shoot at the bottom-right corner of the screen.  
-    
+- **Initiate Calibration:** Press the **A + plus** buttons simultaneously. When LED 2 and 3 light up, calibration has begun.
+- **Step 1:** Shoot at the **center** of the screen. LEDs 1 and 4 will light up.
+- **Step 2:** Shoot at the **top-left** corner of the screen.
+
 Once you've completed these steps, your Light Gun will be calibrated and ready to use.
 
 ## To Do
