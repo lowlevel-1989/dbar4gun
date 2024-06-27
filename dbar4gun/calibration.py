@@ -11,6 +11,8 @@ class TwoPointCalibration:
         self.detected_point1 = self.screen_point1[:]
         self.detected_point2 = self.screen_point2[:]
 
+        self.calibrate()
+
     def set_gun_point1(self, gun_point):
         self.detected_point1 = gun_point
 
