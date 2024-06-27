@@ -21,7 +21,7 @@ For additional Wiimotes, connect them directly via Bluetooth since DolphinBar be
 - wiimote with individual buttons
 - multiplayer
 - nunchuck
-- Standard configuration for Wii sensor (only above  the screen)
+- Standard configuration for Wii sensor
 - dbar4gun supports maximum resolution and sensitivity without causing cursor jumps
 - wiimote led -> index mouse (bin number)
 - auto key
@@ -30,7 +30,7 @@ For additional Wiimotes, connect them directly via Bluetooth since DolphinBar be
 - works on retropie
 - works on raspbian
 
-![Standard configuration for Wii sensor](docs/bar.png)
+![Standard configuration for Wii sensor](docs/setup.jpeg)
 
 | device   | button    | map           | shared | mame default        |
 |----------|-----------|---------------|--------|---------------------|
