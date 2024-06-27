@@ -21,7 +21,6 @@ For additional Wiimotes, connect them directly via Bluetooth since DolphinBar be
 - wiimote with individual buttons
 - multiplayer
 - nunchuck
-- calibration
 - Standard configuration for Wii sensor (only above  the screen)
 - dbar4gun supports maximum resolution and sensitivity without causing cursor jumps
 - wiimote led -> index mouse (bin number)
@@ -65,10 +64,11 @@ Once you've completed these steps, your Light Gun will be calibrated and ready t
 
 ## To Do
 
-1. Systemd
-2. Class Manage Device
-3. Class Log System
-4. Docker Version
+1. calibration (high priority)
+2. Systemd
+3. Class Manage Device
+4. Class Log System
+5. Docker Version
 
 ## Install with RetroPie-Setup
 
