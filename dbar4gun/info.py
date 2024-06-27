@@ -4,7 +4,7 @@ specifically designed to be small and function as 4 light guns.
 """
 
 __title__    = "dbar4gun"
-__version__  = "0.9.0"
+__version__  = "0.10.0"
 __author__   = "Vinicio Valbuena"
 __repo___    = "https://github.com/lowlevel-1989/dbar4gun"
 __email__    = "lowlevel.1989@gmail.com",

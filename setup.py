@@ -19,8 +19,6 @@ setup(name=dbar4gun.__title__,
       install_requires=[
           "evdev>=0.3.0",
           "pyudev>=0.16",
-          "numpy>=2.0.0",
-          "opencv-python>=4.10.0",
       ],
       classifiers=[
         "Environment :: Console",

@@ -2,8 +2,11 @@ import time
 import struct
 import os
 
-import cv2
-import numpy as np
+try:
+    from calibration import TwoPointCalibration
+except:
+    from dbar4gun.calibration import TwoPointCalibration
+
 
 WIIMOTE_CORE_BUTTON_LEFT_MASK  = 0x01
 WIIMOTE_CORE_BUTTON_RIGHT_MASK = 0x02
@@ -34,26 +37,11 @@ class WiiMoteDevice(object):
         self.is_pair = False
 
         self.calibration_on             = 0
-        self.calibration_dots_screen    = np.float32([
-            [width/2,  height/2], # center
-            [       0,        0], # top left
-            [   width,        0], # top right
-            [       0,   height], # bottom left
-            [   width,   height], # bottom right
-        ])
-
-        self.calibration_dots_gun = np.float32([
-            [width/2, height/2], # center
-            [      0,        0], # top left
-            [  width,        0], # top right
-            [      0,   height], # bottom left
-            [  width,   height], # bottom right
-        ])
-
-        # set point on calibration
-        self.calibration_dots_gun_buf = []
-
-        self.calibration_matrix, _ = cv2.estimateAffine2D(self.calibration_dots_gun, self.calibration_dots_screen)
+        self.calibration = TwoPointCalibration(
+                screen_point1=[0,0],               # top left
+                screen_point2=[width/2,height/2],  # center
+                screen_size=[width, height]
+        )
 
         self.io           = hidraw_io
         self.player       = 0
@@ -276,72 +264,32 @@ class WiiMoteDevice(object):
         self.ir_status["pos_mid_raw_prev"] = self.ir_status["pos_mid_raw"][:]
         self.ir_status["pos_mid_nor_prev"] = self.ir_status["pos_mid_nor"][:]
 
-    def get_cursor_position(self, ir):
-        cursor = self.calibration_cursor(
-                [ir["pos_mid_nor"][_X] * self.width, ir["pos_mid_nor"][_Y] * self.height]
-        )
-        return [
-            int(cursor[_X]),
-            int(cursor[_Y]),
-        ]
+    def get_cursor_position_raw(self, ir):
+        return [ir["pos_mid_nor"][_X] * self.width, ir["pos_mid_nor"][_Y] * self.height]
 
-    def calibration_cursor(self, cursor):
-        point_homogeneous = np.array([cursor[_X], cursor[_Y], 1.0])
-        transformed_point = np.dot(self.calibration_matrix, point_homogeneous)
-        return np.clip(transformed_point[:2], [0, 0], [self.width, self.height])
+    def get_cursor_position(self, ir):
+        point = [ir["pos_mid_nor"][_X] * self.width, ir["pos_mid_nor"][_Y] * self.height]
+        return self.calibration.map_coordinates(point)
 
     def calibration_set(self, button_trigger):
         # center
         if self.calibration_on == 0:
-            self.io.write(bytearray(b"\x11\xf0"))
+            self.io.write(bytearray(b"\x11\x40"))
             self.calibration_on = 1
             self.calibration_dots_gun_buf = []
 
         elif self.calibration_on == 1 and button_trigger:
-            self.calibration_dots_gun_buf.append(self.get_cursor_position(self.ir_status))
+            self.calibration.set_gun_point2(self.get_cursor_position_raw(self.ir_status))
             self.calibration_on = 2
 
         # top left
         elif self.calibration_on == 2 and button_trigger == False:
-            self.io.write(bytearray(b"\x11\x10"))
+            self.io.write(bytearray(b"\x11\x90"))
             self.calibration_on = 3
 
         elif self.calibration_on == 3 and button_trigger:
-            self.calibration_dots_gun_buf.append(self.get_cursor_position(self.ir_status))
-            self.calibration_on = 4
-
-        # top right
-        elif self.calibration_on == 4 and button_trigger == False:
-            self.io.write(bytearray(b"\x11\x20"))
-            self.calibration_on = 5
-
-        elif self.calibration_on == 5 and button_trigger:
-            self.calibration_dots_gun_buf.append(self.get_cursor_position(self.ir_status))
-            self.calibration_on = 6
-
-        # bottom left
-        elif self.calibration_on == 6 and button_trigger == False:
-            self.io.write(bytearray(b"\x11\x40"))
-            self.calibration_on = 7
-
-        elif self.calibration_on == 7 and button_trigger:
-            self.calibration_dots_gun_buf.append(self.get_cursor_position(self.ir_status))
-            self.calibration_on = 8
-
-        # bottom right
-        elif self.calibration_on == 8 and button_trigger == False:
-            self.io.write(bytearray(b"\x11\x80"))
-            self.calibration_on = 9
-
-        elif self.calibration_on == 9 and button_trigger:
-            self.calibration_dots_gun_buf.append(self.get_cursor_position(self.ir_status))
-            self.calibration_dots_gun = np.float32(self.calibration_dots_gun_buf)
-
-            self.calibration_matrix, _ = cv2.estimateAffine2D(
-                    self.calibration_dots_gun, self.calibration_dots_screen)
-
+            self.calibration.set_gun_point1(self.get_cursor_position_raw(self.ir_status))
             self.calibration_on = 0
-
 
     def read(self):
         if not self.is_pair:
@@ -378,15 +326,7 @@ class WiiMoteDevice(object):
                     self.buttons_status  = b"\x00\x00"
 
                     # reset calibration
-                    self.calibration_dots_gun = np.float32([
-                        [self.width/2, self.height/2], # center
-                        [           0,             0], # top left
-                        [  self.width,             0], # top right
-                        [           0,   self.height], # bottom left
-                        [  self.width,   self.height], # bottom right
-                    ])
-
-                    self.calibration_matrix, _ = cv2.estimateAffine2D(self.calibration_dots_gun, self.calibration_dots_screen)
+                    self.calibration.reset()
 
                 if self.calibration_on > 0:
                     self.buttons_status  = b"\x00\x00"
