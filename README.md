@@ -8,6 +8,10 @@ This software works best with wiimote models with integrated wiimotion plus supp
 
 It is important to remember to disconnect the Wiimote using the power button at the end of playing to increase the lifespan of the infrared LEDs.
 
+We recommend using DolphinBar as the main controller because, in mode 4, the bar stays on until we turn off the Wiimote. This way, we avoid having to manually connect or disconnect the USB every time we want to play with the Wiimote.
+
+For additional Wiimotes, connect them directly via Bluetooth since DolphinBar becomes slow if more than one Wiimote is connected.
+
 ## Feature support
 
 - Bluetooth
@@ -64,14 +68,12 @@ Once you've completed these steps, your Light Gun will be calibrated and ready t
 
 ## To Do
 
-1. DolphinBar (optimizing communication)
-2. Retropie Setup (Working)
-4. Systemd
-5. Class Manage Device
-6. Class Log System
-7. Docker Version
+1. Systemd
+2. Class Manage Device
+3. Class Log System
+4. Docker Version
 
-## Installing with RetroPie-Setup
+## Install with RetroPie-Setup
 
 ### Download dbar4gun installer
 
@@ -103,7 +105,7 @@ You have a Raspberry Pi 3 or for Raspberry Pi 2 and below, you need a Bluetooth 
 
 [adding-a-bluetooth-controller-to-retropie](https://retropie.org.uk/docs/Bluetooth-Controller/#adding-a-bluetooth-controller-to-retropie)
 
-## Installing
+## Install manually
 
 ### System dependencies
 
@@ -143,7 +145,7 @@ dbar4gun --width 1920 --height 1080
 dbar4gun --width 1920 --height 1080
 ```
 
-#### stop service with root
+#### check version
 
 ```
 dbar4gun version
@@ -155,7 +157,24 @@ dbar4gun version
 dbar4gun stop
 ```
 
-## Installing with Docker (it does not work)
+### Bluetooth
+
+Pair the wiimote with this command, replace the XX data with your MAC address
+
+~~~
+hcitool scan
+sudo hcitool cc XX:XX:XX:XX:XX:XX
+sudo python bluez/simple-agent -c "DisplayYesNo" hci0 "XX:XX:XX:XX:XX:XX"
+~~~
+
+If you are having trouble re-pairing the Wiimote via Bluetooth, all you need to do is execute the following command and repeat the previous steps.
+
+~~~
+sudo bluetoothctl remove XX:XX:XX:XX:XX:XX
+~~~
+
+
+## Install with Docker (it does not work)
 
 ### Dependencies
 
