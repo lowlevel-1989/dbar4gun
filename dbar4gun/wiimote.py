@@ -289,6 +289,7 @@ class WiiMoteDevice(object):
 
         elif self.calibration_on == 3 and button_trigger:
             self.calibration.set_gun_point1(self.get_cursor_position_raw(self.ir_status))
+            self.calibration.calibrate()
             self.calibration_on = 0
 
     def read(self):
