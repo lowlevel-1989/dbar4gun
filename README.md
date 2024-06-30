@@ -1,4 +1,4 @@
-# dbar4gun 0.10.1
+# dbar4gun 0.11.0
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support, specifically designed to function as 4 light guns.
 
@@ -21,6 +21,8 @@ For additional Wiimotes, connect them directly via Bluetooth since DolphinBar be
 - wiimote with individual buttons
 - multiplayer
 - nunchuck
+- calibration
+- systemd
 - Standard configuration for Wii sensor
 - dbar4gun supports maximum resolution and sensitivity without causing cursor jumps
 - wiimote led -> index mouse (bin number)
@@ -62,10 +64,23 @@ For additional Wiimotes, connect them directly via Bluetooth since DolphinBar be
 
 Once you've completed these steps, your Light Gun will be calibrated and ready to use.
 
+### Memory Consumption of the dbar4gun
+
+Currently, the dbar4gun consumes ~24 MB. For each Wiimote connected via Bluetooth, an additional ~19 MB is consumed, as a dedicated process is generated to manage each Wiimote.
+
+In the case of the DolphinBar, it is detected as four Wiimotes, even if they are not connected, resulting in an additional consumption of ~76 MB.
+
+## Summary of Memory Consumption
+
+| Item                                  | Memory Consumption |
+|---------------------------------------|--------------------|
+| dbar4gun                              | ~24 MB             |
+| monitor                               | ~19 MB             |
+| Per Wiimote connected via Bluetooth   | ~19 MB             |
+| DolphinBar (detected as 4 Wiimotes)   | ~19 MB             |
+
 ## To Do
 
-1. calibration (high priority)
-2. Systemd
 3. Class Manage Device
 4. Class Log System
 5. Docker Version
@@ -95,6 +110,12 @@ curl -LO https://raw.githubusercontent.com/lowlevel-1989/dbar4gun/master/retropi
 ```
 *Manage packages \~ driver \~ dbar4gun \~ Configuration \~ Disable dbar4gun*  
 ```
+
+### status service
+```
+systemctl status dbar4gun
+```
+
 
 ### Bluetooth
 
