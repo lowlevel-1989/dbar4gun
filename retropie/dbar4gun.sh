@@ -33,8 +33,6 @@ function install_dbar4gun() {
 }
 
 function enable_dbar4gun() {
-    $md_inst/bin/dbar4gun --width $1 --height $2 > /var/log/dbar4gun.log 2>&1 &
-
     local config="/etc/systemd/system/dbar4gun.service"
 
     disable_dbar4gun
