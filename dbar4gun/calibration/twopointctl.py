@@ -21,7 +21,7 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
         y = (point[1] - self.y_min) / self.height
 
         x =  max(0.0, min(1.0, x))
-        y =  max(0.0, min(1.0, x))
+        y =  max(0.0, min(1.0, y))
 
         return (x, y)
 
