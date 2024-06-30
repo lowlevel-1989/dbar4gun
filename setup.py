@@ -15,7 +15,10 @@ setup(name=dbar4gun.__title__,
       entry_points={
         "console_scripts": ["dbar4gun=dbar4gun.dbar4gun:dbar4gun_run"]
       },
-      packages=["dbar4gun",],
+      packages=[
+          "dbar4gun",
+          "dbar4gun.calibration"
+      ],
       install_requires=[
           "evdev>=0.3.0",
           "pyudev>=0.16",

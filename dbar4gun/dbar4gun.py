@@ -12,27 +12,23 @@ from multiprocessing import Process
 from multiprocessing import Queue
 from multiprocessing import Lock
 
-try:
-    import info
+PATH_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, PATH_ROOT)
 
-    from wiimote    import WiiMoteDevice
-    from virtualgun import VirtualGunDevice
-    from monitor    import Monitor
-except:
-    from dbar4gun import info
-
-    from dbar4gun.wiimote    import WiiMoteDevice
-    from dbar4gun.virtualgun import VirtualGunDevice
-    from dbar4gun.monitor    import Monitor
+from dbar4gun            import info
+from dbar4gun            import calibration
+from dbar4gun.wiimote    import WiiMoteDevice
+from dbar4gun.virtualgun import VirtualGunDevice
+from dbar4gun.monitor    import Monitor
 
 __main_pid  = os.getpid()
 __hidraw_io = []
 __workers   = []
 __queue     = Queue()
 
-def virtualgun_worker(hidraw_io, lock, config):
+def virtualgun_worker(hidraw_io, lock, config, Calibration):
 
-    wiimote = WiiMoteDevice(hidraw_io, config.width, config.height)
+    wiimote = WiiMoteDevice(hidraw_io, Calibration, config.width, config.height)
 
     # virtualgun -> mouse / key
     virtualgun = VirtualGunDevice(config.width, config.height)
@@ -50,7 +46,6 @@ def virtualgun_worker(hidraw_io, lock, config):
         history_x = deque(maxlen=config.smoothing_level)
         history_y = deque(maxlen=config.smoothing_level)
 
-        cursor_prev = [0, 0]
         while 1:
             wiimote.check_is_alive()
             buttons, ir, nunchuck = wiimote.read()
@@ -61,7 +56,6 @@ def virtualgun_worker(hidraw_io, lock, config):
             ir["pos_mid_nor"][1] = sum(history_y) / config.smoothing_level
 
             cursor = wiimote.get_cursor_position(ir)
-            cursor_prev = cursor[:]
 
             virtualgun.set_buttons(buttons, nunchuck)
             virtualgun.set_cursor(cursor)
@@ -75,21 +69,21 @@ def virtualgun_worker(hidraw_io, lock, config):
 def remove_virtualgun_worker(hidraw_path, lock):
     pass
 
-def create_virtualgun_worker(hidraw_path, lock, config):
+def create_virtualgun_worker(hidraw_path, lock, config, Calibration):
     lock.acquire()
 
     fd        = os.open(hidraw_path, os.O_RDWR)
     hidraw_io = io.FileIO(fd, "rb+", closefd=False)
 
     worker = Process(
-                target=virtualgun_worker, args=(hidraw_io, lock, config))
+                target=virtualgun_worker, args=(hidraw_io, lock, config, Calibration))
 
     worker.start()
 
     __hidraw_io.append([fd, hidraw_io])
     __workers.append(worker)
 
-def monitor_handle_events(queue, config):
+def monitor_handle_events(queue, config, Calibration):
 
     # handle exceptions for (controlled termination)
     try:
@@ -101,7 +95,7 @@ def monitor_handle_events(queue, config):
             elif event[0] == "remove":
                 remove_virtualgun_worker(event[1], lock)
             else:
-                create_virtualgun_worker(event[1], lock, config)
+                create_virtualgun_worker(event[1], lock, config, Calibration)
 
             print("monitor: {} {}".format(*event))
     except Exception as e:
@@ -167,9 +161,11 @@ def dbar4gun_run():
 
     monitor = Monitor(queue = __queue)
 
+    Calibration = calibration.CalibrationCenterTopLeftPoint
+
     monitor_event_process = Process(
             target=monitor_handle_events,
-            args=(monitor.queue, config))
+            args=(monitor.queue, config, Calibration))
 
     monitor_event_process.start()
 

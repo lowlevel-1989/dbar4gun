@@ -2,12 +2,6 @@ import time
 import struct
 import os
 
-try:
-    from calibration import TwoPointCalibration
-except:
-    from dbar4gun.calibration import TwoPointCalibration
-
-
 WIIMOTE_CORE_BUTTON_LEFT_MASK  = 0x01
 WIIMOTE_CORE_BUTTON_RIGHT_MASK = 0x02
 WIIMOTE_CORE_BUTTON_DOWN_MASK  = 0x04
@@ -33,15 +27,11 @@ class WiiMoteDevice(object):
     REPORT_MODE = b"\x36"
     DATA_FORMAT = ">B2s5s5sBB3xB3x"
 
-    def __init__(self, hidraw_io, width=1920, height=1080):
+    def __init__(self, hidraw_io, Calibration, width=1920, height=1080):
         self.is_pair = False
 
-        self.calibration_on             = 0
-        self.calibration = TwoPointCalibration(
-                screen_point1=[0,0],               # top left
-                screen_point2=[width/2,height/2],  # center
-                screen_size=[width, height]
-        )
+        self.calibration_on = 0
+        self.calibration    = Calibration()
 
         self.io           = hidraw_io
         self.player       = 0
@@ -265,31 +255,29 @@ class WiiMoteDevice(object):
         self.ir_status["pos_mid_nor_prev"] = self.ir_status["pos_mid_nor"][:]
 
     def get_cursor_position_raw(self, ir):
-        return [ir["pos_mid_nor"][_X] * self.width, ir["pos_mid_nor"][_Y] * self.height]
+        x = ir["pos_mid_nor"][_X] * self.width
+        y = ir["pos_mid_nor"][_Y] * self.height
+        return [int(x), int(y)]
 
     def get_cursor_position(self, ir):
-        point = [ir["pos_mid_nor"][_X] * self.width, ir["pos_mid_nor"][_Y] * self.height]
-        return self.calibration.map_coordinates(point)
+        pos = self.calibration.map_coordinates(ir["pos_mid_nor"])
+        x = pos[_X] * self.width
+        y = pos[_Y] * self.height
+
+        return [int(x), int(y)]
 
     def calibration_set(self, button_trigger):
-        # center
-        if self.calibration_on == 0:
-            self.io.write(bytearray(b"\x11\x60"))
-            self.calibration_on = 1
+        ir = self.ir_status["pos_mid_nor"][:]
+        finished, leds = self.calibration.step(button_trigger, ir)
 
-        elif self.calibration_on == 1 and button_trigger:
-            self.calibration.set_gun_point2(self.get_cursor_position_raw(self.ir_status))
-            self.calibration_on = 2
-
-        # top left
-        elif self.calibration_on == 2 and button_trigger == False:
-            self.io.write(bytearray(b"\x11\x90"))
-            self.calibration_on = 3
-
-        elif self.calibration_on == 3 and button_trigger:
-            self.calibration.set_gun_point1(self.get_cursor_position_raw(self.ir_status))
-            self.calibration.calibrate()
+        if finished:
             self.calibration_on = 0
+            return
+
+        self.calibration_on = 1
+
+        if leds:
+            self.io.write(bytearray(b"\x11") + leds)
 
     def read(self):
         if not self.is_pair:

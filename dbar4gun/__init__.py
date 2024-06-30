@@ -10,3 +10,5 @@ from dbar4gun.info import __credits__
 from dbar4gun.info import __license__
 from dbar4gun.info import __email__
 from dbar4gun.info import __repo___
+
+from dbar4gun import calibration
