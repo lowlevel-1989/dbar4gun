@@ -77,7 +77,7 @@ In the case of the DolphinBar, it is detected as four Wiimotes, even if they are
 | dbar4gun                              | ~24 MB             |
 | monitor                               | ~19 MB             |
 | Per Wiimote connected via Bluetooth   | ~19 MB             |
-| DolphinBar (detected as 4 Wiimotes)   | ~19 MB             |
+| DolphinBar (detected as 4 Wiimotes)   | ~76 MB             |
 
 ## To Do
 
