@@ -81,9 +81,9 @@ In the case of the DolphinBar, it is detected as four Wiimotes, even if they are
 
 ## To Do
 
-3. Class Manage Device
-4. Class Log System
-5. Docker Version
+1. Class Manage Device
+2. Class Log System
+3. Docker Version
 
 ## Install with RetroPie-Setup
 
