@@ -63,7 +63,6 @@ def virtualgun_worker(hidraw_io, lock, config, Calibration):
     except Exception as e:
         print(e)
     finally:
-        free()
         print("bye VirtualGun {:03X}".format(wiimote.player))
 
 def remove_virtualgun_worker(hidraw_path, lock):
