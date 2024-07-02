@@ -1,4 +1,4 @@
-# The House of the Dead 2
+## The House of the Dead 2
 
 | device   | button    | action            |
 |----------|-----------|-------------------|
