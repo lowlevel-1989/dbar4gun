@@ -68,13 +68,13 @@ Once you've completed these steps, your Light Gun will be calibrated and ready t
 
 Refer to the [specific README for light gun configuration](retroarch) to learn how to configure non-MAME games in RetroArch.
 
-### Memory Consumption of the dbar4gun
+## Memory Consumption of the dbar4gun
 
 Currently, the dbar4gun consumes ~24 MB. For each Wiimote connected via Bluetooth, an additional ~19 MB is consumed, as a dedicated process is generated to manage each Wiimote.
 
 In the case of the DolphinBar, it is detected as four Wiimotes, even if they are not connected, resulting in an additional consumption of ~76 MB.
 
-## Summary of Memory Consumption
+### Summary of Memory Consumption
 
 | Item                                  | Memory Consumption |
 |---------------------------------------|--------------------|
