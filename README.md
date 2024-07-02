@@ -87,7 +87,6 @@ In the case of the DolphinBar, it is detected as four Wiimotes, even if they are
 
 1. Class Manage Device
 2. Class Log System
-3. Docker Version
 
 ## Install with RetroPie-Setup
 
@@ -192,49 +191,6 @@ If you are having trouble re-pairing the Wiimote via Bluetooth, all you need to 
 ~~~
 sudo bluetoothctl remove XX:XX:XX:XX:XX:XX
 ~~~
-
-
-## Install with Docker (it does not work)
-
-### Dependencies
-
-- git
-- docker or podman
-
-### Steps
-
-#### build
-
-```
-git clone https://github.com/lowlevel-1989/dbar4gun.git
-docker build -t dbar4gun:0.3.2 dbar4gun
-```
-
-### Use
-
-#### run service
-
-```
-docker container run --name dbar4gun -d --restart unless-stopped --privileged dbar4gun:0.3.2 --width 1920 --height 1080
-```
-
-#### stop
-
-```
-docker container stop dbar4gun
-```
-
-#### remove
-
-```
-docker container rm dbar4gun
-```
-
-#### logs
-
-```
-docker container logs dbar4gun
-```
 
 ## References
 
