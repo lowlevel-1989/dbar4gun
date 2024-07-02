@@ -10,7 +10,7 @@ roms/SYSTEMNAME/ROMNAME.cfg
 
 These configurations will be used when starting this specific ROM.
 
-#### For some cores, it is necessary to inform RetroArch that the devices are light guns. Follow these steps:
+### For some cores, it is necessary to inform RetroArch that the devices are light guns. Follow these steps:
 
 1. Press the B button + Home on the Wiimote to open the RetroArch menu.
 2. Select the Quick Menu with the Plus button.
@@ -20,7 +20,7 @@ These configurations will be used when starting this specific ROM.
 
 **Note:** To navigate back, use the Minus button.
 
-## Available Configurations:
+### Available Configurations:
 
-### Dreamcast
-[House of the Dead 2](dreamcast/House of the Dead 2)
+#### Dreamcast
+- [House of the Dead 2](dreamcast/House%20of%20the%20Dead%202)
