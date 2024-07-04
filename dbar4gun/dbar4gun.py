@@ -62,6 +62,7 @@ def virtualgun_worker(hidraw_io, lock, config, Calibration):
             virtualgun.sync()
     except Exception as e:
         print(e)
+        pass
     finally:
         print("bye VirtualGun {:03X}".format(wiimote.player))
 
@@ -145,13 +146,32 @@ def dbar4gun_run():
     signal.signal(signal.SIGINT,  SignalHandler)
     signal.signal(signal.SIGTERM, SignalHandler)
 
+    CALIBRATION_LIST = [
+        calibration.CalibrationDummy,
+        calibration.CalibrationCenterTopLeftPoint,
+        calibration.CalibrationTopLeftTopRightBottomCenterPoint,
+    ]
+
+    CALIBRATION_HELP = """
+    mode
+    0: disabled
+    1: Center,  TopLeft
+    2: TopLeft, TopRight, BottomCenter (default)
+    """
+
+    DBAR4GUN_DESC = """
+dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support,
+specifically designed to be small and function as 4 light guns.
+    """
     parser = argparse.ArgumentParser(
                 prog=info.__title__,
-                description="dbar4gun is a Linux userspace driver for the DolphinBar x4 Wiimote")
+                formatter_class=argparse.RawTextHelpFormatter,
+                description=DBAR4GUN_DESC)
 
-    parser.add_argument("--width",           type=int, default=1920, help="Width of the screen")
-    parser.add_argument("--height",          type=int, default=1080, help="Width of the screen")
-    parser.add_argument("--smoothing-level", type=int, default=3,    help="smoothing level")
+    parser.add_argument('--calibration',     type=int, default=2,  choices=range(3), help=CALIBRATION_HELP)
+    parser.add_argument("--width",           type=int, default=1920, help="screen")
+    parser.add_argument("--height",          type=int, default=1080, help="screen")
+    parser.add_argument("--smoothing-level", type=int, default=3)
 
     config = parser.parse_args()
 
@@ -160,7 +180,9 @@ def dbar4gun_run():
 
     monitor = Monitor(queue = __queue)
 
-    Calibration = calibration.CalibrationCenterTopLeftPoint
+    Calibration = calibration.CalibrationDummy
+    if config.calibration < 3:
+        Calibration = CALIBRATION_LIST[config.calibration]
 
     monitor_event_process = Process(
             target=monitor_handle_events,

@@ -1,4 +1,4 @@
-# dbar4gun 0.11.2
+# dbar4gun 0.12.0
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support, specifically designed to function as 4 light guns.
 
@@ -12,21 +12,24 @@ We recommend using DolphinBar as the main controller because, in mode 4, the bar
 
 For additional Wiimotes, connect them directly via Bluetooth since DolphinBar becomes slow if more than one Wiimote is connected.
 
+***for more precision, place the sensor bar over the screen***
+
 ## Feature support
 
 - Bluetooth
 - Only DolphinBar in mode 4
-- N Mayflash Dolphinbar  (recommended at the moment)
+- N Mayflash Dolphinbar
 - 4 wiimote x Dolphinbar (slow with a single bar)
 - wiimote with individual buttons
 - multiplayer
 - nunchuck
-- calibration
-- systemd
+- calibration two point
+- calibration three point
 - Standard configuration for Wii sensor
 - dbar4gun supports maximum resolution and sensitivity without causing cursor jumps
 - wiimote led -> index mouse (bin number)
 - auto key
+- systemd
 - Smoothed cursor
 - works on linux
 - works on retropie
@@ -58,6 +61,13 @@ For additional Wiimotes, connect them directly via Bluetooth since DolphinBar be
 
 ## Calibration wherever
 
+### mode 2 (default)
+- **Initiate Calibration:** Press the **A + plus** buttons simultaneously. When LED 1 light up, calibration has begun.
+- **Step 1:** Shoot at the **top-left** corner of the screen. LED 4 will light up.
+- **Step 2:** Shoot at the **top-right** corner of the screen. LEDs 2 adn 3 light up.
+- **Step 3:** Shoot at the **bottom-center** of the screen.
+
+### mode 1
 - **Initiate Calibration:** Press the **A + plus** buttons simultaneously. When LED 2 and 3 light up, calibration has begun.
 - **Step 1:** Shoot at the **center** of the screen. LEDs 1 and 4 will light up.
 - **Step 2:** Shoot at the **top-left** corner of the screen.
@@ -152,8 +162,30 @@ pip install $(pwd)
 
 ### Use
 
-#### run service with root
+#### help service
+```
+usage: dbar4gun [-h] [--calibration {0,1,2}] [--width WIDTH] [--height HEIGHT]
+                [--smoothing-level SMOOTHING_LEVEL]
 
+dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support,
+specifically designed to be small and function as 4 light guns.
+    
+
+options:
+  -h, --help            show this help message and exit
+  --calibration {0,1,2}
+                        
+                            mode
+                            0: disabled
+                            1: Center,  TopLeft
+                            2: TopLeft, TopRight, BottomCenter (default)
+                            
+  --width WIDTH         screen
+  --height HEIGHT       screen
+  --smoothing-level SMOOTHING_LEVEL
+```
+
+#### run service with root
 ```
 dbar4gun --width 1920 --height 1080
 ```

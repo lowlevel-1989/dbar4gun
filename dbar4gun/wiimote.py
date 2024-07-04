@@ -321,6 +321,7 @@ class WiiMoteDevice(object):
 
             except Exception as e:
                 print(e)
+                pass
 
             # VERY SLOW
             """

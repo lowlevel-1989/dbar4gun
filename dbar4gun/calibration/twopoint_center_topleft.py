@@ -5,6 +5,9 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
         self.screen_center_point  = [0.5, 0.5]
         self.screen_topleft_point = [0.0, 0.0]
 
+        self.target_center_point  = [ 0.5,  0.5]
+        self.target_topleft_point = [0.05, 0.05]
+
         self.gun_center_point  = self.screen_center_point[:]
         self.gun_topleft_point = self.screen_topleft_point[:]
 
@@ -17,6 +20,14 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
         super().reset()
 
     def map_coordinates(self, point):
+
+        # set position target
+        if   self.state == 1:
+            return self.target_center_point[:]
+        elif self.state == 3:
+            return self.target_topleft_point[:]
+
+        # calculate position on screen
         x = (point[0] - self.x_min) / self.width
         y = (point[1] - self.y_min) / self.height
 
@@ -26,42 +37,39 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
         return (x, y)
 
 
-    # return led and finished
-    # b0000 0x00 NO UPDATE
-    # b0001 0x10 LED 1
-    # b0010 0x20 LED 2
-    # b0100 0x40 LED 3
-    # b1000 0x80 LED 4
+    # return finished and leds
     def step(self, button, cursor):
 
         # center point (leds)
         if self.state == 0 and button == False:
             self.state = 1
-            leds = self.to_bytes(0x20|0x40)
+            leds = self.to_bytes(self.LED_2|self.LED_3)
             return [False, leds]
 
         # center point (capture)
-        elif self.state == 1 and button:
+        elif self.state == 1 and button and cursor[1] > 0:
             self.gun_center_point = cursor
             self.state = 2
-            return [False, 0]
+            return [False, self.LED_U]
 
         # top left point (leds)
         elif self.state == 2 and button == False:
             self.state = 3
-            leds = self.to_bytes(0x10|0x80)
+            leds = self.to_bytes(self.LED_1|self.LED_4)
             return [False, leds]
 
         # top left point (capture)
-        elif self.state == 3 and button:
-            self.gun_topleft_point = cursor
+        elif self.state == 3 and button and cursor[0] < 0.2 and cursor[1] < 1.0:
+            x = cursor[0] + (self.screen_topleft_point[0] - self.target_topleft_point[0])
+            y = cursor[1] + (self.screen_topleft_point[1] - self.target_topleft_point[1])
+            self.gun_topleft_point = [x, y]
             self.calibrate()
             self.state = 0
 
-            return [True, 0]
+            return [True, self.LED_U]
 
         # continue
-        return [False, 0]
+        return [False, self.LED_U]
 
     def calibrate(self):
         self.x_min = max(0.0, self.gun_topleft_point[0])

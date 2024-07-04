@@ -1,4 +1,11 @@
 class CalibrationBase(object):
+
+    LED_U = 0x00
+    LED_1 = 0x10
+    LED_2 = 0x20
+    LED_3 = 0x40
+    LED_4 = 0x80
+
     def __init__(self):
         self.state  = 0
         self.offset = [0, 0]
@@ -8,14 +15,9 @@ class CalibrationBase(object):
     def to_bytes(self, leds):
         return bytearray(bytes.fromhex("{:02x}".format(leds)))
 
-    # return led and finished
-    # b0000 0x00 NO UPDATE
-    # b0001 0x10 LED 1
-    # b0010 0x20 LED 2
-    # b0100 0x40 LED 3
-    # b1000 0x80 LED 4
+    # return finished and leds
     def step(self, button, cursor):
-        leds = self.to_bytes(0x10)
+        leds = self.to_bytes(self.LED_1)
         return [True, leds]
 
     def reset(self):
