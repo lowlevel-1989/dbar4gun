@@ -3,11 +3,11 @@
 To assign the light gun configuration to the desired game, you need to copy the configuration file to the following location:
 
 ```
-saves/arcade/cfg/luckywld.cfg
+saves/arcade/mame2015/cfg/luckywld.cfg
 ```
 or
 ```
-roms/arcade/cfg/luckywld.cfg
+roms/arcade/mame2015/cfg/luckywld.cfg
 ```
 
 
