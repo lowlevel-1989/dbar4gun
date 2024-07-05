@@ -23,8 +23,8 @@ For additional Wiimotes, connect them directly via Bluetooth since DolphinBar be
 - wiimote with individual buttons
 - multiplayer
 - nunchuck
-- calibration two point
-- calibration three point
+- calibration two points
+- calibration three points
 - Standard configuration for Wii sensor
 - dbar4gun supports maximum resolution and sensitivity without causing cursor jumps
 - wiimote led -> index mouse (bin number)
@@ -95,8 +95,9 @@ In the case of the DolphinBar, it is detected as four Wiimotes, even if they are
 
 ## To Do
 
-1. Class Manage Device
-2. Class Log System
+1. Calibration ( high priority always )
+2. Class Manage Device
+3. Class Log System
 
 ## Install with RetroPie-Setup
 
