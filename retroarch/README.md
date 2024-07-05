@@ -1,4 +1,4 @@
-## Light Gun Configuration for Non-MAME Core Games
+## Light Gun Configuration Manual for Specific Core Games
 
 To assign the light gun configuration to the desired game, you need to copy the configuration file to the following location:
 
@@ -22,5 +22,7 @@ These configurations will be used when starting this specific ROM.
 
 ### Available Configurations:
 
+#### Mame 2015
+- [Lucky & Wild](mame2015/House%20of%20the%20Dead%202)
 #### Dreamcast
 - [House of the Dead 2](dreamcast/House%20of%20the%20Dead%202)
