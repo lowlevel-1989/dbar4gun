@@ -53,7 +53,7 @@ class CalibrationTopLeftTopRightBottomCenterPoint(CalibrationBase):
             return [False, leds]
 
         # top left point (capture)
-        elif self.state == 1 and button and cursor[0] < 0.2 and cursor[1] < 1.0:
+        elif self.state == 1 and button and cursor[1] < 1.0:
             x = cursor[0] + (self.screen_topleft_point[0] - self.target_topleft_point[0])
             y = cursor[1] + (self.screen_topleft_point[1] - self.target_topleft_point[1])
             self.gun_topleft_point = [x, y]
@@ -67,7 +67,7 @@ class CalibrationTopLeftTopRightBottomCenterPoint(CalibrationBase):
             return [False, leds]
 
         # top right point (capture)
-        elif self.state == 3 and button and cursor[0] > 0.8 and cursor[1] < 1.0:
+        elif self.state == 3 and button and cursor[1] < 1.0:
             x = cursor[0] + (self.screen_topright_point[0] - self.target_topright_point[0])
             y = cursor[1] + (self.screen_topright_point[1] - self.target_topright_point[1])
             self.gun_topright_point = [x, y]
