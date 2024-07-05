@@ -23,6 +23,6 @@ These configurations will be used when starting this specific ROM.
 ### Available Configurations:
 
 #### Mame 2015
-- [Lucky & Wild](mame2015/House%20of%20the%20Dead%202)
+- [Lucky & Wild](mame2015/Lucky%20%26%20Wild)
 #### Dreamcast
 - [House of the Dead 2](dreamcast/House%20of%20the%20Dead%202)
