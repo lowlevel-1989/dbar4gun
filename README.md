@@ -1,4 +1,4 @@
-# dbar4gun 0.12.1
+# dbar4gun 0.13.0
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support, specifically designed to function as 4 light guns.
 
@@ -80,17 +80,17 @@ Refer to the [specific README for light gun configuration](retroarch) to learn h
 
 ## List of No-Crosshair Games: Perfect Performance with wiimote (tested)
 
-#### Mame
-- Point Blank
-- Point Blank 2
-- Time Crisis
-- Golly! Ghost!
-- VS. Hogan's Alley (~bonus)
-#### Mame 2015
-- Lucky & Wild
-#### Dreamcast
-- House of the Dead 2
-- Virtual Cop 2
+| game                     | system     | note                           | 
+|--------------------------|------------|--------------------------------|
+| Point Blank              | Mame       |                                |
+| Point Blank 2            | Mame       |                                |
+| Time Crisis              | Mame       |                                |
+| Golly! Ghost!            | Mame       |                                |
+| VS. Hogan's Alley        | Mame       | low precision in the bonus     |
+| Lucky & Wild             | Mame 2015  |                                |
+| Area 51                  | Mame 2003+ |                                |
+| House of the Dead 2      | Dreamcast  |                                |
+| Virtual Cop 2            | Dreamcast  |                                |
 
 ## Memory Consumption of the dbar4gun
 
