@@ -42,8 +42,8 @@ For additional Wiimotes, connect them directly via Bluetooth since DolphinBar be
 | wiimote  | ir        | mouse cursor  | false  | cursor              |
 | wiimote  | a         | auto key      | false  | bomb                |
 | wiimote  | b         | mouse left    | false  | trigger             |
-| wiimote  | home      | mouse middle  | false  |                     |
-| wiimote  | 1         | auto key      | false  |                     |
+| wiimote  | home      | key f1        | true   | menu (retroarch)    |
+| wiimote  | 1         | mouse middle  | false  |                     |
 | wiimote  | 2         | mouse right   | false  | reload (retroarch)  |
 | wiimote  | plus      | auto key      | false  | start               |
 | wiimote  | minus     | auto key      | false  | 1 coin              |
@@ -54,8 +54,8 @@ For additional Wiimotes, connect them directly via Bluetooth since DolphinBar be
 | combo    | b + minus | key esc       | true   | exit (retroarch)    |
 | combo    | b + plus  | key enter     | true   | select              |
 | combo    | b + home  | key tab       | true   | menu                |
-| combo    | b + 1     | key =         | true   | machine volume up   |
-| combo    | b + 2     | key -         | true   | machine volume down |
+| combo    | b + 1     | key space     | true   | fast forward        |
+| combo    | b + 2     | key 2         | true   | start (P2)          |
 | combo    | a + plus  |               | false  | start calibration   |
 | combo    | a + minus |               | false  | reset calibration   |
 
