@@ -94,7 +94,7 @@ class VirtualGunDevice(object):
                 evdev.ecodes.BTN_LEFT,           # WIIMOTE BUTTON B
                 evdev.ecodes.BTN_RIGHT,          # WIIMOTE BUTTON A
                 evdev.ecodes.BTN_MIDDLE,         # WIIMOTE BUTTON ONE
-                evdev.ecodes.KEY_F1              # WIIMOTE BUTTON HOME
+                evdev.ecodes.KEY_F1,             # WIIMOTE BUTTON HOME
 
                 # combos
                 evdev.ecodes.KEY_ENTER,  # b + plus
