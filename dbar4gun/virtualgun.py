@@ -93,7 +93,8 @@ class VirtualGunDevice(object):
             evdev.ecodes.EV_KEY: [
                 evdev.ecodes.BTN_LEFT,           # WIIMOTE BUTTON B
                 evdev.ecodes.BTN_RIGHT,          # WIIMOTE BUTTON A
-                evdev.ecodes.BTN_MIDDLE,         # BUTTON HOME
+                evdev.ecodes.BTN_MIDDLE,         # WIIMOTE BUTTON ONE
+                evdev.ecodes.KEY_F1              # WIIMOTE BUTTON HOME
 
                 # combos
                 evdev.ecodes.KEY_ENTER,  # b + plus
@@ -214,6 +215,7 @@ class VirtualGunDevice(object):
             self.virtualgun.syn()
             return
 
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_F1,                     button_home)
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_LEFT,                   button_b)
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_MIDDLE,                 button_one)
 
