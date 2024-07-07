@@ -78,6 +78,20 @@ Once you've completed these steps, your Light Gun will be calibrated and ready t
 
 Refer to the [specific README for light gun configuration](retroarch) to learn how to configure games in RetroArch.
 
+## List of No-Crosshair Games: Perfect Performance with wiimote (tested)
+
+#### Mame
+- Point Blank
+- Point Blank 2
+- Time Crisis
+- Golly! Ghost!
+- VS. Hogan's Alley (~bonus)
+#### Mame 2015
+- Lucky & Wild
+#### Dreamcast
+- House of the Dead 2
+- Virtual Cop 2
+
 ## Memory Consumption of the dbar4gun
 
 Currently, the dbar4gun consumes ~24 MB. For each Wiimote connected via Bluetooth, an additional ~19 MB is consumed, as a dedicated process is generated to manage each Wiimote.
