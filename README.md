@@ -90,7 +90,7 @@ Refer to the [specific README for light gun configuration](retroarch) to learn h
 | Lucky & Wild             | Mame 2015  |                                |
 | Area 51                  | Mame 2003+ |                                |
 | House of the Dead 2      | Dreamcast  |                                |
-| Virtual Cop 2            | Dreamcast  |                                |
+| Virtua Cop 2             | Dreamcast  |                                |
 
 ## Memory Consumption of the dbar4gun
 
