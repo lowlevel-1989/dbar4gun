@@ -46,39 +46,48 @@ _TR = 1
 _BL = 2
 _BR = 3
 
-type Vector2D          = tuple[float, float]
-type Vector3D          = tuple[float, float, float]
-type CoreIRDot         = Vector3D
-type CoreIRCollection  = tuple[CoreIRDot, CoreIRDot, CoreIRDot, CoreIRDot]
-type CoreAccelerometer = Vector3D
-type CoreButtons       = int
-type NunchuckButtons   = int
-type NunchuckJoy       = Vector2D
-type Cursor            = Vector2D
-type IsDone            = bool
-type LEDs              = int
+# unsupport python < version 3.12
+# type Vector2D          = tuple[float, float]
+# type Vector3D          = tuple[float, float, float]
+# type CoreIRDot         = Vector3D
+# type CoreIRCollection  = tuple[CoreIRDot, CoreIRDot, CoreIRDot, CoreIRDot]
+# type CoreAccelerometer = Vector3D
+# type CoreButtons       = int
+# type NunchuckButtons   = int
+# type NunchuckJoy       = Vector2D
+# type Cursor            = Vector2D
+# type IsDone            = bool
+# type LEDs              = int
 
 
 class CalibrationProtocol(typing.Protocol):
 
+    # unsupport python < version 3.12
+    # def step(self,
+    #    button_trigger : bool,
+    #    dots : CoreIRCollection, acc : CoreAccelerometer) -> tuple[IsDone, LEDs]:
     def step(self,
         button_trigger : bool,
-        dots : CoreIRCollection, acc : CoreAccelerometer) -> tuple[IsDone, LEDs]:
+        dots, acc : tuple[float, float, float]) -> tuple[bool, int]:
         ...
 
     def reset(self) -> None:
         ...
 
-    def map_coordinates(self, dots : CoreIRCollection, acc : CoreAccelerometer) -> Cursor:
+    # unsupport python < version 3.12
+    # def map_coordinates(self, dots : CoreIRCollection, acc : CoreAccelerometer) -> Cursor:
+    def map_coordinates(self, dots, acc : tuple[float, float, float]) -> tuple[float, float]:
         ...
 
     def set_tilt_correction(enable: bool) -> None:
         ...
 
-    def get_cursor_raw(self, dots : CoreIRCollection) -> Cursor:
+    # unsupport python < version 3.12
+    # def get_cursor_raw(self, dots : CoreIRCollection) -> Cursor:
+    def get_cursor_raw(self, dots) -> tuple[float, float]:
         ...
 
-    def get_cursor(self, dots : CoreIRCollection) -> Cursor:
+    def get_cursor(self, dots) -> tuple[float, float]:
         ...
 
 # REF: https://wiibrew.org/wiki/Wiimote
@@ -466,10 +475,14 @@ Byte	7	6	5	4	3	2	1	0
         if leds:
             self.io.write(bytearray(b"\x11") + self.to_bytes(leds))
 
-    def get_cursor_raw(self) -> Cursor:
+    # unsupport python < version 3.12
+    # def get_cursor_raw(self) -> Cursor:
+    def get_cursor_raw(self) -> tuple[float, float]:
         return self.calibration.get_cursor_raw(self.core_ir_dot_sorted)
 
-    def get_cursor(self) -> Cursor:
+    # unsupport python < version 3.12
+    # def get_cursor(self) -> Cursor:
+    def get_cursor(self) -> tuple[float, float]:
         return self.calibration.map_coordinates(
                 self.core_ir_dot_sorted, self.core_accelerometer)
 
@@ -494,9 +507,13 @@ Byte	7	6	5	4	3	2	1	0
             # reset calibration
             self.calibration.reset()
 
+    # unsupport python < version 3.12
+    # def read(self) -> tuple[
+    #        CoreButtons, CoreIRCollection, CoreAccelerometer,
+    #        NunchuckButtons, NunchuckJoy]:
     def read(self) -> tuple[
-            CoreButtons, CoreIRCollection, CoreAccelerometer,
-            NunchuckButtons, NunchuckJoy]:
+            int, tuple[float, float, float],
+            int, int]:
 
         if not self.is_pair:
             self.reset()
@@ -526,7 +543,7 @@ Byte	7	6	5	4	3	2	1	0
             nunchuck_buttons = struct.unpack(self.DATA_FORMAT_X37, self.buf)
 
             self.core_button        = buttons
-            self.core_accelerometer = [acc_x, acc_y, acc_z]
+            self.core_accelerometer = [acc_x / 0xff, acc_y / 0xff, acc_z / 0xff]
 
             self.nunchuck_button = 0x00
             self.nunchuck_joy    = [0.5, 0.5]

@@ -1,4 +1,4 @@
-# dbar4gun 0.14.0
+# dbar4gun 0.14.1
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support, specifically designed to function as 4 light guns.
 
@@ -157,7 +157,7 @@ You have a Raspberry Pi 3 or for Raspberry Pi 2 and below, you need a Bluetooth 
 ### System dependencies
 
 - git
-- python
+- python >= 3.8
 - bluez >= 5.0
 
 ### Python dependencies

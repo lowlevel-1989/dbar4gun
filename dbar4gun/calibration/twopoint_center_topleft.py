@@ -1,9 +1,11 @@
 from dbar4gun.calibration.base import CalibrationBase
-from dbar4gun.calibration.base import Point2DCollection
-from dbar4gun.calibration.base import Vector3D
-from dbar4gun.calibration.base import Cursor
-from dbar4gun.calibration.base import LEDs
-from dbar4gun.calibration.base import IsDone
+
+# unsupport python < version 3.12
+# from dbar4gun.calibration.base import Point2DCollection
+# from dbar4gun.calibration.base import Vector3D
+# from dbar4gun.calibration.base import Cursor
+# from dbar4gun.calibration.base import LEDs
+# from dbar4gun.calibration.base import IsDone
 
 
 class CalibrationCenterTopLeftPoint(CalibrationBase):
@@ -25,7 +27,9 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
 
         super().reset()
 
-    def map_coordinates(self, point : Point2DCollection, acc : Vector3D) -> Cursor:
+    # unsupport python < version 3.12
+    # def map_coordinates(self, point : Point2DCollection, acc : Vector3D) -> Cursor:
+    def map_coordinates(self, point, acc : tuple[float, float, float]) -> tuple[float, float]:
 
         # set position target
         if   self.state == 1:
@@ -45,10 +49,15 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
         return (x, y)
 
 
+    # unsupport python < version 3.12
+    # def step(self,
+    #        button : bool,
+    #        point  : Point2DCollection,
+    #        acc    : Vector3D) -> tuple[IsDone, LEDs]:
     def step(self,
             button : bool,
-            point  : Point2DCollection,
-            acc    : Vector3D) -> tuple[IsDone, LEDs]:
+            point,
+            acc    : tuple[float, float, float]) -> tuple[bool, int]:
 
         # center point (leds)
         if self.state == 0 and button == False:

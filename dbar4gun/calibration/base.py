@@ -1,12 +1,13 @@
 import math
 
-type Vector2D          = tuple[float, float]
-type Cursor            = Vector2D
-type Vector3D          = tuple[float, float, float]
-type Point2D           = Vector2D
-type Point2DCollection = tuple[Point2D, Point2D, Point2D, Point2D]
-type IsDone            = bool
-type LEDs              = int
+# unsupport python < version 3.12
+# type Vector2D          = tuple[float, float]
+# type Cursor            = Vector2D
+# type Vector3D          = tuple[float, float, float]
+# type Point2D           = Vector2D
+# type Point2DCollection = tuple[Point2D, Point2D, Point2D, Point2D]
+# type IsDone            = bool
+# type LEDs              = int
 
 class CalibrationBase(object):
 
@@ -33,10 +34,16 @@ class CalibrationBase(object):
     def set_tilt_correction(self, enable: bool) -> None:
         self.enable_tilt_correction = enable
 
+    # unsupport python < version 3.12
+    # def step(self,
+    #        button : bool,
+    #        point  : Point2DCollection,
+    #        acc    : Vector3D) -> tuple[IsDone, LEDs]:
     def step(self,
             button : bool,
-            point  : Point2DCollection,
-            acc    : Vector3D) -> tuple[IsDone, LEDs]:
+            point,
+            acc    : tuple[float, float, float]) -> tuple[bool, int]:
+
 
         return [True, self.LED_1]
 
@@ -47,7 +54,9 @@ class CalibrationBase(object):
     def calibrate(self) -> None:
         pass
 
-    def tilt_correction(self, point : Point2D) -> Cursor:
+    # unsupport python < version 3.12
+    # def tilt_correction(self, point : Point2D) -> Cursor:
+    def tilt_correction(self, point : tuple[float, float]) -> tuple[float, float]:
 
         # Calculate the angle of rotation using atan2 and invert the angle by multiplying by -1
         angle = math.atan2(
@@ -71,7 +80,9 @@ class CalibrationBase(object):
         return cursor
 
     # TODO: optimize
-    def fix_offscreen(self, point : Point2D) -> Point2D:
+    # unsupport python < version 3.12
+    # def fix_offscreen(self, point : Point2D) -> Point2D:
+    def fix_offscreen(self, point : tuple[float, float]) -> tuple[float, float]:
         distance_left   = point[self.X]
         distance_right  = 1 - point[self.X]
         distance_bottom = point[self.Y]
@@ -100,7 +111,9 @@ class CalibrationBase(object):
 
         return point
 
-    def get_cursor_raw(self, point : Point2DCollection) -> Cursor:
+    # unsupport python < version 3.12
+    # def get_cursor_raw(self, point : Point2DCollection) -> Cursor:
+    def get_cursor_raw(self, point) -> tuple[float, float]:
         cursor = [
             (point[self.TR][self.X] + point[self.TL][self.X]) / 2,
             (point[self.TR][self.Y] + point[self.TL][self.Y]) / 2
@@ -108,13 +121,17 @@ class CalibrationBase(object):
 
         return cursor
 
-    def get_cursor(self, point : Point2DCollection) -> Cursor:
+    # unsupport python < version 3.12
+    # def get_cursor(self, point : Point2DCollection) -> Cursor:
+    def get_cursor(self, point) -> tuple[float, float]:
         if self.enable_tilt_correction and \
                 point[self.TL][self.K] and point[self.TR][self.K]:
             return self.tilt_correction(point)
         return self.get_cursor_raw(point)
 
-    def map_coordinates(self, point : Point2DCollection, acc : Vector3D) -> Cursor:
+    # unsupport python < version 3.12
+    # def map_coordinates(self, point : Point2DCollection, acc : Vector3D) -> Cursor:
+    def map_coordinates(self, point, acc : tuple[float, float, float]) -> tuple[float, float]:
 
         cursor = self.get_cursor(point)
 
