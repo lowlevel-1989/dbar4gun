@@ -1,3 +1,13 @@
+import math
+
+type Vector2D          = tuple[float, float]
+type Cursor            = Vector2D
+type Vector3D          = tuple[float, float, float]
+type Point2D           = Vector2D
+type Point2DCollection = tuple[Point2D, Point2D, Point2D, Point2D]
+type IsDone            = bool
+type LEDs              = int
+
 class CalibrationBase(object):
 
     LED_U = 0x00
@@ -6,28 +16,116 @@ class CalibrationBase(object):
     LED_3 = 0x40
     LED_4 = 0x80
 
+    TL = 0
+    TR = 1
+    BL = 2
+    BR = 3
+
+    X = 0
+    Y = 1
+    K = 2
+
     def __init__(self):
         self.state  = 0
-        self.offset = [0, 0]
-        self.scale  = [1, 1]
+        self.enable_tilt_correction = True
         self.reset()
 
-    def to_bytes(self, leds):
-        return bytearray(bytes.fromhex("{:02x}".format(leds)))
+    def set_tilt_correction(self, enable: bool) -> None:
+        self.enable_tilt_correction = enable
 
-    # return finished and leds
-    def step(self, button, cursor):
-        leds = self.to_bytes(self.LED_1)
-        return [True, leds]
+    def step(self,
+            button : bool,
+            point  : Point2DCollection,
+            acc    : Vector3D) -> tuple[IsDone, LEDs]:
 
-    def reset(self):
+        return [True, self.LED_1]
+
+    def reset(self) -> None:
         self.state  = 0
-        self.offset = [0, 0]
-        self.scale  = [1, 1]
         self.calibrate()
 
-    def calibrate(self):
+    def calibrate(self) -> None:
         pass
 
-    def map_coordinates(self, point):
+    def tilt_correction(self, point : Point2D) -> Cursor:
+
+        # Calculate the angle of rotation using atan2 and invert the angle by multiplying by -1
+        angle = math.atan2(
+            point[self.TR][self.Y] - point[self.TL][self.Y],
+            point[self.TR][self.X] - point[self.TL][self.X]) * -1
+
+        cursor = self.get_cursor_raw(point)
+
+        # transform origin 0, 0
+        cursor[self.X] = cursor[self.X] - 0.5
+        cursor[self.Y] = cursor[self.Y] - 0.5
+
+        # apply the rotation transformation to the cursor
+        rotx = math.cos(angle) * cursor[self.X] - math.sin(angle) * cursor[self.Y];
+        roty = math.sin(angle) * cursor[self.X] + math.cos(angle) * cursor[self.Y];
+
+        # re-center the rotated coordinates back to the screen coordinate system
+        cursor[self.X] = 0.5 + rotx
+        cursor[self.Y] = 0.5 + roty
+
+        return cursor
+
+    # TODO: optimize
+    def fix_offscreen(self, point : Point2D) -> Point2D:
+        distance_left   = point[self.X]
+        distance_right  = 1 - point[self.X]
+        distance_bottom = point[self.Y]
+        distance_top    = 1 - point[self.Y]
+
+        # Put the distances in a dictionary
+        distances = {
+            "left":   distance_left,
+            "right":  distance_right,
+            "bottom": distance_bottom,
+            "top":    distance_top
+        }
+
+        # Determine which edge is the closest
+        nearest_edge = min(distances, key=distances.get)
+
+        # Adjust the object's position to the closest edge
+        if nearest_edge   == "left":
+            point[self.X] = 0
+        elif nearest_edge == "right":
+            point[self.X] = 1
+        elif nearest_edge == "bottom":
+            point[self.X] = 0
+        elif nearest_edge == "top":
+            point[self.X] = 1
+
         return point
+
+    def get_cursor_raw(self, point : Point2DCollection) -> Cursor:
+        cursor = [
+            (point[self.TR][self.X] + point[self.TL][self.X]) / 2,
+            (point[self.TR][self.Y] + point[self.TL][self.Y]) / 2
+        ]
+
+        return cursor
+
+    def get_cursor(self, point : Point2DCollection) -> Cursor:
+        if self.enable_tilt_correction and \
+                point[self.TL][self.K] and point[self.TR][self.K]:
+            return self.tilt_correction(point)
+        return self.get_cursor_raw(point)
+
+    def map_coordinates(self, point : Point2DCollection, acc : Vector3D) -> Cursor:
+
+        cursor = self.get_cursor(point)
+
+        if not point[self.TL][self.K] \
+                and not point[self.TR][self.K] \
+                and not point[self.BL][self.K] \
+                and not point[self.BR][self.K]:
+
+            cursor = self.fix_offscreen(cursor)
+
+        cursor[self.X] =  max(0.0, min(1.0, cursor[self.X]))
+        cursor[self.Y] =  max(0.0, min(1.0, cursor[self.Y]))
+
+        return cursor

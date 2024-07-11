@@ -1,14 +1,12 @@
-# dbar4gun 0.13.0
+# dbar4gun 0.14.0
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support, specifically designed to function as 4 light guns.
 
 ## Recommendation
 
-This software works best with wiimote models with integrated wiimotion plus support. It is advised to avoid using generic or knockoff wiimotes as they may exhibit erratic behavior.
+We recommend using DolphinBar as the main controller because, in mode 4, the bar stays on until we turn off the Wiimote. This way, we avoid having to manually connect or disconnect the USB every time we want to play with the Wiimote.
 
 It is important to remember to disconnect the Wiimote using the power button at the end of playing to increase the lifespan of the infrared LEDs.
-
-We recommend using DolphinBar as the main controller because, in mode 4, the bar stays on until we turn off the Wiimote. This way, we avoid having to manually connect or disconnect the USB every time we want to play with the Wiimote.
 
 For additional Wiimotes, connect them directly via Bluetooth since DolphinBar becomes slow if more than one Wiimote is connected.
 
@@ -23,6 +21,7 @@ For additional Wiimotes, connect them directly via Bluetooth since DolphinBar be
 - wiimote with individual buttons
 - multiplayer
 - nunchuck
+- tilt correction
 - calibration two points
 - calibration three points
 - Standard configuration for Wii sensor
@@ -31,6 +30,7 @@ For additional Wiimotes, connect them directly via Bluetooth since DolphinBar be
 - auto key
 - systemd
 - Smoothed cursor
+- Generic wiimote
 - works on linux
 - works on retropie
 - works on raspbian
@@ -109,6 +109,7 @@ In the case of the DolphinBar, it is detected as four Wiimotes, even if they are
 
 ## To Do
 
+1. ir manager as component
 1. Calibration ( high priority always )
 2. Class Manage Device
 3. Class Log System
@@ -180,7 +181,7 @@ pip install $(pwd)
 #### help service
 ```
 usage: dbar4gun [-h] [--calibration {0,1,2}] [--width WIDTH] [--height HEIGHT]
-                [--smoothing-level SMOOTHING_LEVEL]
+                [--disable-tilt-correction]
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support,
 specifically designed to be small and function as 4 light guns.
@@ -195,9 +196,9 @@ options:
                             1: Center,  TopLeft
                             2: TopLeft, TopRight, BottomCenter (default)
                             
-  --width WIDTH         screen
+  --width  WIDTH        screen
   --height HEIGHT       screen
-  --smoothing-level SMOOTHING_LEVEL
+  --disable-tilt-correction
 ```
 
 #### run service with root

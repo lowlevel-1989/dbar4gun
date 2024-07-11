@@ -6,7 +6,6 @@ import signal
 import argparse
 
 from io          import FileIO
-from collections import deque
 
 from multiprocessing import Process
 from multiprocessing import Queue
@@ -28,7 +27,8 @@ __queue     = Queue()
 
 def virtualgun_worker(hidraw_io, lock, config, Calibration):
 
-    wiimote = WiiMoteDevice(hidraw_io, Calibration, config.width, config.height)
+    wiimote = WiiMoteDevice(hidraw_io, Calibration)
+    wiimote.set_tilt_correction(not config.disable_tilt_correction)
 
     # virtualgun -> mouse / key
     virtualgun = VirtualGunDevice(config.width, config.height)
@@ -43,26 +43,18 @@ def virtualgun_worker(hidraw_io, lock, config, Calibration):
         time.sleep(0.3)
 
     try:
-        history_x = deque(maxlen=config.smoothing_level)
-        history_y = deque(maxlen=config.smoothing_level)
 
         while 1:
             wiimote.check_is_alive()
-            buttons, ir, nunchuck = wiimote.read()
-            history_x.append(ir["pos_mid_nor"][0])
-            history_y.append(ir["pos_mid_nor"][1])
+            buttons, ir, acc, nunchuck_buttons, nunchuck_joy = wiimote.read()
 
-            ir["pos_mid_nor"][0] = sum(history_x) / config.smoothing_level
-            ir["pos_mid_nor"][1] = sum(history_y) / config.smoothing_level
+            cursor = wiimote.get_cursor()
 
-            cursor = wiimote.get_cursor_position(ir)
-
-            virtualgun.set_buttons(buttons, nunchuck)
+            virtualgun.set_buttons(buttons, nunchuck_buttons, nunchuck_joy)
             virtualgun.set_cursor(cursor)
             virtualgun.sync()
     except Exception as e:
         print(e)
-        pass
     finally:
         print("bye VirtualGun {:03X}".format(wiimote.player))
 
@@ -171,12 +163,9 @@ specifically designed to be small and function as 4 light guns.
     parser.add_argument('--calibration',     type=int, default=2,  choices=range(3), help=CALIBRATION_HELP)
     parser.add_argument("--width",           type=int, default=1920, help="screen")
     parser.add_argument("--height",          type=int, default=1080, help="screen")
-    parser.add_argument("--smoothing-level", type=int, default=3)
+    parser.add_argument("--disable-tilt-correction", action='store_true')
 
     config = parser.parse_args()
-
-    if config.smoothing_level < 1:
-        config.smoothing_level = 1
 
     monitor = Monitor(queue = __queue)
 

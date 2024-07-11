@@ -1,6 +1,5 @@
 import pyudev
 
-
 # udevadm info --query=all --name=/dev/hidraw0
 # udevadm info -a -n /dev/hidraw0
 

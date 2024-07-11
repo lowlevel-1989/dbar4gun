@@ -1,4 +1,10 @@
 from dbar4gun.calibration.base import CalibrationBase
+from dbar4gun.calibration.base import Point2DCollection
+from dbar4gun.calibration.base import Vector3D
+from dbar4gun.calibration.base import Cursor
+from dbar4gun.calibration.base import LEDs
+from dbar4gun.calibration.base import IsDone
+
 
 class CalibrationCenterTopLeftPoint(CalibrationBase):
     def __init__(self):
@@ -13,13 +19,13 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
 
         super().__init__()
 
-    def reset(self):
+    def reset(self) -> None:
         self.gun_center_point  = self.screen_center_point[:]
         self.gun_topleft_point = self.screen_topleft_point[:]
 
         super().reset()
 
-    def map_coordinates(self, point):
+    def map_coordinates(self, point : Point2DCollection, acc : Vector3D) -> Cursor:
 
         # set position target
         if   self.state == 1:
@@ -27,9 +33,11 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
         elif self.state == 3:
             return self.target_topleft_point[:]
 
+        cursor = super().map_coordinates(point, acc)
+
         # calculate position on screen
-        x = (point[0] - self.x_min) / self.width
-        y = (point[1] - self.y_min) / self.height
+        x = (cursor[self.X] - self.x_min) / self.width
+        y = (cursor[self.Y] - self.y_min) / self.height
 
         x =  max(0.0, min(1.0, x))
         y =  max(0.0, min(1.0, y))
@@ -37,17 +45,19 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
         return (x, y)
 
 
-    # return finished and leds
-    def step(self, button, cursor):
+    def step(self,
+            button : bool,
+            point  : Point2DCollection,
+            acc    : Vector3D) -> tuple[IsDone, LEDs]:
 
         # center point (leds)
         if self.state == 0 and button == False:
             self.state = 1
-            leds = self.to_bytes(self.LED_2|self.LED_3)
-            return [False, leds]
+            return [False, self.LED_2|self.LED_3]
 
         # center point (capture)
-        elif self.state == 1 and button and cursor[1] > 0:
+        elif self.state == 1 and button and point[self.TL][self.K] and point[self.TR][self.K]:
+            cursor = self.get_cursor(point)
             self.gun_center_point = cursor
             self.state = 2
             return [False, self.LED_U]
@@ -55,13 +65,13 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
         # top left point (leds)
         elif self.state == 2 and button == False:
             self.state = 3
-            leds = self.to_bytes(self.LED_1|self.LED_4)
-            return [False, leds]
+            return [False, self.LED_1|self.LED_4]
 
         # top left point (capture)
-        elif self.state == 3 and button and cursor[1] < 1.0:
-            x = cursor[0] + (self.screen_topleft_point[0] - self.target_topleft_point[0])
-            y = cursor[1] + (self.screen_topleft_point[1] - self.target_topleft_point[1])
+        elif self.state == 3 and button and point[self.TR][self.K]:
+            cursor = self.get_cursor(point)
+            x = cursor[self.X] + (self.screen_topleft_point[self.X] - self.target_topleft_point[self.X])
+            y = cursor[self.Y] + (self.screen_topleft_point[self.Y] - self.target_topleft_point[self.Y])
             self.gun_topleft_point = [x, y]
             self.calibrate()
             self.state = 0
@@ -71,15 +81,15 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
         # continue
         return [False, self.LED_U]
 
-    def calibrate(self):
-        self.x_min = max(0.0, self.gun_topleft_point[0])
-        self.y_min = max(0.0, self.gun_topleft_point[1])
+    def calibrate(self) -> None:
+        self.x_min = max(0.0, self.gun_topleft_point[self.X])
+        self.y_min = max(0.0, self.gun_topleft_point[self.Y])
         self.x_max = min(1.0,
-            ( self.gun_center_point[0] - self.gun_topleft_point[0] ) + \
-                    self.gun_center_point[0] )
+            ( self.gun_center_point[self.X] - self.gun_topleft_point[self.X] ) + \
+                    self.gun_center_point[self.X] )
         self.y_max = min(1.0,
-            ( self.gun_center_point[1] - self.gun_topleft_point[1] ) + \
-                    self.gun_center_point[1] )
+            ( self.gun_center_point[self.Y] - self.gun_topleft_point[self.Y] ) + \
+                    self.gun_center_point[self.Y] )
 
         self.width  = self.x_max - self.x_min
         self.height = self.y_max - self.y_min

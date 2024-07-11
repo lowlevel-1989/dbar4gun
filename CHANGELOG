@@ -1,0 +1,11 @@
+0.14.0
+- fixed nunchunk button pressed on the nunchunk when it is disconnected
+- new test files
+- added support for generic wiimote
+- calibration as component
+- the infrared dots detector was rewritten and improved
+- remove flag --smoothing-level
+- added tilt correction
+- new flag --disable-tilt-correction
+- prevent button pressed on calibration
+- added CHANGELOG
