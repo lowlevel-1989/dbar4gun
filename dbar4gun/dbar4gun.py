@@ -16,18 +16,44 @@ sys.path.insert(0, PATH_ROOT)
 
 from dbar4gun            import info
 from dbar4gun            import calibration
+from dbar4gun            import irsetup
 from dbar4gun.wiimote    import WiiMoteDevice
 from dbar4gun.virtualgun import VirtualGunDevice
 from dbar4gun.monitor    import Monitor
+
+
+IR_SETUP_LIST = [
+    irsetup.IRSetupStandard,
+    irsetup.IRSetupStandard,
+]
+
+IR_SETUP_HELP = """
+setup
+1: Standard (sensorbar, dolphinbar)
+"""
+
+CALIBRATION_LIST = [
+    calibration.CalibrationDummy,
+    calibration.CalibrationCenterTopLeftPoint,
+    calibration.CalibrationTopLeftTopRightBottomCenterPoint,
+]
+
+CALIBRATION_HELP = """
+mode
+0: disabled
+1: Center,  TopLeft
+2: TopLeft, TopRight, BottomCenter (default)
+"""
 
 __main_pid  = os.getpid()
 __hidraw_io = []
 __workers   = []
 __queue     = Queue()
 
-def virtualgun_worker(hidraw_io, lock, config, Calibration):
 
-    wiimote = WiiMoteDevice(hidraw_io, Calibration)
+def virtualgun_worker(hidraw_io, lock, config, Calibration, IRSetup):
+
+    wiimote = WiiMoteDevice(hidraw_io, Calibration, IRSetup)
     wiimote.set_tilt_correction(not config.disable_tilt_correction)
 
     # virtualgun -> mouse / key
@@ -61,21 +87,21 @@ def virtualgun_worker(hidraw_io, lock, config, Calibration):
 def remove_virtualgun_worker(hidraw_path, lock):
     pass
 
-def create_virtualgun_worker(hidraw_path, lock, config, Calibration):
+def create_virtualgun_worker(hidraw_path, lock, config, Calibration, IRSetup):
     lock.acquire()
 
     fd        = os.open(hidraw_path, os.O_RDWR)
     hidraw_io = io.FileIO(fd, "rb+", closefd=False)
 
     worker = Process(
-                target=virtualgun_worker, args=(hidraw_io, lock, config, Calibration))
+                target=virtualgun_worker, args=(hidraw_io, lock, config, Calibration, IRSetup))
 
     worker.start()
 
     __hidraw_io.append([fd, hidraw_io])
     __workers.append(worker)
 
-def monitor_handle_events(queue, config, Calibration):
+def monitor_handle_events(queue, config, Calibration, IRSetup):
 
     # handle exceptions for (controlled termination)
     try:
@@ -87,7 +113,7 @@ def monitor_handle_events(queue, config, Calibration):
             elif event[0] == "remove":
                 remove_virtualgun_worker(event[1], lock)
             else:
-                create_virtualgun_worker(event[1], lock, config, Calibration)
+                create_virtualgun_worker(event[1], lock, config, Calibration, IRSetup)
 
             print("monitor: {} {}".format(*event))
     except Exception as e:
@@ -116,11 +142,73 @@ def SignalHandler(SignalNumber, Frame):
     free()
     exit(0)
 
+def add_start_arguments(parser):
+    parser.add_argument('--calibration',     type=int, default=2,  choices=range(len(CALIBRATION_LIST)), help=CALIBRATION_HELP)
+    parser.add_argument('--setup',           type=int, default=1,  choices=range(1, len(IR_SETUP_LIST)), help=IR_SETUP_HELP)
+    parser.add_argument("--width",           type=int, default=1920, help="screen")
+    parser.add_argument("--height",          type=int, default=1080, help="screen")
+    parser.add_argument("--disable-tilt-correction", action='store_true')
+    parser.add_argument("--port",            type=int, default=35460, help="35460")
 
 def dbar4gun_run():
 
-    if len(sys.argv) > 1 and sys.argv[1].lower() == "version":
+    DBAR4GUN_DESC = """
+dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support,
+specifically designed to be small and function as 4 light guns.
+    """
+
+
+    parser = argparse.ArgumentParser(
+                prog=info.__title__,
+                formatter_class=argparse.RawTextHelpFormatter,
+                description=DBAR4GUN_DESC)
+
+    subparsers = parser.add_subparsers(dest="command")
+
+    command_start   = subparsers.add_parser("start")
+    command_stop    = subparsers.add_parser("stop")
+    command_version = subparsers.add_parser("version")
+    command_gui     = subparsers.add_parser("gui")
+
+    add_start_arguments(parser)
+    add_start_arguments(command_start)
+
+    command_gui.add_argument("--width",  type=int, default=1280,  help="1280")
+    command_gui.add_argument("--height", type=int, default=720,   help="720")
+    command_gui.add_argument("--port",   type=int, default=35460, help="35460")
+
+    config = parser.parse_args()
+
+    # TODO: optimize call from array
+    command = "start"
+    if config.command:
+        command = config.command
+
+    if command in ["start", "stop"] and os.path.exists("/var/run/dbar4gun.pid"):
+        with open("/var/run/dbar4gun.pid", "r") as f:
+            try:
+                pid = int(f.readline())
+                os.kill(pid, signal.SIGTERM)
+                if command == "stop":
+                    print("ok")
+                    exit(0)
+            except Exception as e:
+                print(e)
+                exit(1)
+
+    if command == "version":
         print("{} v{}".format(info.__title__,  info.__version__))
+        exit(0)
+
+    elif command == "gui":
+        from dbar4gun.gui import GUI
+
+        gui = GUI(width=config.width, height=config.height, port=config.port)
+
+        gui.open()
+        gui.loop()
+        gui.close()
+
         exit(0)
 
     if os.path.exists("/var/run/dbar4gun.pid"):
@@ -138,44 +226,22 @@ def dbar4gun_run():
     signal.signal(signal.SIGINT,  SignalHandler)
     signal.signal(signal.SIGTERM, SignalHandler)
 
-    CALIBRATION_LIST = [
-        calibration.CalibrationDummy,
-        calibration.CalibrationCenterTopLeftPoint,
-        calibration.CalibrationTopLeftTopRightBottomCenterPoint,
-    ]
-
-    CALIBRATION_HELP = """
-    mode
-    0: disabled
-    1: Center,  TopLeft
-    2: TopLeft, TopRight, BottomCenter (default)
-    """
-
-    DBAR4GUN_DESC = """
-dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support,
-specifically designed to be small and function as 4 light guns.
-    """
-    parser = argparse.ArgumentParser(
-                prog=info.__title__,
-                formatter_class=argparse.RawTextHelpFormatter,
-                description=DBAR4GUN_DESC)
-
-    parser.add_argument('--calibration',     type=int, default=2,  choices=range(3), help=CALIBRATION_HELP)
-    parser.add_argument("--width",           type=int, default=1920, help="screen")
-    parser.add_argument("--height",          type=int, default=1080, help="screen")
-    parser.add_argument("--disable-tilt-correction", action='store_true')
-
-    config = parser.parse_args()
+    exit(3)
+    # config = parser.parse_args()
 
     monitor = Monitor(queue = __queue)
 
     Calibration = calibration.CalibrationDummy
-    if config.calibration < 3:
+    if config.calibration < len(CALIBRATION_LIST):
         Calibration = CALIBRATION_LIST[config.calibration]
+
+    IRSetup = irsetup.IRSetupStandard
+    if config.setup < len(IR_SETUP_LIST):
+        IRSetup = IR_SETUP_LIST[config.setup]
 
     monitor_event_process = Process(
             target=monitor_handle_events,
-            args=(monitor.queue, config, Calibration))
+            args=(monitor.queue, config, Calibration, IRSetup))
 
     monitor_event_process.start()
 

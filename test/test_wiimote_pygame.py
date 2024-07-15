@@ -10,6 +10,7 @@ import pygame
 import dbar4gun
 
 from dbar4gun import wiimote as wmote
+from dbar4gun import irsetup
 from dbar4gun.calibration import CalibrationDummy
 
 
@@ -58,7 +59,7 @@ def test_wiimote():
 
         pygame.display.flip()
 
-        wiimote = wmote.WiiMoteDevice(hidraw_io, CalibrationDummy)
+        wiimote = wmote.WiiMoteDevice(hidraw_io, CalibrationDummy, irsetup.IRSetupStandard)
 
         is_exit = False
         while not is_exit:

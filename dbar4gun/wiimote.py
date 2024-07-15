@@ -59,6 +59,12 @@ _BR = 3
 # type IsDone            = bool
 # type LEDs              = int
 
+class IRSetupProtocol(typing.Protocol):
+
+    # unsupport python < version 3.12
+    # def sort_and_restore(self, dots : CoreIRCollection) -> CoreIRCollection:
+    def sort_and_restore(self, ir_dots):
+        ...
 
 class CalibrationProtocol(typing.Protocol):
 
@@ -110,12 +116,16 @@ class WiiMoteDevice(object):
     # ERROR:          EE                0 is ok
     DATA_FORMAT_X22 = ">BHBB"
 
-    def __init__(self, hidraw_io: type[io.FileIO], Calibration : CalibrationProtocol):
+    def __init__(self,
+                 hidraw_io : type[io.FileIO],
+                 Calibration : CalibrationProtocol,
+                 IRSetup : IRSetupProtocol):
 
         self.is_pair = False
 
         self.calibration_on = 0
         self.calibration    = Calibration()
+        self.ir_setup       = IRSetup()
 
         self.io      = hidraw_io
         self.player  = 0
@@ -127,8 +137,6 @@ class WiiMoteDevice(object):
         # all normalized
         self.core_ir_dot             = [[1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
         self.core_ir_dot_sorted      = [[1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
-        self.core_ir_dot_sorted_prev = [[1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
-
         self.core_accelerometer      = [1.0, 1.0, 1.0]
 
         self.enable_nunchuck =     False
@@ -285,179 +293,10 @@ Byte	7	6	5	4	3	2	1	0
         dot_x4 = max(0.0, min(1.0, dot_x4))
         dot_y4 = max(0.0, min(1.0, dot_y4))
 
-        self.core_ir_dot_prev = self.core_ir_dot[:]
-
         self.core_ir_dot[0] = [dot_x1, dot_y1, dot_ok_1]
         self.core_ir_dot[1] = [dot_x2, dot_y2, dot_ok_2]
         self.core_ir_dot[2] = [dot_x3, dot_y3, dot_ok_3]
         self.core_ir_dot[3] = [dot_x4, dot_y4, dot_ok_4]
-
-    def sort_and_restore_ir_dots(self) -> None:
-
-        self.core_ir_dot_sorted_prev = self.core_ir_dot_sorted[:]
-
-        dots = []
-        for i in range(4):
-            dot = self.core_ir_dot[i]
-
-            if not dot[_K]:
-                dot = [1.0, 1.0, 0.0]
-
-            dots.append(dot)
-
-        # Sort the points by the y-coordinate (from highest to lowest)
-        dots_sorted = sorted(dots, key=lambda dot: dot[_Y])
-
-        # Now separate the points into upper and lower parts
-        upper_dots  = dots_sorted[:2]  # The top 2 points with the highest y-coordinates
-        lower_dots  = dots_sorted[2:]  # The bottom 2 points with the lowest y-coordinates
-
-        # ------------------------ UPPER DOTS --------------------------------------
-        if (upper_dots[0][_K] and upper_dots[1][_K]):
-            # Sort them by the x-coordinate
-            upper_dots_sorted = sorted(upper_dots, key=lambda dot: dot[_X])
-
-            self.core_ir_dot_sorted[_TL] = upper_dots_sorted[0]
-            self.core_ir_dot_sorted[_TR] = upper_dots_sorted[1]
-        if (not upper_dots[0][_K] and not upper_dots[1][_K]):
-
-            self.core_ir_dot_sorted[_TL] = self.core_ir_dot_sorted_prev[_TL]
-            self.core_ir_dot_sorted[_TL][_K] = 0.0
-            self.core_ir_dot_sorted[_TR] = self.core_ir_dot_sorted_prev[_TR]
-            self.core_ir_dot_sorted[_TR][_K] = 0.0
-        elif (upper_dots[0][_K] and not upper_dots[1][_K]):
-            p1 = upper_dots[0][:2]
-
-            dxy_min   = 1.0
-            dxy_index = 0
-            for i in range(2):
-                p2 = self.core_ir_dot_sorted_prev[i][:2]
-                dxy = math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
-
-                if dxy < dxy_min:
-                    dxy_min = dxy
-                    dxy_index = i
-
-            _upper_dots = [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
-
-            if dxy_index == 0:
-                _upper_dots[0] = upper_dots[0]
-                _upper_dots[1] = self.core_ir_dot_sorted_prev[_TR]
-                _upper_dots[1][_K] = 0.0
-            else:
-                _upper_dots[1] = upper_dots[0]
-                _upper_dots[0] = self.core_ir_dot_sorted_prev[_TL]
-                _upper_dots[0][_K] = 0.0
-
-            # Sort them by the x-coordinate
-            upper_dots_sorted = sorted(_upper_dots, key=lambda dot: dot[_X])
-
-            self.core_ir_dot_sorted[_TL] = upper_dots_sorted[0]
-            self.core_ir_dot_sorted[_TR] = upper_dots_sorted[1]
-
-        elif (upper_dots[1][_K] and not upper_dots[0][_K]):
-            p1 = upper_dots[1][:2]
-
-            dxy_min   = 1.0
-            dxy_index = 0
-            for i in range(2):
-                p2 = self.core_ir_dot_sorted_prev[i][:2]
-                dxy = math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
-
-                if dxy < dxy_min:
-                    dxy_min = dxy
-                    dxy_index = i
-
-            _upper_dots = [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
-
-            if dxy_index == 0:
-                _upper_dots[0] = upper_dots[1]
-                _upper_dots[1] = self.core_ir_dot_sorted_prev[_TR]
-                _upper_dots[1][_K] = 0.0
-            else:
-                _upper_dots[1] = upper_dots[1]
-                _upper_dots[0] = self.core_ir_dot_sorted_prev[_TL]
-                _upper_dots[0][_K] = 0.0
-
-            # Sort them by the x-coordinate
-            upper_dots_sorted = sorted(_upper_dots, key=lambda dot: dot[_X])
-
-            self.core_ir_dot_sorted[_TL] = upper_dots_sorted[0]
-            self.core_ir_dot_sorted[_TR] = upper_dots_sorted[1]
-
-
-        # ------------------------ LOWER DOTS --------------------------------------
-        if (lower_dots[0][_K] and lower_dots[1][_K]):
-            # Sort them by the x-coordinate
-            lower_dots_sorted = sorted(lower_dots, key=lambda dot: dot[_X])
-
-            self.core_ir_dot_sorted[_BL] = lower_dots_sorted[0]
-            self.core_ir_dot_sorted[_BR] = lower_dots_sorted[1]
-        if (not lower_dots[0][_K] and not lower_dots[1][_K]):
-
-            self.core_ir_dot_sorted[_BL] = self.core_ir_dot_sorted_prev[_BL]
-            self.core_ir_dot_sorted[_BL][_K] = 0.0
-            self.core_ir_dot_sorted[_BR] = self.core_ir_dot_sorted_prev[_BR]
-            self.core_ir_dot_sorted[_BR][_K] = 0.0
-        elif (lower_dots[0][_K] and not lower_dots[1][_K]):
-            p1 = lower_dots[0][:2]
-
-            dxy_min   = 1.0
-            dxy_index = 2
-            for i in range(2, 4):
-                p2 = self.core_ir_dot_sorted_prev[i][:2]
-                dxy = math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
-
-                if dxy < dxy_min:
-                    dxy_min = dxy
-                    dxy_index = i
-
-            _lower_dots = [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
-
-            if dxy_index == 2:
-                _lower_dots[0] = lower_dots[0]
-                _lower_dots[1] = self.core_ir_dot_sorted_prev[_BR]
-                _lower_dots[1][_K] = 0.0
-            else:
-                _lower_dots[1] = lower_dots[0]
-                _lower_dots[0] = self.core_ir_dot_sorted_prev[_BL]
-                _lower_dots[0][_K] = 0.0
-
-            # Sort them by the x-coordinate
-            lower_dots_sorted = sorted(_lower_dots, key=lambda dot: dot[_X])
-
-            self.core_ir_dot_sorted[_BL] = lower_dots_sorted[0]
-            self.core_ir_dot_sorted[_BR] = lower_dots_sorted[1]
-
-        elif (lower_dots[1][_K] and not lower_dots[0][_K]):
-            p1 = lower_dots[1][:2]
-
-            dxy_min   = 1.0
-            dxy_index = 0
-            for i in range(2):
-                p2 = self.core_ir_dot_sorted_prev[i][:2]
-                dxy = math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
-
-                if dxy < dxy_min:
-                    dxy_min = dxy
-                    dxy_index = i
-
-            _lower_dots = [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
-
-            if dxy_index == 2:
-                _lower_dots[0] = lower_dots[1]
-                _lower_dots[1] = self.core_ir_dot_sorted_prev[_BR]
-                _lower_dots[1][_K] = 0.0
-            else:
-                _lower_dots[1] = lower_dots[1]
-                _lower_dots[0] = self.core_ir_dot_sorted_prev[_BL]
-                _lower_dots[0][_K] = 0.0
-
-            # Sort them by the x-coordinate
-            lower_dots_sorted = sorted(_lower_dots, key=lambda dot: dot[_X])
-
-            self.core_ir_dot_sorted[_BL] = lower_dots_sorted[0]
-            self.core_ir_dot_sorted[_BR] = lower_dots_sorted[1]
 
     def calibration_step(self, button_trigger : bool) -> None:
 
@@ -511,9 +350,7 @@ Byte	7	6	5	4	3	2	1	0
     # def read(self) -> tuple[
     #        CoreButtons, CoreIRCollection, CoreAccelerometer,
     #        NunchuckButtons, NunchuckJoy]:
-    def read(self) -> tuple[
-            int, tuple[float, float, float],
-            int, int]:
+    def read(self):
 
         if not self.is_pair:
             self.reset()
@@ -556,7 +393,7 @@ Byte	7	6	5	4	3	2	1	0
                 ]
 
             self.parser_ir(ir_payload)
-            self.sort_and_restore_ir_dots()
+            self.core_ir_dot_sorted = self.ir_setup.sort_and_restore(self.core_ir_dot)
             self.calibration_check()
 
         elif report_id == WIIMOTE_REPORT_STATUS_ID:

@@ -17,11 +17,14 @@ setup(name=dbar4gun.__title__,
       },
       packages=[
           "dbar4gun",
-          "dbar4gun.calibration"
+          "dbar4gun.irsetup",
+          "dbar4gun.calibration",
+          "dbar4gun.gui"
       ],
       install_requires=[
           "evdev>=0.3.0",
           "pyudev>=0.16",
+          "pygame>=2.6.0"
       ],
       classifiers=[
         "Environment :: Console",
