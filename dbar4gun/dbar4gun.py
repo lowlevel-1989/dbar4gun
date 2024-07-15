@@ -28,7 +28,7 @@ IR_SETUP_LIST = [
 ]
 
 IR_SETUP_HELP = """
-setup
+mode
 1: Standard (sensorbar, dolphinbar)
 """
 
@@ -145,8 +145,8 @@ def SignalHandler(SignalNumber, Frame):
 def add_start_arguments(parser):
     parser.add_argument('--calibration',     type=int, default=2,  choices=range(len(CALIBRATION_LIST)), help=CALIBRATION_HELP)
     parser.add_argument('--setup',           type=int, default=1,  choices=range(1, len(IR_SETUP_LIST)), help=IR_SETUP_HELP)
-    parser.add_argument("--width",           type=int, default=1920, help="screen")
-    parser.add_argument("--height",          type=int, default=1080, help="screen")
+    parser.add_argument("--width",           type=int, default=1920, help="1920")
+    parser.add_argument("--height",          type=int, default=1080, help="1080")
     parser.add_argument("--disable-tilt-correction", action='store_true')
     parser.add_argument("--port",            type=int, default=35460, help="35460")
 
@@ -156,6 +156,9 @@ def dbar4gun_run():
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support,
 specifically designed to be small and function as 4 light guns.
     """
+
+    print("{} v{}".format(info.__title__,  info.__version__))
+    print("\t\t{}".format(info.__repo___))
 
 
     parser = argparse.ArgumentParser(
@@ -211,23 +214,15 @@ specifically designed to be small and function as 4 light guns.
 
         exit(0)
 
-    if os.path.exists("/var/run/dbar4gun.pid"):
-        with open("/var/run/dbar4gun.pid", "r") as f:
-            try:
-                pid = int(f.readline())
-                os.kill(pid, signal.SIGTERM)
-                if len(sys.argv) > 1 and sys.argv[1].lower() == "stop":
-                    print("ok")
-                    exit(0)
-            except Exception as e:
-                print(e)
-                exit(1)
+    if os.geteuid() > 0:
+        print("user root is required")
+        exit(1)
+
+    print("\t\tSCREEN {}x{}".format(config.width, config.height))
+    print("\t\tmonitor started, ctrl+c to exit or sudo kill -SIGTERM {}".format(__main_pid))
 
     signal.signal(signal.SIGINT,  SignalHandler)
     signal.signal(signal.SIGTERM, SignalHandler)
-
-    exit(3)
-    # config = parser.parse_args()
 
     monitor = Monitor(queue = __queue)
 
@@ -244,11 +239,6 @@ specifically designed to be small and function as 4 light guns.
             args=(monitor.queue, config, Calibration, IRSetup))
 
     monitor_event_process.start()
-
-    print("{} v{}".format(info.__title__,  info.__version__))
-    print("\t\t{}".format(info.__repo___))
-    print("\t\tSCREEN {}x{}".format(config.width, config.height))
-    print("\t\tmonitor started, ctrl+c to exit or sudo kill -SIGTERM {}".format(__main_pid))
 
     with open("/var/run/dbar4gun.pid", "w") as f:
         f.write(str(__main_pid))
