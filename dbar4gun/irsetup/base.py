@@ -1,3 +1,4 @@
+import math
 
 class IRSetupBase(object):
 
@@ -20,8 +21,27 @@ class IRSetupBase(object):
         self.core_ir_dot_sorted_prev = [[1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
 
     # unsupport python < version 3.12
-    # def sort_and_restore(self, dots : CoreIRCollection) -> CoreIRCollection:
-    def sort_and_restore(self, ir_dots):
-
+    # def sort_and_restore(self, dots : CoreIRCollection, acc : tuple[int, int, int]) -> CoreIRCollection:
+    def sort_and_restore(self, ir_dots, acc : tuple[int, int, int]):
         return self.core_ir_dot_sorted
+
+    def get_angle_from_acc(self, acc : tuple[int, int, int]) -> tuple[int, int]:
+        x, y, z = acc
+
+        # The accelerometer readings are normally between 0 and 255
+        # Neutral values are around 127
+        x -= 127
+        y -= 127
+        z -= 127
+
+        # Convert these readings to "g" acceleration (divide by 63.5)
+        x_g = x / 63.5
+        y_g = y / 63.5
+        z_g = z / 63.5
+
+        # Calculate angles using trigonometric functions
+        roll  = math.atan2(y_g, z_g) * -1
+        pitch = math.atan2(-x_g, math.sqrt(y_g**2 + z_g**2)) * -1
+
+        return roll, pitch
 

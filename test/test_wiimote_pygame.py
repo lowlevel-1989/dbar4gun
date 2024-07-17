@@ -85,6 +85,7 @@ def test_wiimote():
                 [0xc5, 0x60, 0xcd],
             ]
             i = 0
+
             for dot in ir_dots:
                 point = [int(dot[0] * config.width) + off[0], int(dot[1] * config.height) + off[1]]
                 pygame.draw.circle(surface, color[i], point, ratio, width=0 if dot[2] else 6)

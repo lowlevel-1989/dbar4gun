@@ -31,8 +31,8 @@ class CalibrationTopLeftTopRightBottomCenterPoint(CalibrationBase):
         super().reset()
 
     # unsupport python < version 3.12
-    # def map_coordinates(self, point : Point2DCollection, acc : Vector3D) -> Cursor:
-    def map_coordinates(self, point, acc : tuple[float, float, float]) -> tuple[float, float]:
+    # def map_coordinates(self, point : Point2DCollection, acc : tuple[int, int, int]) -> Cursor:
+    def map_coordinates(self, point, acc : tuple[int, int, int]) -> tuple[float, float]:
 
         # set position target
         if   self.state == 1:
@@ -58,11 +58,11 @@ class CalibrationTopLeftTopRightBottomCenterPoint(CalibrationBase):
     # def step(self,
     #        button : bool,
     #        point  : Point2DCollection,
-    #        acc    : Vector3D) -> tuple[IsDone, LEDs]:
+    #        acc    : tuple[int, int, int]) -> tuple[IsDone, LEDs]:
     def step(self,
             button : bool,
             point,
-            acc    : tuple[float, float, float]) -> tuple[bool, int]:
+            acc    : tuple[int, int, int]) -> tuple[bool, int]:
 
         # top left point (leds)
         if self.state == 0 and button == False:

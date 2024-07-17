@@ -51,7 +51,7 @@ _BR = 3
 # type Vector3D          = tuple[float, float, float]
 # type CoreIRDot         = Vector3D
 # type CoreIRCollection  = tuple[CoreIRDot, CoreIRDot, CoreIRDot, CoreIRDot]
-# type CoreAccelerometer = Vector3D
+# type CoreAccelerometer = tuple[int, int, int]
 # type CoreButtons       = int
 # type NunchuckButtons   = int
 # type NunchuckJoy       = Vector2D
@@ -62,8 +62,8 @@ _BR = 3
 class IRSetupProtocol(typing.Protocol):
 
     # unsupport python < version 3.12
-    # def sort_and_restore(self, dots : CoreIRCollection) -> CoreIRCollection:
-    def sort_and_restore(self, ir_dots):
+    # def sort_and_restore(self, dots : CoreIRCollection, acc : CoreAccelerometer) -> CoreIRCollection:
+    def sort_and_restore(self, ir_dots, acc : tuple[int, int, int]):
         ...
 
 class CalibrationProtocol(typing.Protocol):
@@ -74,7 +74,7 @@ class CalibrationProtocol(typing.Protocol):
     #    dots : CoreIRCollection, acc : CoreAccelerometer) -> tuple[IsDone, LEDs]:
     def step(self,
         button_trigger : bool,
-        dots, acc : tuple[float, float, float]) -> tuple[bool, int]:
+        dots, acc : tuple[int, int, int]) -> tuple[bool, int]:
         ...
 
     def reset(self) -> None:
@@ -82,7 +82,7 @@ class CalibrationProtocol(typing.Protocol):
 
     # unsupport python < version 3.12
     # def map_coordinates(self, dots : CoreIRCollection, acc : CoreAccelerometer) -> Cursor:
-    def map_coordinates(self, dots, acc : tuple[float, float, float]) -> tuple[float, float]:
+    def map_coordinates(self, dots, acc : tuple[int, int, int]) -> tuple[float, float]:
         ...
 
     def set_tilt_correction(enable: bool) -> None:
@@ -341,7 +341,6 @@ Byte	7	6	5	4	3	2	1	0
         if button_a & button_minus:
             self.core_button = 0x00
             self.calibration_on = 0
-            self.buttons_status  = b"\x00\x00"
 
             # reset calibration
             self.calibration.reset()
@@ -393,7 +392,7 @@ Byte	7	6	5	4	3	2	1	0
                 ]
 
             self.parser_ir(ir_payload)
-            self.core_ir_dot_sorted = self.ir_setup.sort_and_restore(self.core_ir_dot)
+            self.core_ir_dot_sorted = self.ir_setup.sort_and_restore(self.core_ir_dot, [acc_x, acc_y, acc_z])
             self.calibration_check()
 
         elif report_id == WIIMOTE_REPORT_STATUS_ID:

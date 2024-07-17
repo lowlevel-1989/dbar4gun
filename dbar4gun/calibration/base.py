@@ -38,11 +38,11 @@ class CalibrationBase(object):
     # def step(self,
     #        button : bool,
     #        point  : Point2DCollection,
-    #        acc    : Vector3D) -> tuple[IsDone, LEDs]:
+    #        acc    : tuple[int, int, int]) -> tuple[IsDone, LEDs]:
     def step(self,
             button : bool,
             point,
-            acc    : tuple[float, float, float]) -> tuple[bool, int]:
+            acc    : tuple[int, int, int]) -> tuple[bool, int]:
 
 
         return [True, self.LED_1]
@@ -121,6 +121,27 @@ class CalibrationBase(object):
 
         return cursor
 
+    def get_angle_from_acc(acc : tuple[int, int, int]):
+        x, y, z = acc
+
+        # The accelerometer readings are normally between 0 and 255
+        # Neutral values are around 127
+        x -= 127
+        y -= 127
+        z -= 127
+
+        # Convert these readings to "g" acceleration (divide by 63.5)
+        x_g = x / 63.5
+        y_g = y / 63.5
+        z_g = z / 63.5
+
+        # Calculate angles using trigonometric functions
+        roll  = math.atan2(y_g, z_g) * 180 / math.pi
+        pitch = math.atan2(-x_g, math.sqrt(y_g**2 + z_g**2)) * 180 / math.pi
+
+        return roll, pitch
+
+
     # unsupport python < version 3.12
     # def get_cursor(self, point : Point2DCollection) -> Cursor:
     def get_cursor(self, point) -> tuple[float, float]:
@@ -130,8 +151,8 @@ class CalibrationBase(object):
         return self.get_cursor_raw(point)
 
     # unsupport python < version 3.12
-    # def map_coordinates(self, point : Point2DCollection, acc : Vector3D) -> Cursor:
-    def map_coordinates(self, point, acc : tuple[float, float, float]) -> tuple[float, float]:
+    # def map_coordinates(self, point : Point2DCollection, acc : tuple[int, int, int]) -> Cursor:
+    def map_coordinates(self, point, acc : tuple[int, int, int]) -> tuple[float, float]:
 
         cursor = self.get_cursor(point)
 
