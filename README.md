@@ -1,4 +1,4 @@
-# dbar4gun 0.14.1
+# dbar4gun 0.15.0
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support, specifically designed to function as 4 light guns.
 
@@ -22,6 +22,7 @@ For additional Wiimotes, connect them directly via Bluetooth since DolphinBar be
 - multiplayer
 - nunchuck
 - tilt correction
+- solar filter
 - calibration two points
 - calibration three points
 - Standard configuration for Wii sensor
@@ -30,6 +31,8 @@ For additional Wiimotes, connect them directly via Bluetooth since DolphinBar be
 - auto key
 - systemd
 - Smoothed cursor
+- setup ir as Component
+- calibration as Component
 - Generic wiimote
 - works on linux
 - works on retropie
@@ -109,7 +112,6 @@ In the case of the DolphinBar, it is detected as four Wiimotes, even if they are
 
 ## To Do
 
-1. ir manager as component
 1. Calibration ( high priority always )
 2. Class Manage Device
 3. Class Log System

@@ -40,12 +40,31 @@ class IRSetupStandard(IRSetupBase):
         self.core_ir_dot_sorted[_BR] = self.core_ir_dot_sorted_prev[_BR]
         self.core_ir_dot_sorted[_BR][_K] = 0.0
 
+        # Solar Filter
         pitch, roll = self.get_angle_from_acc(acc)
 
-        roll = math.degrees(roll)
+        roll  = math.degrees(roll)
+        pitch = math.degrees(pitch)
+
+        if abs(pitch) > 70.5:
+            if pitch > 0:
+                self.core_ir_dot_sorted[_TL]     = self.core_ir_dot_sorted_prev[_TL]
+                self.core_ir_dot_sorted[_TL][_Y] = 0.0
+                self.core_ir_dot_sorted[_TL][_K] = 0.0
+                self.core_ir_dot_sorted[_TR]     = self.core_ir_dot_sorted_prev[_TR]
+                self.core_ir_dot_sorted[_TR][_Y] = 0.0
+                self.core_ir_dot_sorted[_TR][_K] = 0.0
+            else:
+                self.core_ir_dot_sorted[_TL]     = self.core_ir_dot_sorted_prev[_TL]
+                self.core_ir_dot_sorted[_TL][_Y] = 1.0
+                self.core_ir_dot_sorted[_TL][_K] = 0.0
+                self.core_ir_dot_sorted[_TR]     = self.core_ir_dot_sorted_prev[_TR]
+                self.core_ir_dot_sorted[_TR][_Y] = 1.0
+                self.core_ir_dot_sorted[_TR][_K] = 0.0
 
         dots_ok_comb = list(itertools.combinations(dots_ok[:], 2))
         is_hit = False
+
         for dot in dots_ok_comb:
 
             p1, p2 = dot
@@ -58,6 +77,8 @@ class IRSetupStandard(IRSetupBase):
                                     dot[1][_X] - dot[0][_X]) * -1)
 
             adiff = abs(roll - angle)
+
+            # permissive threshold
             if adiff < 30 and dot[0][_K] and dot[1][_K]:
                 dots_ok[0] = dot[0]
                 dots_ok[1] = dot[1]
@@ -66,6 +87,7 @@ class IRSetupStandard(IRSetupBase):
                 is_hit = True
                 break
 
+        # remove solar noice
         if not is_hit and dots_ok[0][_K] and dots_ok[1][_K]:
             dots_ok[_TL] = self.core_ir_dot_sorted_prev[_TL]
             dots_ok[_TR] = self.core_ir_dot_sorted_prev[_TR]
@@ -77,6 +99,7 @@ class IRSetupStandard(IRSetupBase):
             dots_ok[_BL][_K] = 0.0
             dots_ok[_BR][_K] = 0.0
 
+        # sort
         if (dots_ok[0][_K] and dots_ok[1][_K]):
 
             self.core_ir_dot_sorted[_TL] = dots_ok[0]
@@ -85,6 +108,8 @@ class IRSetupStandard(IRSetupBase):
             if dots_ok[0][_X] > dots_ok[1][_X]:
                 self.core_ir_dot_sorted[_TL] = dots_ok[1]
                 self.core_ir_dot_sorted[_TR] = dots_ok[0]
+
+            self.point_x = (self.core_ir_dot_sorted[_TL][_X] + self.core_ir_dot_sorted[_TR][_X]) / 2
 
         elif (dots_ok[0][_K] and not dots_ok[1][_K]):
 
@@ -98,14 +123,6 @@ class IRSetupStandard(IRSetupBase):
 
         self.core_ir_dot_sorted[_BL] =  dots_ok[2]
         self.core_ir_dot_sorted[_BR] =  dots_ok[3]
-
-        """
-        if abs(pitch) > 70.5:
-            if pitch > 0:
-                print(1)
-            else:
-                print(0)
-        """
 
         return self.core_ir_dot_sorted
 
