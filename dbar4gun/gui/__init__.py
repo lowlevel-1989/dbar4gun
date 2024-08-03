@@ -72,8 +72,8 @@ class GUI(object):
 
                 if dot_raw[2]:
                     point = [
-                        int(dot_raw[0] * self.width),
-                        int(dot_raw[1] * self.height),
+                        int(dot_raw[0] * self.base_width),
+                        int(dot_raw[1] * self.base_height),
                     ]
                     pygame.draw.circle(
                             self.surface_back,
@@ -85,8 +85,8 @@ class GUI(object):
                 dot_sorted  = self.ir[i]
 
                 point = [
-                    int(dot_sorted[0] * self.width),
-                    int(dot_sorted[1] * self.height),
+                    int(dot_sorted[0] * self.base_width),
+                    int(dot_sorted[1] * self.base_height),
                 ]
                 pygame.draw.circle(
                         self.surface_front,
@@ -94,8 +94,8 @@ class GUI(object):
                         point,  3, width=0 if dot_sorted[2] else 1)
 
             cursor = [
-                int(self.cursor[0] * self.width),
-                int(self.cursor[1] * self.height),
+                int(self.cursor[0] * self.base_width),
+                int(self.cursor[1] * self.base_height),
             ]
             pygame.draw.circle(
                     self.surface_front,
