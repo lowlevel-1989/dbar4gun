@@ -140,7 +140,7 @@ function _menu_start_dbar4gun() {
                     iniSet "db_disable_tilt_correction" "$db_disable_tilt_correction"
                     ;;
                 5)
-                    echo "RUN"
+                    enable_dbar4gun
                     break
                     ;;
             esac
