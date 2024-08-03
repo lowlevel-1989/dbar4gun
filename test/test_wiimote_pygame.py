@@ -11,7 +11,7 @@ import dbar4gun
 
 from dbar4gun import wiimote as wmote
 from dbar4gun import irsetup
-from dbar4gun.calibration import CalibrationDummy
+from dbar4gun.calibration import CalibrationTopLeftTopRightBottomCenterPoint
 
 
 def SignalHandler(SignalNumber, Frame):
@@ -59,12 +59,12 @@ def test_wiimote():
 
         pygame.display.flip()
 
-        wiimote = wmote.WiiMoteDevice(hidraw_io, CalibrationDummy, irsetup.IRSetupStandard)
+        wiimote = wmote.WiiMoteDevice(hidraw_io, CalibrationTopLeftTopRightBottomCenterPoint, irsetup.IRSetupStandard)
 
         is_exit = False
         while not is_exit:
             wiimote.check_is_alive()
-            button, ir_dots, acc, nunchuck_button, nunchuck_joy = wiimote.read()
+            button, ir_raw, ir, acc, nunchuck_button, nunchuck_joy = wiimote.read()
 
             surface.fill([0, 0, 0])
 
@@ -84,14 +84,19 @@ def test_wiimote():
                 [0x60, 0xc6, 0xcd],
                 [0xc5, 0x60, 0xcd],
             ]
-            i = 0
 
-            for dot in ir_dots:
+            for dot in ir_raw:
+                if dot[2]:
+                    point = [int(dot[0] * config.width) + off[0], int(dot[1] * config.height) + off[1]]
+                    pygame.draw.circle(surface, [0xe3, 0xc8, 0xe4], point, ratio)
+
+            i = 0
+            for dot in ir:
                 point = [int(dot[0] * config.width) + off[0], int(dot[1] * config.height) + off[1]]
                 pygame.draw.circle(surface, color[i], point, ratio, width=0 if dot[2] else 6)
                 i += 1
 
-            p_center = [(ir_dots[1][0] + ir_dots[0][0]) / 2, (ir_dots[1][1] + ir_dots[0][1]) / 2]
+            p_center = [(ir[1][0] + ir[0][0]) / 2, (ir[1][1] + ir[0][1]) / 2]
 
             p_center[0] = int(p_center[0] * config.width)  + off[0]
             p_center[1] = int(p_center[1] * config.height) + off[1]

@@ -4,6 +4,8 @@ import io
 import os
 import signal
 import argparse
+import struct
+import socket
 
 from io          import FileIO
 
@@ -45,11 +47,15 @@ mode
 2: TopLeft, TopRight, BottomCenter (default)
 """
 
+STRUCT_DATA       = "!BH12e12e2e"
+STRUCT_DATA_SIZE  = struct.calcsize(STRUCT_DATA)
+
 __main_pid  = os.getpid()
 __hidraw_io = []
 __workers   = []
 __queue     = Queue()
 
+__sock      = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 def virtualgun_worker(hidraw_io, lock, config, Calibration, IRSetup):
 
@@ -61,10 +67,13 @@ def virtualgun_worker(hidraw_io, lock, config, Calibration, IRSetup):
     time.sleep(0.1)
     lock.release()
 
+    index = 0
     while 1:
-        index = virtualgun.get_index()
-        if wiimote.update_index(index):
-            virtualgun.create_virtual_device()
+        # test conexion con wiimote
+        if wiimote.update_index(0xf):
+            index = virtualgun.create_virtual_device()
+            # update index
+            wiimote.update_index(index)
             break
         time.sleep(0.3)
 
@@ -72,9 +81,23 @@ def virtualgun_worker(hidraw_io, lock, config, Calibration, IRSetup):
 
         while 1:
             wiimote.check_is_alive()
-            buttons, ir, acc, nunchuck_buttons, nunchuck_joy = wiimote.read()
+            buttons, ir_raw, ir, acc, nunchuck_buttons, nunchuck_joy = wiimote.read()
 
             cursor = wiimote.get_cursor()
+
+            data = struct.pack(STRUCT_DATA,
+                        index, buttons,
+                        ir_raw[0][0], ir_raw[0][1], ir_raw[0][2],
+                        ir_raw[1][0], ir_raw[1][1], ir_raw[1][2],
+                        ir_raw[2][0], ir_raw[2][1], ir_raw[2][2],
+                        ir_raw[3][0], ir_raw[3][1], ir_raw[3][2],
+                        ir[0][0],     ir[0][1],     ir[0][2],
+                        ir[1][0],     ir[1][1],     ir[1][2],
+                        ir[2][0],     ir[2][1],     ir[2][2],
+                        ir[3][0],     ir[3][1],     ir[3][2],
+                        cursor[0], cursor[1])
+
+            __sock.sendto(data, ("127.0.0.1", config.port))
 
             virtualgun.set_buttons(buttons, nunchuck_buttons, nunchuck_joy)
             virtualgun.set_cursor(cursor)
@@ -127,6 +150,7 @@ def free():
         try:
             hidraw_io[1].close()
             os.close(hidraw_io[0])
+            __sock.close()
             print("free: {:04d} {}".format(hidraw_io[0], hidraw_io[2]),)
 
         except:

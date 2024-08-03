@@ -1,4 +1,5 @@
 import os
+import uuid
 import evdev
 
 VIRTUALGUN_BUTTON_TWO_MASK   = 1 << 0x0
@@ -120,24 +121,29 @@ class VirtualGunDevice(object):
 
         return gun_cap
 
-    def create_virtual_device(self) -> None:
-        gunname = "VirtualGun {:03X}".format(self.index)
+    def create_virtual_device(self) -> int:
+        gunname = "VirtualGun {}".format(str(uuid.uuid4())[:8])
         self.virtualgun = evdev.UInput(self.__get_capabilities(),
                                     name=gunname)
         print(gunname)
         print(self.virtualgun.capabilities(verbose=True))
 
-    def get_index(self) -> int:
-        self.index = len(self.get_list_mice()) + 1
-        return self.index
+        event = os.path.basename(self.virtualgun.device.path)
 
-    def get_list_mice(self) -> list[str]:
-        mice = []
-        input_dir = '/dev/input/'
-        for entry in os.listdir(input_dir):
-            if 'mouse' in entry:
-                mice.append(os.path.join(input_dir, entry))
-        return mice
+        mouse = None
+        for entry in os.listdir(f"/sys/class/input/{event}/device/"):
+            if "mouse" in entry:
+                mouse = entry
+                break
+
+        index = 0xf
+        if mouse:
+            match = re.search(r'mouse(\d+)', mouse)
+            if match:
+                index = int(match.group(1))
+
+        return index
+
 
     def set_buttons(self, buttons, nunchuck_buttons, nunchuck_joy):
         self.buttons          = buttons

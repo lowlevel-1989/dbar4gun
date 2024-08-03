@@ -47,22 +47,23 @@ _BL = 2
 _BR = 3
 
 # unsupport python < version 3.12
-# type Vector2D          = tuple[float, float]
-# type Vector3D          = tuple[float, float, float]
-# type CoreIRDot         = Vector3D
-# type CoreIRCollection  = tuple[CoreIRDot, CoreIRDot, CoreIRDot, CoreIRDot]
-# type CoreAccelerometer = tuple[int, int, int]
-# type CoreButtons       = int
-# type NunchuckButtons   = int
-# type NunchuckJoy       = Vector2D
-# type Cursor            = Vector2D
-# type IsDone            = bool
-# type LEDs              = int
+# type Vector2D             = tuple[float, float]
+# type Vector3D             = tuple[float, float, float]
+# type CoreIRDot            = Vector3D
+# type CoreIRCollection     = tuple[CoreIRDot, CoreIRDot, CoreIRDot, CoreIRDot]
+# type CoreIRSortCollection = CoreIRCollection
+# type CoreAccelerometer    = tuple[int, int, int]
+# type CoreButtons          = int
+# type NunchuckButtons      = int
+# type NunchuckJoy          = Vector2D
+# type Cursor               = Vector2D
+# type IsDone               = bool
+# type LEDs                 = int
 
 class IRSetupProtocol(typing.Protocol):
 
     # unsupport python < version 3.12
-    # def sort_and_restore(self, dots : CoreIRCollection, acc : CoreAccelerometer) -> CoreIRCollection:
+    # def sort_and_restore(self, dots : CoreIRCollection, acc : CoreAccelerometer) -> CoreIRSortCollection:
     def sort_and_restore(self, ir_dots, acc : tuple[int, int, int]):
         ...
 
@@ -334,12 +335,14 @@ Byte	7	6	5	4	3	2	1	0
         button_plus  = (not not (button & WIIMOTE_CORE_BUTTON_PLUS_MASK))
         button_minus = (not not (button & WIIMOTE_CORE_BUTTON_MINUS_MASK))
 
+        only_buttons_mask = WIIMOTE_CORE_BUTTON_MINUS_MASK | WIIMOTE_CORE_BUTTON_PLUS_MASK | WIIMOTE_CORE_BUTTON_HOME_MASK
+
         if ( button_a & button_plus ) or self.calibration_on > 0:
-            self.core_button = 0x00
+            self.core_button = self.core_button & only_buttons_mask
             self.calibration_step(button_b)
 
         if button_a & button_minus:
-            self.core_button = 0x00
+            self.core_button = self.core_button & only_buttons_mask
             self.calibration_on = 0
 
             # reset calibration
@@ -347,7 +350,7 @@ Byte	7	6	5	4	3	2	1	0
 
     # unsupport python < version 3.12
     # def read(self) -> tuple[
-    #        CoreButtons, CoreIRCollection, CoreAccelerometer,
+    #        CoreButtons, CoreIRCollection, CoreIRSortCollection, CoreAccelerometer,
     #        NunchuckButtons, NunchuckJoy]:
     def read(self):
 
@@ -401,6 +404,7 @@ Byte	7	6	5	4	3	2	1	0
 
         return [
             self.core_button,
+            self.core_ir_dot[:],
             self.core_ir_dot_sorted[:],
             self.core_accelerometer,
             self.nunchuck_button,

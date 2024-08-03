@@ -109,8 +109,6 @@ class IRSetupStandard(IRSetupBase):
                 self.core_ir_dot_sorted[_TL] = dots_ok[1]
                 self.core_ir_dot_sorted[_TR] = dots_ok[0]
 
-            self.point_x = (self.core_ir_dot_sorted[_TL][_X] + self.core_ir_dot_sorted[_TR][_X]) / 2
-
         elif (dots_ok[0][_K] and not dots_ok[1][_K]):
 
             self.core_ir_dot_sorted[_TL] = dots_ok[0]

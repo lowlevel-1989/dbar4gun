@@ -10,6 +10,8 @@ It is important to remember to disconnect the Wiimote using the power button at 
 
 For additional Wiimotes, connect them directly via Bluetooth since DolphinBar becomes slow if more than one Wiimote is connected.
 
+To play closer to the screen, use a 180-degree fisheye lens. This will give the camera a wider field of view, allowing you to enjoy a more immersive experience.
+
 ***for more precision, place the sensor bar over the screen***
 
 ## Feature support
@@ -83,17 +85,18 @@ Refer to the [specific README for light gun configuration](retroarch) to learn h
 
 ## List of No-Crosshair Games: Perfect Performance with wiimote (tested)
 
-| game                     | system     | note                           | 
-|--------------------------|------------|--------------------------------|
-| Point Blank              | Mame       |                                |
-| Point Blank 2            | Mame       |                                |
-| Time Crisis              | Mame       |                                |
-| Golly! Ghost!            | Mame       |                                |
-| VS. Hogan's Alley        | Mame       | low precision in the bonus     |
-| Lucky & Wild             | Mame 2015  |                                |
-| Area 51                  | Mame 2003+ |                                |
-| House of the Dead 2      | Dreamcast  |                                |
-| Virtua Cop 2             | Dreamcast  |                                |
+| game                     | system     | ir setup       | note                           |
+|--------------------------|------------|----------------|--------------------------------|
+| Point Blank              | Mame       | Standard       |                                |
+| Point Blank 2            | Mame       | Standard       |                                |
+| Point Blank 3            | Mame       | Standard       |                                |
+| Time Crisis              | Mame       | Standard       |                                |
+| Golly! Ghost!            | Mame       | Standard       |                                |
+| VS. Hogan's Alley        | Mame       | Standard       | low precision in the bonus     |
+| Lucky & Wild             | Mame 2015  | Standard       |                                |
+| Area 51                  | Mame 2003+ | Standard       |                                |
+| House of the Dead 2      | Dreamcast  | Standard       |                                |
+| Virtua Cop 2             | Dreamcast  | Standard       |                                |
 
 ## Memory Consumption of the dbar4gun
 
@@ -115,6 +118,10 @@ In the case of the DolphinBar, it is detected as four Wiimotes, even if they are
 1. Calibration ( high priority always )
 2. Class Manage Device
 3. Class Log System
+4. diamond ir setup
+5. square ir setup
+6. calibration gui with training target
+7. unit test
 
 ## Install with RetroPie-Setup
 
@@ -146,7 +153,6 @@ curl -LO https://raw.githubusercontent.com/lowlevel-1989/dbar4gun/master/retropi
 ```
 systemctl status dbar4gun
 ```
-
 
 ### Bluetooth
 
@@ -182,25 +188,34 @@ pip install $(pwd)
 
 #### help service
 ```
-usage: dbar4gun [-h] [--calibration {0,1,2}] [--width WIDTH] [--height HEIGHT]
-                [--disable-tilt-correction]
+dbar4gun
+		https://github.com/lowlevel-1989/dbar4gun
+usage: dbar4gun [-h] [--calibration {0,1,2}] [--setup {1}] [--width WIDTH] [--height HEIGHT] [--disable-tilt-correction] [--port PORT]
+                {start,stop,version,gui} ...
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support,
 specifically designed to be small and function as 4 light guns.
     
 
+positional arguments:
+  {start,stop,version,gui}
+
 options:
   -h, --help            show this help message and exit
   --calibration {0,1,2}
                         
-                            mode
-                            0: disabled
-                            1: Center,  TopLeft
-                            2: TopLeft, TopRight, BottomCenter (default)
-                            
-  --width  WIDTH        screen
-  --height HEIGHT       screen
+                        mode
+                        0: disabled
+                        1: Center,  TopLeft
+                        2: TopLeft, TopRight, BottomCenter (default)
+  --setup {1}
+                        mode
+                        1: Standard (sensorbar, dolphinbar)
+
+  --width WIDTH         1920
+  --height HEIGHT       1080
   --disable-tilt-correction
+  --port PORT           35460
 ```
 
 #### run service with root
@@ -218,6 +233,11 @@ dbar4gun --width 1920 --height 1080
 
 ```
 dbar4gun version
+```
+
+####  debug calibration gui
+```
+dbar4gun gui
 ```
 
 #### stop service with root

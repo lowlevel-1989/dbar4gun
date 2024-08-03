@@ -44,6 +44,18 @@ function configure_dbar4gun() {
 function enable_dbar4gun() {
     local config="/etc/systemd/system/dbar4gun.service"
 
+    iniConfig " = " '"' "$configdir/all/dbar4gun.cfg"
+    eval $(_loadconfig_dbar4gun)
+
+    local dbar4gun_params="--witdh $db_width --height $db_height"
+    dbar4gun_params="$dbar4gun_params --calibration $db_calibration"
+    dbar4gun_params="$dbar4gun_params --setup $db_setup"
+    dbar4gun_params="$dbar4gun_params --port $db_port"
+
+    if [[ "$db_disable_tilt_correction" -eq 1 ]]; then
+        dbar4gun_params="$dbar4gun_params --disable-tilt-correction"
+    fi
+
     disable_dbar4gun
     cat > "$config" << _EOF_
 [Unit]
@@ -51,7 +63,7 @@ Description=dbar4gun
 
 [Service]
 Type=simple
-ExecStart=$md_inst/bin/dbar4gun --width $1 --height $2
+ExecStart=$md_inst/bin/dbar4gun start $dbar4gun_params
 
 [Install]
 WantedBy=multi-user.target
@@ -251,6 +263,9 @@ function gui_dbar4gun() {
         3 "Debug Calibratrion"
     )
 
+    iniConfig " = " '"' "$configdir/all/dbar4gun.cfg"
+    eval $(_loadconfig_dbar4gun)
+
     while true; do
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         if [[ -n "$choice" ]]; then
@@ -260,6 +275,9 @@ function gui_dbar4gun() {
                     ;;
                 2)
                     disable_dbar4gun
+                    ;;
+                3)
+                    $md_inst/bin/dbar4gun gui --port $db_port
                     ;;
             esac
         else
