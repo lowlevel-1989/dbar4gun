@@ -22,7 +22,6 @@ For additional Wiimotes, connect them directly via Bluetooth since DolphinBar be
 - multiplayer
 - nunchuck
 - tilt correction
-- solar filter
 - calibration two points
 - calibration three points
 - Standard configuration for Wii sensor

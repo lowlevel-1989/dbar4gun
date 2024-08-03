@@ -277,7 +277,7 @@ function gui_dbar4gun() {
                     disable_dbar4gun
                     ;;
                 3)
-                    python3 $md_inst/lib/python3.11/site-packages/dbar4gun/dbar4gun.py gui --width 160 --height 90  --port $db_port
+                    python3 $md_inst/lib/python3.11/site-packages/dbar4gun/dbar4gun.py gui --width 640 --height 480 --port $db_port
                     ;;
             esac
         else

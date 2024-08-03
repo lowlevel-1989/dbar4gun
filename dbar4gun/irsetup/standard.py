@@ -62,6 +62,8 @@ class IRSetupStandard(IRSetupBase):
                 self.core_ir_dot_sorted[_TR][_Y] = 1.0
                 self.core_ir_dot_sorted[_TR][_K] = 0.0
 
+        # disable solar filter
+        """
         dots_ok_comb = list(itertools.combinations(dots_ok[:], 2))
         is_hit = False
 
@@ -98,6 +100,7 @@ class IRSetupStandard(IRSetupBase):
             dots_ok[_TR][_K] = 0.0
             dots_ok[_BL][_K] = 0.0
             dots_ok[_BR][_K] = 0.0
+        """
 
         # sort
         if (dots_ok[0][_K] and dots_ok[1][_K]):
