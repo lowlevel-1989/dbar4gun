@@ -277,7 +277,7 @@ function gui_dbar4gun() {
                     disable_dbar4gun
                     ;;
                 3)
-                    $md_inst/bin/dbar4gun gui --port $db_port
+                    $md_inst/lib/python3.11/site-packages/dbar4gun/dbar4gun.py gui --port $db_port
                     ;;
             esac
         else
