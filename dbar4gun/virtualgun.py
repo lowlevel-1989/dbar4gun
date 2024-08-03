@@ -141,7 +141,7 @@ class VirtualGunDevice(object):
         if mouse:
             match = re.search(r'mouse(\d+)', mouse)
             if match:
-                index = int(match.group(1))
+                index = int(match.group(1)) + 1
 
         return index
 
