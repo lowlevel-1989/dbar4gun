@@ -22,33 +22,29 @@ class GUI(object):
         self.port   = port
         self.width  = width
         self.height = height
+        self.center = [width//2, height//2]
 
-        self.base_width  = 160
-        self.base_height =  90
-
-        self.center = [self.base_width//2, self.base_height//2]
 
         self.is_exit = False
 
         pygame.init()
         pygame.display.init()
 
+        self.display = pygame.display.set_mode((width, height,), pygame.FULLSCREEN)
+
         pygame.mouse.set_visible(False)
 
-        self.display = pygame.display.set_mode((width, height,))
-
         axis = self.center
-        background = pygame.Surface((self.base_width, self.base_height,))
+        background = pygame.Surface((width, height,))
 
         # draw x-axis
-        pygame.draw.line(background, [0xff, 0, 0], [0, axis[1]], [self.base_width, axis[1]], 1)
+        pygame.draw.line(background, [0xff, 0, 0], [0, axis[1]], [width, axis[1]], 1)
 
         # draw y-axis
-        pygame.draw.line(background, [0, 0xff, 0], [axis[0], 0], [axis[0], self.base_height], 1)
+        pygame.draw.line(background, [0, 0xff, 0], [axis[0], 0], [axis[0], height], 1)
 
-        self.background     = background
-        self.surface_back   = pygame.Surface((self.base_width, self.base_height,))
-        self.surface_front  = pygame.Surface((self.base_width, self.base_height,))
+        self.background    = background
+        self.surface_back  = pygame.Surface((width, height,))
 
         self.ir_raw = [[1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
         self.ir     = [[1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
@@ -65,45 +61,42 @@ class GUI(object):
         while not self.is_exit:
             self.read_sock()
 
-            self.surface_back.blit(self.background,  (0, 0,))
+            self.surface_back.blit(self.background, (0, 0,))
 
             for i in range(4):
                 dot_raw     = self.ir_raw[i]
 
                 if dot_raw[2]:
                     point = [
-                        int(dot_raw[0] * self.base_width),
-                        int(dot_raw[1] * self.base_height),
+                        int(dot_raw[0] * self.width),
+                        int(dot_raw[1] * self.height),
                     ]
                     pygame.draw.circle(
                             self.surface_back,
-                            [0xe3, 0xc8, 0xe4], point, 3)
+                            [0xe3, 0xc8, 0xe4], point, 12)
 
-            self.surface_front.blit(self.surface_back, (0, 0,))
+            self.display.blit(self.surface_back, (0, 0,))
 
             for i in range(4):
                 dot_sorted  = self.ir[i]
 
                 point = [
-                    int(dot_sorted[0] * self.base_width),
-                    int(dot_sorted[1] * self.base_height),
+                    int(dot_sorted[0] * self.width),
+                    int(dot_sorted[1] * self.height),
                 ]
                 pygame.draw.circle(
-                        self.surface_front,
+                        self.display,
                         COLOR[i],
-                        point,  3, width=0 if dot_sorted[2] else 1)
+                        point, 12, width=0 if dot_sorted[2] else 6)
 
             cursor = [
-                int(self.cursor[0] * self.base_width),
-                int(self.cursor[1] * self.base_height),
+                int(self.cursor[0] * self.width),
+                int(self.cursor[1] * self.height),
             ]
             pygame.draw.circle(
-                    self.surface_front,
+                    self.display,
                     [0xe3, 0xc8, 0xe4],
-                    cursor, 3, width=1)
-
-            scaled_surface = pygame.transform.scale(self.surface_front, (self.width, self.height))
-            self.display.blit(scaled_surface, (0, 0))
+                    cursor, 12, width=2)
 
             pygame.display.flip()
 
