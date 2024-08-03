@@ -15,8 +15,8 @@ COLOR = [
 
 class GUI(object):
     def __init__(self,
-                 width  : int =   640,
-                 height : int =   360,
+                 width  : int =  1280,
+                 height : int =   720,
                  port   : int = 35460):
 
         self.port   = port
