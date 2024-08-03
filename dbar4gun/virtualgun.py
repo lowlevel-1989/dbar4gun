@@ -88,15 +88,6 @@ class VirtualGunDevice(object):
 
     def __get_capabilities(self):
 
-        l   = len(_MAP) // _MAP_INDEX_MAX
-        off = ( ( self.index - 1 ) % l ) * _MAP_INDEX_MAX
-
-        self.index_map = off
-
-        keys = []
-        for key in range(off, off + _MAP_INDEX_MAX):
-            keys.append(_MAP[key])
-
         gun_cap = {
             evdev.ecodes.EV_KEY: [
                 evdev.ecodes.BTN_LEFT,           # WIIMOTE BUTTON B
@@ -104,13 +95,59 @@ class VirtualGunDevice(object):
                 evdev.ecodes.BTN_MIDDLE,         # WIIMOTE BUTTON ONE
                 evdev.ecodes.KEY_F1,             # WIIMOTE BUTTON HOME
 
+                # all keyboard buttons
+
+                # VirtualGun 1
+                evdev.ecodes.KEY_LEFT,
+                evdev.ecodes.KEY_RIGHT,
+                evdev.ecodes.KEY_DOWN,
+                evdev.ecodes.KEY_UP,
+                evdev.ecodes.KEY_1,
+                evdev.ecodes.KEY_5,
+                evdev.ecodes.KEY_LEFTALT,
+                evdev.ecodes.KEY_B,
+                evdev.ecodes.KEY_LEFTSHIFT,
+
+                # VirtualGun 2
+                evdev.ecodes.KEY_D,
+                evdev.ecodes.KEY_G,
+                evdev.ecodes.KEY_F,
+                evdev.ecodes.KEY_R,
+                evdev.ecodes.KEY_2,
+                evdev.ecodes.KEY_6,
+                evdev.ecodes.KEY_S,
+                evdev.ecodes.KEY_Q,
+                evdev.ecodes.KEY_W,
+
+                # VirtualGun 3
+                evdev.ecodes.KEY_J,
+                evdev.ecodes.KEY_L,
+                evdev.ecodes.KEY_K,
+                evdev.ecodes.KEY_I,
+                evdev.ecodes.KEY_3,
+                evdev.ecodes.KEY_7,
+                evdev.ecodes.KEY_RIGHTSHIFT,
+                evdev.ecodes.KEY_ENTER,
+                evdev.ecodes.KEY_KP1,
+
+                # VirtualGun 4
+                evdev.ecodes.KEY_KP4,
+                evdev.ecodes.KEY_KP6,
+                evdev.ecodes.KEY_KP2,
+                evdev.ecodes.KEY_KP8,
+                evdev.ecodes.KEY_4,
+                evdev.ecodes.KEY_8,
+                evdev.ecodes.KEY_KPDOT,
+                evdev.ecodes.KEY_KPENTER,
+                evdev.ecodes.KEY_KP5,
+
                 # combos
                 evdev.ecodes.KEY_ENTER,  # b + plus
                 evdev.ecodes.KEY_ESC,    # b + minus
                 evdev.ecodes.KEY_TAB,    # b + home
                 evdev.ecodes.KEY_SPACE,  # b + 1
                 evdev.ecodes.KEY_2,      # b + 2
-            ] + keys,
+            ],
             evdev.ecodes.EV_ABS: [
                 # mouse cursor
                 (evdev.ecodes.ABS_X, evdev.AbsInfo(value=0,
@@ -142,6 +179,11 @@ class VirtualGunDevice(object):
             match = re.search(r'mouse(\d+)', mouse)
             if match:
                 index = int(match.group(1)) + 1
+
+        l   = len(_MAP) // _MAP_INDEX_MAX
+        off = ( ( index - 1 ) % l ) * _MAP_INDEX_MAX
+
+        self.index_map = off
 
         return index
 

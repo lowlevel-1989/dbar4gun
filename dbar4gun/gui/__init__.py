@@ -15,14 +15,15 @@ COLOR = [
 
 class GUI(object):
     def __init__(self,
-                 width  : int =  1280,
-                 height : int =   720,
+                 width  : int =   640,
+                 height : int =   360,
                  port   : int = 35460):
 
         self.port   = port
         self.width  = width
         self.height = height
         self.center = [width//2, height//2]
+
 
         self.is_exit = False
 
@@ -56,6 +57,9 @@ class GUI(object):
         self.close_sock()
 
     def loop(self) -> None:
+
+        clock = pygame.time.Clock()
+
         self.is_exit = False
         while not self.is_exit:
             self.read_sock()
@@ -104,6 +108,10 @@ class GUI(object):
                         (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     pygame.quit()
                     self.is_exit = True
+
+            if not self.is_exit:
+                # limit 30 fps
+                clock.tick(30)
 
     def open_sock(self) -> None:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
