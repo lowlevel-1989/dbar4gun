@@ -10,8 +10,6 @@ It is important to remember to disconnect the Wiimote using the power button at 
 
 For additional Wiimotes, connect them directly via Bluetooth since DolphinBar becomes slow if more than one Wiimote is connected.
 
-To play closer to the screen, use a 180-degree fisheye lens. This will give the camera a wider field of view, allowing you to enjoy a more immersive experience.
-
 ***for more precision, place the sensor bar over the screen***
 
 ## Feature support
@@ -220,13 +218,13 @@ options:
 
 #### run service with root
 ```
-dbar4gun --width 1920 --height 1080
+dbar4gun start --width 1920 --height 1080
 ```
 
 #### restart service with root
 
 ```
-dbar4gun --width 1920 --height 1080
+dbar4gun start --width 1920 --height 1080
 ```
 
 #### check version

@@ -2,7 +2,7 @@
 - added support ir setup
 - added support solar filter
 - fixed player index
-- new retropie config
+- new retropie gui config
 - new debug calibration gui
 0.14.1
 - added support for python < 3.12
