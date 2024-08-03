@@ -47,7 +47,7 @@ function enable_dbar4gun() {
     iniConfig " = " '"' "$configdir/all/dbar4gun.cfg"
     eval $(_loadconfig_dbar4gun)
 
-    local dbar4gun_params="--witdh $db_width --height $db_height"
+    local dbar4gun_params="--width $db_width --height $db_height"
     dbar4gun_params="$dbar4gun_params --calibration $db_calibration"
     dbar4gun_params="$dbar4gun_params --setup $db_setup"
     dbar4gun_params="$dbar4gun_params --port $db_port"
@@ -121,7 +121,7 @@ function _menu_start_dbar4gun() {
         if [[ -n "$choice" ]]; then
             case "$choice" in
                 1)
-                    cmd_in=(dialog --backtitle "$__backtitle" --inputbox "Please enter the witdh" 10 60 "$db_width")
+                    cmd_in=(dialog --backtitle "$__backtitle" --inputbox "Please enter the width" 10 60 "$db_width")
                     db_width=$("${cmd_in[@]}" 2>&1 >/dev/tty)
                     iniSet "db_width" "$db_width"
                     ;;
