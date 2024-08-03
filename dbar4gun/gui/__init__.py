@@ -57,9 +57,6 @@ class GUI(object):
         self.close_sock()
 
     def loop(self) -> None:
-
-        clock = pygame.time.Clock()
-
         self.is_exit = False
         while not self.is_exit:
             self.read_sock()
@@ -108,10 +105,6 @@ class GUI(object):
                         (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     pygame.quit()
                     self.is_exit = True
-
-            if not self.is_exit:
-                # limit 30 fps
-                clock.tick(30)
 
     def open_sock(self) -> None:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
