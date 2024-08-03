@@ -181,10 +181,6 @@ dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support,
 specifically designed to be small and function as 4 light guns.
     """
 
-    print("{} v{}".format(info.__title__,  info.__version__))
-    print("\t\t{}".format(info.__repo___))
-
-
     parser = argparse.ArgumentParser(
                 prog=info.__title__,
                 formatter_class=argparse.RawTextHelpFormatter,
@@ -211,6 +207,13 @@ specifically designed to be small and function as 4 light guns.
     if config.command:
         command = config.command
 
+    if command == "version":
+        print("{} v{}".format(info.__title__,  info.__version__))
+        exit(0)
+
+    print("{} v{}".format(info.__title__,  info.__version__))
+    print("\t\t{}".format(info.__repo___))
+
     if command in ["start", "stop"] and os.path.exists("/var/run/dbar4gun.pid"):
         with open("/var/run/dbar4gun.pid", "r") as f:
             try:
@@ -223,11 +226,7 @@ specifically designed to be small and function as 4 light guns.
                 print(e)
                 exit(1)
 
-    if command == "version":
-        print("{} v{}".format(info.__title__,  info.__version__))
-        exit(0)
-
-    elif command == "gui":
+    if command == "gui":
         from dbar4gun.gui import GUI
 
         gui = GUI(width=config.width, height=config.height, port=config.port)
