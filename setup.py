@@ -24,7 +24,6 @@ setup(name=dbar4gun.__title__,
       install_requires=[
           "evdev>=0.3.0",
           "pyudev>=0.16",
-          "pygame>=2.6.0"
       ],
       classifiers=[
         "Environment :: Console",
