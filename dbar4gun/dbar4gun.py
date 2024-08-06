@@ -140,7 +140,7 @@ class Dbar4Gun(object):
 
             virtualgun_proc.start()
 
-            self.processes[hidraw_path] = monitor_proc
+            self.processes[hidraw_path] = virtualgun_proc
 
         else:
             self.kill()
