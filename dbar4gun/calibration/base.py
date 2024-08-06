@@ -123,7 +123,7 @@ class CalibrationBase(object):
         x_min = 0.1
         y_min = 0.0
         x_max = 0.9
-        y_max = 1.0
+        y_max = 0.9
 
         width  = x_max - x_min
         height = y_max - y_min
