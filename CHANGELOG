@@ -1,7 +1,6 @@
 0.15.0
 - added attach command
 - added support ir setup
-- added support solar filter
 - added Class Manage Device
 - added flag --smoothing-level
 - fixed player index

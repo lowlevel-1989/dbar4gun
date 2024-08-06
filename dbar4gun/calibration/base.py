@@ -114,12 +114,27 @@ class CalibrationBase(object):
     # unsupport python < version 3.12
     # def get_cursor_raw(self, point : Point2DCollection) -> Cursor:
     def get_cursor_raw(self, point) -> tuple[float, float]:
-        cursor = [
+        cursor_raw = [
             (point[self.TR][self.X] + point[self.TL][self.X]) / 2,
             (point[self.TR][self.Y] + point[self.TL][self.Y]) / 2
         ]
 
-        return cursor
+        # agregar el rango completo a la pantalla
+        x_min = 0.1
+        y_min = 0.0
+        x_max = 0.9
+        y_max = 1.0
+
+        width  = x_max - x_min
+        height = y_max - y_min
+
+        x = (cursor_raw[self.X] - x_min) / width
+        y = (cursor_raw[self.Y] - y_min) / height
+
+        x =  max(0.0, min(1.0, x))
+        y =  max(0.0, min(1.0, y))
+
+        return [x, y]
 
     def get_angle_from_acc(acc : tuple[int, int, int]):
         x, y, z = acc
@@ -161,7 +176,7 @@ class CalibrationBase(object):
                 and not point[self.BL][self.K] \
                 and not point[self.BR][self.K]:
 
-            cursor = self.fix_offscreen(cursor)
+            # cursor = self.fix_offscreen(cursor)
 
         cursor[self.X] =  max(0.0, min(1.0, cursor[self.X]))
         cursor[self.Y] =  max(0.0, min(1.0, cursor[self.Y]))

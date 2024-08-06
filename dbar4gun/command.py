@@ -57,7 +57,7 @@ class Command(object):
         parser.add_argument("--height",          type=int, default=1080, help="1080")
         parser.add_argument("--disable-tilt-correction", action='store_true')
         parser.add_argument("--port",            type=int, default=35460, help="35460")
-        parser.add_argument("--smoothing-level", type=int, default=5,     help="5 (default)")
+        parser.add_argument("--smoothing-level", type=int, default=1,     help="5 (default)")
 
     def parser(self):
         parser = argparse.ArgumentParser(
