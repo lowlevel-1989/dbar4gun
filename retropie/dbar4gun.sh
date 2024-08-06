@@ -51,6 +51,7 @@ function enable_dbar4gun() {
     dbar4gun_params="$dbar4gun_params --calibration $db_calibration"
     dbar4gun_params="$dbar4gun_params --setup $db_setup"
     dbar4gun_params="$dbar4gun_params --port $db_port"
+    dbar4gun_params="$dbar4gun_params --smoothing-level $db_smoothing_level"
 
     if [[ "$db_disable_tilt_correction" -eq 1 ]]; then
         dbar4gun_params="$dbar4gun_params --disable-tilt-correction"
@@ -91,7 +92,8 @@ function _loadconfig_dbar4gun() {
         'db_disable_tilt_correction=0' \
         'db_setup=1' \
         'db_port=35460' \
-        'db_calibration=2'
+        'db_calibration=2' \
+        'db_smoothing_level=5'
     )"
 }
 
@@ -106,16 +108,17 @@ function _menu_start_dbar4gun() {
         local options=(
             1 "width: $db_width"
             2 "height: $db_height"
-            3 "debug port: $db_port"
+            3 "smoothing level: $db_smoothing_level"
+            4 "debug port: $db_port"
         )
 
         if [[ "$db_disable_tilt_correction" -eq 1 ]]; then
-            options+=(4 "enable tilt correction")
+            options+=(5 "enable tilt correction")
         else
-            options+=(4 "disable tilt correction")
+            options+=(5 "disable tilt correction")
         fi
 
-        options+=(5 "dbar4gun start")
+        options+=(6 "dbar4gun start")
 
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         if [[ -n "$choice" ]]; then
@@ -131,15 +134,20 @@ function _menu_start_dbar4gun() {
                     iniSet "db_height" "$db_height"
                     ;;
                 3)
+                    cmd_in=(dialog --backtitle "$__backtitle" --inputbox "Please enter the smoothing level" 10 60 "$db_smoothing_level")
+                    db_smoothing_level=$("${cmd_in[@]}" 2>&1 >/dev/tty)
+                    iniSet "db_smoothing_level" "$db_smoothing_level"
+                    ;;
+                4)
                     cmd_in=(dialog --backtitle "$__backtitle" --inputbox "Please enter the debug port" 10 60 "$db_port")
                     db_port=$("${cmd_in[@]}" 2>&1 >/dev/tty)
                     iniSet "db_port" "$db_port"
                     ;;
-                4)
+                5)
                     db_disable_tilt_correction="$((db_disable_tilt_correction ^ 1))"
                     iniSet "db_disable_tilt_correction" "$db_disable_tilt_correction"
                     ;;
-                5)
+                6)
                     enable_dbar4gun
                     break
                     ;;
