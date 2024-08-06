@@ -113,12 +113,11 @@ In the case of the DolphinBar, it is detected as four Wiimotes, even if they are
 ## To Do
 
 1. Calibration ( high priority always )
-2. Class Manage Device
-3. Class Log System
-4. diamond ir setup
-5. square ir setup
-6. calibration gui with training target
-7. unit test
+2. Class Log System
+3. diamond ir setup
+4. square ir setup
+5. calibration gui with training target
+6. unit test
 
 ## Install with RetroPie-Setup
 
@@ -185,17 +184,15 @@ pip install $(pwd)
 
 #### help service
 ```
-dbar4gun
-		https://github.com/lowlevel-1989/dbar4gun
 usage: dbar4gun [-h] [--calibration {0,1,2}] [--setup {1}] [--width WIDTH] [--height HEIGHT] [--disable-tilt-correction] [--port PORT]
-                {start,stop,version,gui} ...
+                [--smoothing-level SMOOTHING_LEVEL]
+                {start,attach,stop,version,gui} ...
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support,
 specifically designed to be small and function as 4 light guns.
-    
 
 positional arguments:
-  {start,stop,version,gui}
+  {start,attach,stop,version,gui}
 
 options:
   -h, --help            show this help message and exit
@@ -205,14 +202,15 @@ options:
                         0: disabled
                         1: Center,  TopLeft
                         2: TopLeft, TopRight, BottomCenter (default)
-  --setup {1}
+  --setup {1}           
                         mode
                         1: Standard (sensorbar, dolphinbar)
-
   --width WIDTH         1920
   --height HEIGHT       1080
   --disable-tilt-correction
   --port PORT           35460
+  --smoothing-level SMOOTHING_LEVEL
+                        5 (default)
 ```
 
 #### run service with root
@@ -241,6 +239,12 @@ dbar4gun gui
 
 ```
 dbar4gun stop
+```
+
+#### attach device with root
+
+```
+dbar4gun attach /dev/hidraw0
 ```
 
 ### Bluetooth

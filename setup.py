@@ -13,7 +13,7 @@ setup(name=dbar4gun.__title__,
       license=dbar4gun.__license__,
       long_description="dbar4gun is a Linux userspace driver for the wiimote.",
       entry_points={
-        "console_scripts": ["dbar4gun=dbar4gun.dbar4gun:dbar4gun_run"]
+        "console_scripts": ["dbar4gun=dbar4gun.command:dbar4gun_run"]
       },
       packages=[
           "dbar4gun",

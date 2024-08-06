@@ -20,17 +20,6 @@ class IRSetupStandard(IRSetupBase):
 
         self.core_ir_dot_sorted_prev = self.core_ir_dot_sorted[:]
 
-        dots = []
-        for i in range(4):
-            dot = ir_dots[i]
-
-            if not dot[_K]:
-                dot = [0.0, 1.0, 0.0]
-
-            dots.append(dot)
-
-        dots_ok = sorted(dots, key=lambda dot: dot[_K], reverse=True)
-
         self.core_ir_dot_sorted[_TL] = self.core_ir_dot_sorted_prev[_TL]
         self.core_ir_dot_sorted[_TL][_K] = 0.0
         self.core_ir_dot_sorted[_TR] = self.core_ir_dot_sorted_prev[_TR]
@@ -62,8 +51,21 @@ class IRSetupStandard(IRSetupBase):
                 self.core_ir_dot_sorted[_TR][_Y] = 1.0
                 self.core_ir_dot_sorted[_TR][_K] = 0.0
 
-        # disable solar filter
-        """
+
+        dots = []
+        n = 0
+        for i in range(4):
+            dot = ir_dots[i]
+            n += 1
+
+            if not dot[_K]:
+                dot = [0.0, 1.0, 0.0]
+                n -= 1
+
+            dots.append(dot)
+
+        dots_ok = sorted(dots, key=lambda dot: dot[_K], reverse=True)
+
         dots_ok_comb = list(itertools.combinations(dots_ok[:], 2))
         is_hit = False
 
@@ -100,7 +102,6 @@ class IRSetupStandard(IRSetupBase):
             dots_ok[_TR][_K] = 0.0
             dots_ok[_BL][_K] = 0.0
             dots_ok[_BR][_K] = 0.0
-        """
 
         # sort
         if (dots_ok[0][_K] and dots_ok[1][_K]):

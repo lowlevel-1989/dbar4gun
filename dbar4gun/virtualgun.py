@@ -164,7 +164,7 @@ class VirtualGunDevice(object):
         self.virtualgun = evdev.UInput(self.__get_capabilities(),
                                     name=gunname)
         print(gunname)
-        print(self.virtualgun.capabilities(verbose=True))
+        # print(self.virtualgun.capabilities(verbose=True))
 
         event = os.path.basename(self.virtualgun.device.path)
 
