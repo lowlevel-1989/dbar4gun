@@ -408,12 +408,16 @@ Byte	7	6	5	4	3	2	1	0
             self.enable_nunchuck = (self.buf[0x03] & 0xf & 0x02) >> 1
             self.reset()
 
+        # hack reconnect dolphinbar wiimote
         acc_sum = sum(self.core_accelerometer)
         now = time.time()
         if acc_sum == self.acc_sum_last:
-            if now - self.acc_sum_time_last >= 15 and self.is_pair:
+            if now - self.acc_sum_time_last >= 10 and self.is_pair:
                 self.is_pair = False
+                self.io.write(bytearray(b"\x11\xf0"))
+                time.sleep(0.5)
                 self.reset()
+                self.acc_sum_time_last = now
         else:
             self.acc_sum_last      = acc_sum
             self.acc_sum_time_last = now
