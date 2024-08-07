@@ -423,7 +423,7 @@ Byte	7	6	5	4	3	2	1	0
     # fix slow dolphinbar
     def check_is_alive(self) -> None:
         now = time.time()
-        if now - self.is_alive_time_last >= 30:
+        if now - self.is_alive_time_last >= 3:
             self.is_alive_time_last = now
             self.update_index(self.player)
 
