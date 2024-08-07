@@ -3,6 +3,7 @@ import io
 import socket
 import signal
 import struct
+import time
 
 from io import FileIO
 
@@ -187,6 +188,7 @@ class Dbar4Gun(object):
                 # update index
                 wiimote.update_index(index)
                 break
+            time.sleep(0.2)
         try:
 
             history_x = deque(maxlen=self.config.smoothing_level)

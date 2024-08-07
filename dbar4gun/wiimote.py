@@ -144,6 +144,8 @@ class WiiMoteDevice(object):
         self.nunchuck_button =      0x00
         self.nunchuck_joy    = [0.5, 0.5]
 
+        self.is_alive_time_last = time.time()
+
         self.reset()
 
     def to_bytes(self, val : int) -> bytearray:
@@ -418,8 +420,12 @@ Byte	7	6	5	4	3	2	1	0
         except:
             self.is_pair = False
 
+    # fix slow dolphinbar
     def check_is_alive(self) -> None:
-        self.update_index(self.player)
+        now = time.time()
+        if now - self.is_alive_time_last >= 30:
+            self.is_alive_time_last = now
+            self.update_index(self.player)
 
     def update_index(self, player : int =0) -> None:
         if self.calibration_on > 0:
