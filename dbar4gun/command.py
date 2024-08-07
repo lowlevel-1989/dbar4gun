@@ -4,6 +4,7 @@ import signal
 import argparse
 
 PATH_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, "/usr/lib/python3/dist-packages")
 sys.path.insert(0, PATH_ROOT)
 
 from dbar4gun import info
