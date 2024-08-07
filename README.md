@@ -8,16 +8,14 @@ We recommend using DolphinBar as the main controller because, in mode 4, the bar
 
 It is important to remember to disconnect the Wiimote using the power button at the end of playing to increase the lifespan of the infrared LEDs.
 
-For additional Wiimotes, connect them directly via Bluetooth since DolphinBar becomes slow if more than one Wiimote is connected.
-
 ***for more precision, place the sensor bar over the screen***
 
 ## Feature support
 
-- Bluetooth
 - Only DolphinBar in mode 4
 - N Mayflash Dolphinbar
-- 4 wiimote x Dolphinbar (slow with a single bar)
+- 4 wiimote x Dolphinbar (very fast with a single bar)
+- Bluetooth
 - wiimote with individual buttons
 - multiplayer
 - nunchuck
