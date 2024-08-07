@@ -146,6 +146,10 @@ class WiiMoteDevice(object):
 
         self.is_alive_time_last = time.time()
 
+        # logica para desconectar wiimote (hack dolphinbar multigun)
+        self.acc_sum_last      = 0.0
+        self.acc_sum_time_last = time.time()
+
         self.reset()
 
     def to_bytes(self, val : int) -> bytearray:
@@ -403,6 +407,16 @@ Byte	7	6	5	4	3	2	1	0
         elif report_id == WIIMOTE_REPORT_STATUS_ID:
             self.enable_nunchuck = (self.buf[0x03] & 0xf & 0x02) >> 1
             self.reset()
+
+        acc_sum = sum(self.core_accelerometer)
+        now = time.time()
+        if acc_sum == self.acc_sum_last:
+            if now - self.acc_sum_time_last >= 15 and self.is_pair:
+                self.is_pair = False
+                self.reset()
+        else:
+            self.acc_sum_last      = acc_sum
+            self.acc_sum_time_last = now
 
         return [
             self.core_button,
