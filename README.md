@@ -210,7 +210,7 @@ options:
   --disable-tilt-correction
   --port PORT           35460
   --smoothing-level SMOOTHING_LEVEL
-                        5 (default)
+                        3 (default)
 ```
 
 #### run service with root

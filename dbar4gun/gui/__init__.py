@@ -87,7 +87,7 @@ class GUI(object):
                 pygame.draw.circle(
                         self.display,
                         COLOR[i],
-                        point, 12, width=0 if dot_sorted[2] else 6)
+                        point, 12, width=0 if not dot_sorted[2] else 6)
 
             cursor = [
                 int(self.cursor[0] * self.width),
