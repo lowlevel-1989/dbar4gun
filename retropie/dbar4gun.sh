@@ -93,7 +93,7 @@ function _loadconfig_dbar4gun() {
         'db_setup=1' \
         'db_port=35460' \
         'db_calibration=2' \
-        'db_smoothing_level=5'
+        'db_smoothing_level=3'
     )"
 }
 
