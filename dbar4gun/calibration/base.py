@@ -119,7 +119,7 @@ class CalibrationBase(object):
             (point[self.TR][self.Y] + point[self.TL][self.Y]) * 0.5
         ]
 
-        # TODO: arguments command
+        """
         # agregar el rango completo a la pantalla
         x_min = 0.0
         y_min = 0.0
@@ -134,6 +134,9 @@ class CalibrationBase(object):
 
         x =  max(0.0, min(1.0, x))
         y =  max(0.0, min(1.0, y))
+        """
+
+        x, y = cursor_raw
 
         return [x, y]
 
@@ -172,14 +175,12 @@ class CalibrationBase(object):
 
         cursor = self.get_cursor(point)
 
-        """
         if not point[self.TL][self.K] \
                 and not point[self.TR][self.K] \
                 and not point[self.BL][self.K] \
                 and not point[self.BR][self.K]:
 
             cursor = self.fix_offscreen(cursor)
-        """
 
         cursor[self.X] =  max(0.0, min(1.0, cursor[self.X]))
         cursor[self.Y] =  max(0.0, min(1.0, cursor[self.Y]))

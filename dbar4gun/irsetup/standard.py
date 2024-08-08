@@ -55,9 +55,6 @@ class IRSetupStandard(IRSetupBase):
             if ir_dots[i][_K]:
                 dots_ok.append(ir_dots[i])
 
-            if len(dots_ok) == 2:
-                break
-
         for i in range(4):
             if not ir_dots[i][_K]:
                 dots_ok.append(ir_dots[i])
