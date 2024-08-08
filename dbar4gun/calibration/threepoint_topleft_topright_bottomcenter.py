@@ -113,8 +113,8 @@ class CalibrationTopLeftTopRightBottomCenterPoint(CalibrationBase):
 
     def calibrate(self) -> None:
         self.x_min = max(0.0, self.gun_topleft_point[self.X])
-        self.y_min = max(0.0, ( self.gun_topleft_point[self.Y] + self.gun_topright_point[self.Y]) / 2)
-        self.x_max = min(1.0, (( self.gun_bottomcenter_point[self.X] * 2) + self.gun_topright_point[self.X]) /2)
+        self.y_min = max(0.0, ( self.gun_topleft_point[self.Y] + self.gun_topright_point[self.Y]) * 0.5)
+        self.x_max = min(1.0, (( self.gun_bottomcenter_point[self.X] * 2) + self.gun_topright_point[self.X]) * 0.5)
         self.y_max = min(1.0, self.gun_bottomcenter_point[self.Y] )
 
         self.width  = self.x_max - self.x_min

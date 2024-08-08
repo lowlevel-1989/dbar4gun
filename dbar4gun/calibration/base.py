@@ -115,15 +115,16 @@ class CalibrationBase(object):
     # def get_cursor_raw(self, point : Point2DCollection) -> Cursor:
     def get_cursor_raw(self, point) -> tuple[float, float]:
         cursor_raw = [
-            (point[self.TR][self.X] + point[self.TL][self.X]) / 2,
-            (point[self.TR][self.Y] + point[self.TL][self.Y]) / 2
+            (point[self.TR][self.X] + point[self.TL][self.X]) * 0.5,
+            (point[self.TR][self.Y] + point[self.TL][self.Y]) * 0.5
         ]
 
+        # TODO: arguments command
         # agregar el rango completo a la pantalla
-        x_min = 0.1
+        x_min = 0.0
         y_min = 0.0
-        x_max = 0.9
-        y_max = 0.9
+        x_max = 1.0
+        y_max = 1.0
 
         width  = x_max - x_min
         height = y_max - y_min
