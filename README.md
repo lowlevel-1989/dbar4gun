@@ -108,6 +108,12 @@ In the case of the DolphinBar, it is detected as four Wiimotes, even if they are
 | Per Wiimote connected via Bluetooth   | ~19 MB             |
 | DolphinBar (detected as 4 Wiimotes)   | ~76 MB             |
 
+If the address of your wiimote(s) is already known (e.g. `/dev/hidraw0`), it can be attached directly using the `attach` subcommand. In that case, the monitor is not needed, and memory consumption is reduced drastically.
+
+| Item                                  | Memory Consumption |
+|---------------------------------------|--------------------|
+| dbar4gun attach                       | ~24 MB             |
+
 ## To Do
 
 1. Calibration ( high priority always )
@@ -138,12 +144,12 @@ curl -LO https://raw.githubusercontent.com/lowlevel-1989/dbar4gun/master/retropi
 *Manage packages \~ driver \~ dbar4gun \~ Configuration \~ Enable/Restart dbar4gun*  
 ```
 
-### stop service
+### Stop service
 ```
 *Manage packages \~ driver \~ dbar4gun \~ Configuration \~ Disable dbar4gun*  
 ```
 
-### status service
+### Status service
 ```
 systemctl status dbar4gun
 ```
