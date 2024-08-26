@@ -1,6 +1,5 @@
 import io
 import time
-import math
 import typing
 import struct
 
@@ -86,7 +85,7 @@ class CalibrationProtocol(typing.Protocol):
     def map_coordinates(self, dots, acc : tuple[int, int, int]) -> tuple[float, float]:
         ...
 
-    def set_tilt_correction(enable: bool) -> None:
+    def set_tilt_correction(self, enable: bool) -> None:
         ...
 
     # unsupport python < version 3.12
@@ -309,7 +308,7 @@ Byte	7	6	5	4	3	2	1	0
 
         is_done, leds = self.calibration.step(
                 button_trigger,
-                self.core_ir_dot_sorted[:],
+                self.core_ir_dot_sorted.copy(),
                 self.core_accelerometer)
 
         if is_done:
@@ -336,10 +335,10 @@ Byte	7	6	5	4	3	2	1	0
 
         button = self.core_button
 
-        button_a     = (not not (button & WIIMOTE_CORE_BUTTON_A_MASK))
-        button_b     = (not not (button & WIIMOTE_CORE_BUTTON_B_MASK))
-        button_plus  = (not not (button & WIIMOTE_CORE_BUTTON_PLUS_MASK))
-        button_minus = (not not (button & WIIMOTE_CORE_BUTTON_MINUS_MASK))
+        button_a     = (bool(button & WIIMOTE_CORE_BUTTON_A_MASK))
+        button_b     = (bool(button & WIIMOTE_CORE_BUTTON_B_MASK))
+        button_plus  = (bool(button & WIIMOTE_CORE_BUTTON_PLUS_MASK))
+        button_minus = (bool(button & WIIMOTE_CORE_BUTTON_MINUS_MASK))
 
         only_buttons_mask = WIIMOTE_CORE_BUTTON_MINUS_MASK | WIIMOTE_CORE_BUTTON_PLUS_MASK | WIIMOTE_CORE_BUTTON_HOME_MASK
 
@@ -424,8 +423,8 @@ Byte	7	6	5	4	3	2	1	0
 
         return [
             self.core_button,
-            self.core_ir_dot[:],
-            self.core_ir_dot_sorted[:],
+            self.core_ir_dot.copy(),
+            self.core_ir_dot_sorted.copy(),
             self.core_accelerometer,
             self.nunchuck_button,
             self.nunchuck_joy
@@ -445,7 +444,7 @@ Byte	7	6	5	4	3	2	1	0
             self.is_alive_time_last = now
             self.update_index(self.player)
 
-    def update_index(self, player : int =0) -> None:
+    def update_index(self, player : int =0) -> bool:
         if self.calibration_on > 0:
             return True
         try:

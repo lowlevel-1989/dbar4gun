@@ -45,7 +45,7 @@ class CalibrationBase(object):
             acc    : tuple[int, int, int]) -> tuple[bool, int]:
 
 
-        return [True, self.LED_1]
+        return (True, self.LED_1)
 
     def reset(self) -> None:
         self.state  = 0
@@ -54,10 +54,7 @@ class CalibrationBase(object):
     def calibrate(self) -> None:
         pass
 
-    # unsupport python < version 3.12
-    # def tilt_correction(self, point : Point2D) -> Cursor:
-    def tilt_correction(self, point : tuple[float, float]) -> tuple[float, float]:
-
+    def tilt_correction(self, point):
         # Calculate the angle of rotation using atan2 and invert the angle by multiplying by -1
         angle = math.atan2(
             point[self.TR][self.Y] - point[self.TL][self.Y],
@@ -82,7 +79,7 @@ class CalibrationBase(object):
     # TODO: optimize
     # unsupport python < version 3.12
     # def fix_offscreen(self, point : Point2D) -> Point2D:
-    def fix_offscreen(self, point : tuple[float, float]) -> tuple[float, float]:
+    def fix_offscreen(self, point):
         distance_left   = point[self.X]
         distance_right  = 1 - point[self.X]
         distance_bottom = point[self.Y]
@@ -97,7 +94,7 @@ class CalibrationBase(object):
         }
 
         # Determine which edge is the closest
-        nearest_edge = min(distances, key=distances.get)
+        nearest_edge = min(distances, key=lambda k: distances[k])
 
         # Adjust the object's position to the closest edge
         if nearest_edge   == "left":
@@ -113,7 +110,7 @@ class CalibrationBase(object):
 
     # unsupport python < version 3.12
     # def get_cursor_raw(self, point : Point2DCollection) -> Cursor:
-    def get_cursor_raw(self, point) -> tuple[float, float]:
+    def get_cursor_raw(self, point):
         cursor_raw = [
             (point[self.TR][self.X] + point[self.TL][self.X]) * 0.5,
             (point[self.TR][self.Y] + point[self.TL][self.Y]) * 0.5
@@ -140,7 +137,7 @@ class CalibrationBase(object):
 
         return [x, y]
 
-    def get_angle_from_acc(acc : tuple[int, int, int]):
+    def get_angle_from_acc(self, acc : tuple[int, int, int]):
         x, y, z = acc
 
         # The accelerometer readings are normally between 0 and 255
@@ -163,7 +160,7 @@ class CalibrationBase(object):
 
     # unsupport python < version 3.12
     # def get_cursor(self, point : Point2DCollection) -> Cursor:
-    def get_cursor(self, point) -> tuple[float, float]:
+    def get_cursor(self, point):
         if self.enable_tilt_correction and \
                 point[self.TL][self.K] and point[self.TR][self.K]:
             return self.tilt_correction(point)
@@ -171,7 +168,7 @@ class CalibrationBase(object):
 
     # unsupport python < version 3.12
     # def map_coordinates(self, point : Point2DCollection, acc : tuple[int, int, int]) -> Cursor:
-    def map_coordinates(self, point, acc : tuple[int, int, int]) -> tuple[float, float]:
+    def map_coordinates(self, point, acc : tuple[int, int, int]):
 
         cursor = self.get_cursor(point)
 

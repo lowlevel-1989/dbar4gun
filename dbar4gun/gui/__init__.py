@@ -1,4 +1,3 @@
-import sys
 import pygame
 import struct
 import socket

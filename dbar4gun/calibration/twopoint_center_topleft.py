@@ -29,7 +29,7 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
 
     # unsupport python < version 3.12
     # def map_coordinates(self, point : Point2DCollection, acc : tuple[int, int, int]) -> Cursor:
-    def map_coordinates(self, point, acc : tuple[int, int, int]) -> tuple[float, float]:
+    def map_coordinates(self, point, acc : tuple[int, int, int]):
 
         # set position target
         if   self.state == 1:
@@ -46,7 +46,7 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
         x =  max(0.0, min(1.0, x))
         y =  max(0.0, min(1.0, y))
 
-        return (x, y)
+        return [x, y]
 
 
     # unsupport python < version 3.12
@@ -60,21 +60,21 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
             acc    : tuple[int, int, int]) -> tuple[bool, int]:
 
         # center point (leds)
-        if self.state == 0 and button == False:
+        if self.state == 0 and not button:
             self.state = 1
-            return [False, self.LED_2|self.LED_3]
+            return (False, self.LED_2|self.LED_3)
 
         # center point (capture)
         elif self.state == 1 and button and point[self.TL][self.K] and point[self.TR][self.K]:
             cursor = self.get_cursor(point)
             self.gun_center_point = cursor
             self.state = 2
-            return [False, self.LED_U]
+            return (False, self.LED_U)
 
         # top left point (leds)
-        elif self.state == 2 and button == False:
+        elif self.state == 2 and not button:
             self.state = 3
-            return [False, self.LED_1|self.LED_4]
+            return (False, self.LED_1|self.LED_4)
 
         # top left point (capture)
         elif self.state == 3 and button and point[self.TR][self.K]:
@@ -85,10 +85,10 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
             self.calibrate()
             self.state = 0
 
-            return [True, self.LED_U]
+            return (True, self.LED_U)
 
         # continue
-        return [False, self.LED_U]
+        return (False, self.LED_U)
 
     def calibrate(self) -> None:
         self.x_min = max(0.0, self.gun_topleft_point[self.X])

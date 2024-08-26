@@ -25,7 +25,7 @@ class IRSetupBase(object):
     def sort_and_restore(self, ir_dots, acc : tuple[int, int, int]):
         return self.core_ir_dot_sorted
 
-    def get_angle_from_acc(self, acc : tuple[int, int, int]) -> tuple[int, int]:
+    def get_angle_from_acc(self, acc : tuple[int, int, int]) -> tuple[float, float]:
         x, y, z = acc
 
         # The accelerometer readings are normally between 0 and 255
@@ -43,5 +43,5 @@ class IRSetupBase(object):
         roll  = math.atan2(y_g, z_g) * -1
         pitch = math.atan2(-x_g, math.sqrt(y_g**2 + z_g**2)) * -1
 
-        return roll, pitch
+        return (roll, pitch)
 

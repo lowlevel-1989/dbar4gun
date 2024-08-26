@@ -180,33 +180,33 @@ class VirtualGunDevice(object):
         nunchuck_dir = self.get_nunchuk_direction()
 
         self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_LEFT],
-                (not not (self.buttons & VIRTUALGUN_BUTTON_LEFT_MASK)) | nunchuck_dir[0])
+                (bool(self.buttons & VIRTUALGUN_BUTTON_LEFT_MASK)) | nunchuck_dir[0])
         self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_RIGHT],
-                (not not (self.buttons & VIRTUALGUN_BUTTON_RIGHT_MASK)) | nunchuck_dir[1])
+                (bool(self.buttons & VIRTUALGUN_BUTTON_RIGHT_MASK)) | nunchuck_dir[1])
         self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_UP],
-                (not not (self.buttons & VIRTUALGUN_BUTTON_UP_MASK)) | nunchuck_dir[2])
+                (bool(self.buttons & VIRTUALGUN_BUTTON_UP_MASK)) | nunchuck_dir[2])
         self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_DOWN],
-                (not not (self.buttons & VIRTUALGUN_BUTTON_DOWN_MASK)) | nunchuck_dir[3])
+                (bool(self.buttons & VIRTUALGUN_BUTTON_DOWN_MASK)) | nunchuck_dir[3])
 
         # cursor
         self.virtualgun.write(evdev.ecodes.EV_ABS, evdev.ecodes.ABS_X, int(self.cursor[_X] * self.width))
         self.virtualgun.write(evdev.ecodes.EV_ABS, evdev.ecodes.ABS_Y, int(self.cursor[_Y] * self.height))
 
         self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_A],
-                (not not (self.buttons & VIRTUALGUN_BUTTON_A_MASK)))
+                (bool(self.buttons & VIRTUALGUN_BUTTON_A_MASK)))
 
         self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_C],
-                (not not (self.nunchuck_buttons & VIRTUALGUN_BUTTON_C_MASK)))
+                (bool(self.nunchuck_buttons & VIRTUALGUN_BUTTON_C_MASK)))
         self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_Z],
-                (not not (self.nunchuck_buttons & VIRTUALGUN_BUTTON_Z_MASK)))
+                (bool(self.nunchuck_buttons & VIRTUALGUN_BUTTON_Z_MASK)))
 
         # with combo
-        button_b     = (not not (self.buttons & VIRTUALGUN_BUTTON_B_MASK))
-        button_home  = (not not (self.buttons & VIRTUALGUN_BUTTON_HOME_MASK))
-        button_one   = (not not (self.buttons & VIRTUALGUN_BUTTON_ONE_MASK))
-        button_two   = (not not (self.buttons & VIRTUALGUN_BUTTON_TWO_MASK))
-        button_plus  = (not not (self.buttons & VIRTUALGUN_BUTTON_PLUS_MASK))
-        button_minus = (not not (self.buttons & VIRTUALGUN_BUTTON_MINUS_MASK))
+        button_b     = (bool(self.buttons & VIRTUALGUN_BUTTON_B_MASK))
+        button_home  = (bool(self.buttons & VIRTUALGUN_BUTTON_HOME_MASK))
+        button_one   = (bool(self.buttons & VIRTUALGUN_BUTTON_ONE_MASK))
+        button_two   = (bool(self.buttons & VIRTUALGUN_BUTTON_TWO_MASK))
+        button_plus  = (bool(self.buttons & VIRTUALGUN_BUTTON_PLUS_MASK))
+        button_minus = (bool(self.buttons & VIRTUALGUN_BUTTON_MINUS_MASK))
 
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_ENTER, button_b & button_plus)
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_ESC,   button_b & button_minus)

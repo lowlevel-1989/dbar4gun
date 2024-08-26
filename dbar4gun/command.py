@@ -145,7 +145,7 @@ class Command(object):
 
         self.dbar4gun.run()
 
-    def free(self, SignalNumber, Frame):
+    def free(self, SignalNumber=-1, Frame=None):
         if self.dbar4gun:
             self.dbar4gun.stop()
         exit(0)

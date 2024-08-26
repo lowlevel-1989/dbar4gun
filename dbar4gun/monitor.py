@@ -14,7 +14,7 @@ class Monitor(object):
         devices = self.__context.list_devices(subsystem="hidraw")
         for device in devices:
             if device.get("ID_MODEL_FROM_DATABASE") != "Wii Remote Controller RVL-003" \
-                    and device.parent.driver != "wiimote":
+                    and device.parent and device.parent.driver != "wiimote":
                 continue
 
             hidraw_path = device.get("DEVNAME")
@@ -27,7 +27,7 @@ class Monitor(object):
         self.__monitor.filter_by(subsystem="hidraw")
         for action, device in self.__monitor:
             if device.get("ID_MODEL_FROM_DATABASE") != "Wii Remote Controller RVL-003" \
-                    and device.parent.driver != "wiimote":
+                    and device.parent and device.parent.driver != "wiimote":
                 continue
 
             hidraw_path = device.get("DEVNAME")

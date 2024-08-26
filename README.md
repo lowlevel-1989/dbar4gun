@@ -271,5 +271,5 @@ sudo bluetoothctl remove XX:XX:XX:XX:XX:XX
 
 The wiimote report format is not open and had to be reverse engineered. These resources have been very helpful when creating dbar4gun:
 
-- <https://www.wiibrew.org/wiki/Wiimote>
-- <https://github.com/xwiimote/xwiimote/blob/master/doc/PROTOCOL>
+- [https://www.wiibrew.org/wiki/Wiimote](https://www.wiibrew.org/wiki/Wiimote)
+- [https://github.com/xwiimote/xwiimote/blob/master/doc/PROTOCOL](https://github.com/xwiimote/xwiimote/blob/master/doc/PROTOCOL)

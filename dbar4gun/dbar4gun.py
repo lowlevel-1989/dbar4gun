@@ -1,9 +1,12 @@
 import os
-import io
 import socket
 import signal
 import struct
 import time
+
+from pathlib import Path
+
+from typing import Dict, Any
 
 from io import FileIO
 
@@ -14,14 +17,14 @@ from multiprocessing import Queue
 
 class Dbar4Gun(object):
     def __init__(self,
-                 Config,
+                 config,
                  Monitor,
                  WiiMoteDevice,
                  VirtualGunDevice,
                  Calibration,
                  IRSetup):
 
-        self.config                 = Config
+        self.config                 = config
         self.class_calibration      = Calibration
         self.class_irsetup          = IRSetup
         self.class_wiimotedevice    = WiiMoteDevice
@@ -33,15 +36,15 @@ class Dbar4Gun(object):
 
         self.queue  = Queue()
 
-        self.files      = {}
-        self.processes  = {}
+        self.files      :Dict[str, Any] = {}
+        self.processes  :Dict[str, Any] = {}
         self.is_worker  = False
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def stop(self):
-        if not self.is_worker and os.path.exists("/var/run/dbar4gun.pid"):
-            os.remove("/var/run/dbar4gun.pid")
+        if not self.is_worker and Path("/var/run/dbar4gun.pid").exists():
+            Path("/var/run/dbar4gun.pid").unlink()
 
         try:
             self.sock.close()
@@ -78,7 +81,7 @@ class Dbar4Gun(object):
                 print(e)
 
     def kill(self):
-        if os.path.exists("/var/run/dbar4gun.pid"):
+        if Path("/var/run/dbar4gun.pid").exists():
             with open("/var/run/dbar4gun.pid", "r") as f:
                 try:
                     pid = int(f.readline())
@@ -93,8 +96,7 @@ class Dbar4Gun(object):
 
         main_pid = os.getpid()
 
-        with open("/var/run/dbar4gun.pid", "w") as f:
-            f.write(str(main_pid))
+        Path("/var/run/dbar4gun.pid").write_text(str(main_pid))
 
         self.monitor  = self.class_monitor(queue = self.queue)
 
@@ -158,8 +160,8 @@ class Dbar4Gun(object):
         self.is_worker = True
 
         # free memory
-        self.processes = None
-        self.files     = None
+        self.processes = {}
+        self.files     = {}
 
 
     def _worker_create_virtualgun(self, hidraw_io):
