@@ -117,6 +117,7 @@ class CalibrationBase(object):
         ]
 
         """
+        # aumenta la sensibilidad
         # agregar el rango completo a la pantalla
         x_min = 0.0
         y_min = 0.0
