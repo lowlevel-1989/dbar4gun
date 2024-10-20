@@ -1,5 +1,4 @@
 import math
-import itertools
 
 from dbar4gun.irsetup.base import IRSetupBase
 
@@ -80,6 +79,19 @@ class IRSetupStandard(IRSetupBase):
                 self.core_ir_dot_sorted[_TL] = dots_ok[0]
                 self.core_ir_dot_sorted[_TR] = self.core_ir_dot_sorted_prev[_TR]
         else:
+            self.core_ir_dot_sorted = self.core_ir_dot_sorted_prev[:]
+        
+
+        x1, y1 = self.core_ir_dot_sorted[_TL]
+        x2, y2 = self.core_ir_dot_sorted[_TR]
+
+        dx = x2 - x1
+        dy = y2 - y1
+
+        distance = math.sqrt((dx*dx) + (dy*dy))
+
+        # radio 5, si estan colisionando colocamos los puntos anteriores
+        if distance <= 10:
             self.core_ir_dot_sorted = self.core_ir_dot_sorted_prev[:]
 
         return self.core_ir_dot_sorted
