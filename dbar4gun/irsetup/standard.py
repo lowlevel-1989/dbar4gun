@@ -90,8 +90,8 @@ class IRSetupStandard(IRSetupBase):
 
         distance = math.sqrt((dx*dx) + (dy*dy))
 
-        # radio 5, si estan colisionando colocamos los puntos anteriores
-        if distance <= 10:
+        # si estan colisionando colocamos los puntos anteriores
+        if distance <= 0.025:
             self.core_ir_dot_sorted = self.core_ir_dot_sorted_prev[:]
 
         return self.core_ir_dot_sorted

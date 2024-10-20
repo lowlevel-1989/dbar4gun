@@ -1,4 +1,5 @@
 0.16.2
+- Fixed cursor
 - Code Refactoring
 0.16.1
 - added local cmd_in on retropie
