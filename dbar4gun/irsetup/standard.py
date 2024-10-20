@@ -82,8 +82,8 @@ class IRSetupStandard(IRSetupBase):
             self.core_ir_dot_sorted = self.core_ir_dot_sorted_prev[:]
         
 
-        x1, y1 = self.core_ir_dot_sorted[_TL]
-        x2, y2 = self.core_ir_dot_sorted[_TR]
+        x1, y1, _ = self.core_ir_dot_sorted[_TL]
+        x2, y2, _ = self.core_ir_dot_sorted[_TR]
 
         dx = x2 - x1
         dy = y2 - y1
