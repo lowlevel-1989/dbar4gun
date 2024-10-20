@@ -72,26 +72,24 @@ It is important to remember to disconnect the Wiimote using the power button at 
 - **Step 1:** Shoot at the **center** of the screen. LEDs 1 and 4 will light up.
 - **Step 2:** Shoot at the **top-left** corner of the screen.
 
-Once you've completed these steps, your Light Gun will be calibrated and ready to use.
-
-## Light Gun Configuration Manual for Specific Core Games
-
-Refer to the [specific README for light gun configuration](retroarch) to learn how to configure games in RetroArch.
-
-## List of No-Crosshair Games: Perfect Performance with wiimote (tested)
-
-| game                     | system     | ir setup       | note                           |
-|--------------------------|------------|----------------|--------------------------------|
-| Point Blank              | Mame       | Standard       |                                |
-| Point Blank 2            | Mame       | Standard       |                                |
-| Point Blank 3            | Mame       | Standard       |                                |
-| Time Crisis              | Mame       | Standard       |                                |
-| Golly! Ghost!            | Mame       | Standard       |                                |
-| VS. Hogan's Alley        | Mame       | Standard       | low precision in the bonus     |
-| Lucky & Wild             | Mame 2015  | Standard       |                                |
-| Area 51                  | Mame 2003+ | Standard       |                                |
-| House of the Dead 2      | Dreamcast  | Standard       |                                |
-| Virtua Cop 2             | Dreamcast  | Standard       |                                |
+Once you've completed these steps, your Light Gun will be calibrated and ready to us  
+## Light Gun Configuration Manual for Specific Core Ga   
+Refer to the [specific README for light gun configuration](retroarch) to ln how to configure games in RetroArch.
+  
+## List of No-Crosshair Games: Perfect Performance with wiimote (tested)   
+    
+| game                     | system     | ir setup       | smoothing level | note                           |
+|--------------------------|------------|----------------|-----------------|--------------------------------|
+| Point Blank              | Mame       | Standard       |  0              |                                |   
+| Point Blank 2            | Mame       | Standard       |  0              |                                |   
+| Point Blank 3            | Mame       | Standard       |  0              |                                |   
+| Time Crisis              | Mame       | Standard       |  0              |                                |   
+| Golly! Ghost!            | Mame       | Standard       |  0              |                                |   
+| VS. Hogan's Alley        | Mame       | Standard       |  0              | low precision in the bonus     |   
+| Lucky & Wild             | Mame 2015  | Standard       |  0              |                                |   
+| Area 51                  | Mame 2003+ | Standard       |  0              |                                |   
+| House of the Dead 2      | Dreamcast  | Standard       |  0              |                                |   
+| Virtua Cop 2             | Dreamcast  | Standard       |  0              |                                |   
 
 ## Memory Consumption of the dbar4gun
 
