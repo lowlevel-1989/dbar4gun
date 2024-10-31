@@ -79,8 +79,8 @@ Refer to the [specific README for light gun configuration](retroarch) to ln how 
     
 | game                     | system     | ir setup       | smoothing level | note                           |
 |--------------------------|------------|----------------|-----------------|--------------------------------|
-| Point Blank              | Mame       | Standard       |  0              |                                |
 | Operation Wolf           | Mame       | Standard       |  0              |                                |
+| Point Blank              | Mame       | Standard       |  0              |                                |
 | Point Blank 2            | Mame       | Standard       |  0              |                                |
 | Point Blank 3            | Mame       | Standard       |  0              |                                |
 | Ghoul Panic              | Mame       | Standard       |  0              |                                |
