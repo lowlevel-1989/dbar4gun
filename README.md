@@ -23,7 +23,6 @@ It is important to remember to disconnect the Wiimote using the power button at 
 - calibration two points
 - calibration three points
 - Standard configuration for Wii sensor
-- dbar4gun supports maximum resolution and sensitivity without causing cursor jumps
 - wiimote led -> index mouse (bin number)
 - auto key
 - systemd
@@ -80,16 +79,18 @@ Refer to the [specific README for light gun configuration](retroarch) to ln how 
     
 | game                     | system     | ir setup       | smoothing level | note                           |
 |--------------------------|------------|----------------|-----------------|--------------------------------|
-| Point Blank              | Mame       | Standard       |  0              |                                |   
-| Point Blank 2            | Mame       | Standard       |  0              |                                |   
-| Point Blank 3            | Mame       | Standard       |  0              |                                |   
-| Time Crisis              | Mame       | Standard       |  0              |                                |   
-| Golly! Ghost!            | Mame       | Standard       |  0              |                                |   
-| VS. Hogan's Alley        | Mame       | Standard       |  0              | low precision in the bonus     |   
-| Lucky & Wild             | Mame 2015  | Standard       |  0              |                                |   
-| Area 51                  | Mame 2003+ | Standard       |  0              |                                |   
-| House of the Dead 2      | Dreamcast  | Standard       |  0              |                                |   
-| Virtua Cop 2             | Dreamcast  | Standard       |  0              |                                |   
+| Point Blank              | Mame       | Standard       |  0              |                                |
+| Operation Wolf           | Mame       | Standard       |  0              |                                |
+| Point Blank 2            | Mame       | Standard       |  0              |                                |
+| Point Blank 3            | Mame       | Standard       |  0              |                                |
+| Ghoul Panic              | Mame       | Standard       |  0              |                                |
+| Time Crisis              | Mame       | Standard       |  0              |                                |
+| Golly! Ghost!            | Mame       | Standard       |  0              |                                |
+| VS. Hogan's Alley        | Mame       | Standard       |  0              | low precision in the bonus     |
+| Lucky & Wild             | Mame 2015  | Standard       |  0              |                                |
+| Area 51                  | Mame 2003+ | Standard       |  0              |                                |
+| House of the Dead 2      | Dreamcast  | Standard       |  0              |                                |
+| Virtua Cop 2             | Dreamcast  | Standard       |  0              |                                |
 
 ## Memory Consumption of the dbar4gun
 
