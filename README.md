@@ -1,4 +1,4 @@
-# dbar4gun 0.16.2
+# dbar4gun 0.17.0
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support, specifically designed to function as 4 light guns.
 
@@ -36,27 +36,28 @@ It is important to remember to disconnect the Wiimote using the power button at 
 
 ![Standard configuration for Wii sensor](docs/setup.jpeg)
 
-| device   | button    | map           | shared | mame default        |
-|----------|-----------|---------------|--------|---------------------|
-| wiimote  | ir        | mouse cursor  | false  | cursor              |
-| wiimote  | a         | auto key      | false  | bomb                |
-| wiimote  | b         | mouse left    | false  | trigger             |
-| wiimote  | home      | key f1        | true   | menu (retroarch)    |
-| wiimote  | 1         | mouse middle  | false  |                     |
-| wiimote  | 2         | mouse right   | false  | reload (retroarch)  |
-| wiimote  | plus      | auto key      | false  | start               |
-| wiimote  | minus     | auto key      | false  | 1 coin              |
-| wiimote  | d-pad     | auto key      | false  | direction           |
-| nunchuck | stick     | wiimote d-pad | false  | direction           |
-| nunchuck | z         | auto key      | false  |                     |
-| nunchuck | c         | auto key      | false  |                     |
-| combo    | b + minus | key esc       | true   | exit (retroarch)    |
-| combo    | b + plus  | key enter     | true   | select              |
-| combo    | b + home  | key tab       | true   | menu                |
-| combo    | b + 1     | key space     | true   | fast forward        |
-| combo    | b + 2     | key 2         | true   | start (P2)          |
-| combo    | a + plus  |               | false  | start calibration   |
-| combo    | a + minus |               | false  | reset calibration   |
+| device   | button    | map           | shared | mame default                      |
+|----------|-----------|---------------|--------|-----------------------------------|
+| wiimote  | ir        | mouse cursor  | false  | cursor                            |
+| wiimote  | a         | auto key      | false  | bomb                              |
+| wiimote  | b         | mouse left    | false  | trigger                           |
+| wiimote  | home      | key enter     | true   | select                            |
+| wiimote  | 1         | mouse middle  | false  |                                   |
+| wiimote  | 2         | mouse right   | false  | reload (retroarch)                |
+| wiimote  | plus      | auto key      | false  | start                             |
+| wiimote  | minus     | auto key      | false  | 1 coin                            |
+| wiimote  | d-pad     | auto key      | false  | direction                         |
+| nunchuck | stick     | wiimote d-pad | false  | direction                         |
+| nunchuck | z         | auto key      | false  |                                   |
+| nunchuck | c         | auto key      | false  |                                   |
+| combo    | b + home  | key tab       | true   | menu (mame,flycast)               |
+| combo    | b + plus  |               | false  | disable/enable ir (useful in gui) |
+| combo    | b + minus | key esc       | true   | exit (retroarch)                  |
+| combo    | b + 1     | key space     | true   | fast forward                      |
+| combo    | b + 2     | key 2         | true   | start (P2)                        |
+| combo    | a + home  | key f1        | true   | menu (retroarch)                  |
+| combo    | a + plus  |               | false  | start calibration                 |
+| combo    | a + minus |               | false  | reset calibration                 |
 
 ## Calibration wherever
 

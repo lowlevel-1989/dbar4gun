@@ -192,15 +192,13 @@ class VirtualGunDevice(object):
         self.virtualgun.write(evdev.ecodes.EV_ABS, evdev.ecodes.ABS_X, int(self.cursor[_X] * self.width))
         self.virtualgun.write(evdev.ecodes.EV_ABS, evdev.ecodes.ABS_Y, int(self.cursor[_Y] * self.height))
 
-        self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_A],
-                (bool(self.buttons & VIRTUALGUN_BUTTON_A_MASK)))
-
         self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_C],
                 (bool(self.nunchuck_buttons & VIRTUALGUN_BUTTON_C_MASK)))
         self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_Z],
                 (bool(self.nunchuck_buttons & VIRTUALGUN_BUTTON_Z_MASK)))
 
         # with combo
+        button_a     = (bool(self.buttons & VIRTUALGUN_BUTTON_A_MASK))
         button_b     = (bool(self.buttons & VIRTUALGUN_BUTTON_B_MASK))
         button_home  = (bool(self.buttons & VIRTUALGUN_BUTTON_HOME_MASK))
         button_one   = (bool(self.buttons & VIRTUALGUN_BUTTON_ONE_MASK))
@@ -208,7 +206,7 @@ class VirtualGunDevice(object):
         button_plus  = (bool(self.buttons & VIRTUALGUN_BUTTON_PLUS_MASK))
         button_minus = (bool(self.buttons & VIRTUALGUN_BUTTON_MINUS_MASK))
 
-        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_ENTER, button_b & button_plus)
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_F1,    button_a & button_home)
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_ESC,   button_b & button_minus)
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_TAB,   button_b & button_home)
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_SPACE, button_b & button_one)
@@ -218,15 +216,20 @@ class VirtualGunDevice(object):
             button_b & button_plus  or \
             button_b & button_minus or \
             button_b & button_one   or \
-            button_b & button_two:
+            button_b & button_two   or \
+            button_a & button_home  or \
+            button_a & button_plus  or \
+            button_a & button_minus:
             self.virtualgun.syn()
             return
 
-        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_F1,                     button_home)
+        self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.KEY_ENTER,                  button_home)
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_LEFT,                   button_b)
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_MIDDLE,                 button_one)
 
         self.virtualgun.write(evdev.ecodes.EV_KEY, evdev.ecodes.BTN_RIGHT,                  button_two)
+
+        self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_A],     button_a)
 
         self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_PLUS],  button_plus)
         self.virtualgun.write(evdev.ecodes.EV_KEY, _MAP[self.index_map + _MAP_INDEX_MINUS], button_minus)

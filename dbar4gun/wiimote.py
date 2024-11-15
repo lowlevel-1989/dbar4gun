@@ -149,6 +149,10 @@ class WiiMoteDevice(object):
         self.acc_sum_last      = 0.0
         self.acc_sum_time_last = time.time()
 
+        # controla si enviar un cursor real o uno falso
+        self.state_fake_cursor = 0
+        self.is_fake_cursor    = False
+
         self.reset()
 
     def to_bytes(self, val : int) -> bytearray:
@@ -328,8 +332,24 @@ Byte	7	6	5	4	3	2	1	0
     # unsupport python < version 3.12
     # def get_cursor(self) -> Cursor:
     def get_cursor(self) -> tuple[float, float]:
+        if self.is_fake_cursor:
+            return (0.0, 0.0)
+
         return self.calibration.map_coordinates(
                 self.core_ir_dot_sorted, self.core_accelerometer)
+
+    def fake_cursor_check(self) -> None:
+        button = self.core_button
+
+        button_b     = (bool(button & WIIMOTE_CORE_BUTTON_B_MASK))
+        button_plus  = (bool(button & WIIMOTE_CORE_BUTTON_PLUS_MASK))
+
+        if (button_b & button_plus) and self.state_fake_cursor == 0:
+            self.is_fake_cursor = not self.is_fake_cursor
+            self.state_fake_cursor = 1
+
+        if (not button_plus) and self.state_fake_cursor == 1:
+            self.state_fake_cursor = 0
 
     def calibration_check(self) -> None:
 
@@ -401,6 +421,7 @@ Byte	7	6	5	4	3	2	1	0
 
             self.parser_ir(ir_payload)
             self.core_ir_dot_sorted = self.ir_setup.sort_and_restore(self.core_ir_dot, [acc_x, acc_y, acc_z])
+            self.fake_cursor_check()
             self.calibration_check()
 
         elif report_id == WIIMOTE_REPORT_STATUS_ID:

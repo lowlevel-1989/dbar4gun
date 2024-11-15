@@ -1,3 +1,17 @@
+0.17.0
+- supported standalone flycast
+  home     -> select
+  d-pad    -> direction
+  b + plus -> disable/enable ir (useful in gui)
+  mode lightgun in game:
+    1    -> start
+    2    -> back
+    b    -> trigger
+- new map:
+    a + home -> menu retroarch
+    b + home -> menu mame, flycast
+    b + plus -> disable/enable ir (useful in gui)
+    home -> KEY_ENTER
 0.16.2
 - Fixed cursor
 - Code Refactoring
