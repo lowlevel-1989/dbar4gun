@@ -1,9 +1,9 @@
 0.17.0
-- supported standalone flycast
+- standalone flycast
   home     -> select
   d-pad    -> direction
   b + plus -> disable/enable ir (useful in gui)
-  mode lightgun in game:
+  lightgun mode in game:
     1    -> start
     2    -> back
     b    -> trigger
