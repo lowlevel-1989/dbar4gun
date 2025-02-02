@@ -29,7 +29,7 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
 
     # unsupport python < version 3.12
     # def map_coordinates(self, point : Point2DCollection, acc : tuple[int, int, int]) -> Cursor:
-    def map_coordinates(self, point, acc : tuple[int, int, int]):
+    def map_coordinates(self, point, acc):
 
         # set position target
         if   self.state == 1:
@@ -57,7 +57,7 @@ class CalibrationCenterTopLeftPoint(CalibrationBase):
     def step(self,
             button : bool,
             point,
-            acc    : tuple[int, int, int]) -> tuple[bool, int]:
+            acc):
 
         # center point (leds)
         if self.state == 0 and not button:

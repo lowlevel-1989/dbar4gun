@@ -11,7 +11,7 @@ class IRSetupStandard(IRSetupBase):
 
     # unsupport python < version 3.12
     # def sort_and_restore(self, dots : CoreIRCollection, acc : tuple[int, int, int]) -> CoreIRCollection:
-    def sort_and_restore(self, ir_dots, acc : tuple[int, int, int]):
+    def sort_and_restore(self, ir_dots, acc):
 
         _X  = self.X
         _Y  = self.Y

@@ -42,7 +42,7 @@ class CalibrationBase(object):
     def step(self,
             button : bool,
             point,
-            acc    : tuple[int, int, int]) -> tuple[bool, int]:
+            acc):
 
 
         return (True, self.LED_1)
@@ -138,7 +138,7 @@ class CalibrationBase(object):
 
         return [x, y]
 
-    def get_angle_from_acc(self, acc : tuple[int, int, int]):
+    def get_angle_from_acc(self, acc):
         x, y, z = acc
 
         # The accelerometer readings are normally between 0 and 255
@@ -169,7 +169,7 @@ class CalibrationBase(object):
 
     # unsupport python < version 3.12
     # def map_coordinates(self, point : Point2DCollection, acc : tuple[int, int, int]) -> Cursor:
-    def map_coordinates(self, point, acc : tuple[int, int, int]):
+    def map_coordinates(self, point, acc):
 
         cursor = self.get_cursor(point)
 

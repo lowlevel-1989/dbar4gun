@@ -22,10 +22,10 @@ class IRSetupBase(object):
 
     # unsupport python < version 3.12
     # def sort_and_restore(self, dots : CoreIRCollection, acc : tuple[int, int, int]) -> CoreIRCollection:
-    def sort_and_restore(self, ir_dots, acc : tuple[int, int, int]):
+    def sort_and_restore(self, ir_dots, acc):
         return self.core_ir_dot_sorted
 
-    def get_angle_from_acc(self, acc : tuple[int, int, int]) -> tuple[float, float]:
+    def get_angle_from_acc(self, acc):
         x, y, z = acc
 
         # The accelerometer readings are normally between 0 and 255
