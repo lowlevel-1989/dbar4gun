@@ -141,7 +141,6 @@ class VirtualGunDevice(object):
 
         return index
 
-
     def set_buttons(self, buttons, nunchuck_buttons, nunchuck_joy):
         self.buttons          = buttons
         self.nunchuck_joy     = nunchuck_joy

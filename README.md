@@ -1,4 +1,4 @@
-# dbar4gun 0.17.1
+# dbar4gun 0.17.2
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support, specifically designed to function as 4 light guns.
 
@@ -35,6 +35,32 @@ It is important to remember to disconnect the Wiimote using the power button at 
 - works on linux
 - works on retropie
 - works on raspbian
+
+## Known Issues
+
+### 1. Failure of IR LEDs on the DolphinBar
+
+**Issue:** The DolphinBar has infrared LEDs that can burn out easily, making it impossible to aim correctly.  
+**Solution:** Replace the damaged LEDs or swap the bar for a new one.
+
+### 2. I can move the pointer, but I can't shoot
+
+**Issue:** If you can move the pointer but can't shoot, the driver may be detecting a keyboard or mouse as a second light gun.  
+**Solution:** Change the "mouse index" in the emulator settings to match the light gun's index and avoid conflicts.
+
+### 3. The pointer becomes unstable for no apparent reason
+
+**Issue:** The pointer moves erratically for no apparent reason.  
+**Possible Cause:** Sunlight entering the room interferes with the infrared sensor.  
+**Solution:** Confirm the issue by entering the "Debug" option in the driver settings within RetroPie Setup.
+
+### 4. Calibration issues
+
+**Issue:** Difficulties in calibrating the Wiimote properly.  
+**Possible Causes:**
+- You are too close to the TV.
+- If using DolphinBar, one of the IR LEDs may be damaged.  
+  **Solution:** You can check the behavior of the calibration points using the "Debug" option in RetroPie Setup.
 
 ![Standard configuration for Wii sensor](docs/setup.jpeg)
 
@@ -167,7 +193,7 @@ You have a Raspberry Pi 3 or for Raspberry Pi 2 and below, you need a Bluetooth 
 ### System dependencies
 
 - git
-- python >= 3.8
+- python >= 3.7
 - bluez >= 5.0
 
 ### Python dependencies
