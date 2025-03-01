@@ -36,6 +36,33 @@ It is important to remember to disconnect the Wiimote using the power button at 
 - works on retropie
 - works on raspbian
 
+![Standard configuration for Wii sensor](docs/setup.jpeg)
+
+| device   | button    | map           | shared | mame default                      |
+|----------|-----------|---------------|--------|-----------------------------------|
+| wiimote  | ir        | mouse cursor  | false  | cursor                            |
+| wiimote  | a         | auto key      | false  | bomb                              |
+| wiimote  | b         | mouse left    | false  | trigger                           |
+| wiimote  | home      | key enter     | true   | select                            |
+| wiimote  | 1         | mouse middle  | false  |                                   |
+| wiimote  | 2         | mouse right   | false  | reload (retroarch)                |
+| wiimote  | plus      | auto key      | false  | start                             |
+| wiimote  | minus     | auto key      | false  | 1 coin                            |
+| wiimote  | d-pad     | auto key      | false  | direction                         |
+| nunchuck | stick     | wiimote d-pad | false  | direction                         |
+| nunchuck | z         | auto key      | false  |                                   |
+| nunchuck | c         | auto key      | false  |                                   |
+| combo    | b + home  | key tab       | true   | menu (mame,flycast)               |
+| combo    | b + plus  |               | false  | disable/enable ir (useful in gui) |
+| combo    | b + minus | key esc       | true   | exit (retroarch)                  |
+| combo    | b + 1     | key space     | true   | fast forward                      |
+| combo    | b + 2     | key 2         | true   | start (P2)                        |
+| combo    | a + home  | key f1        | true   | menu (retroarch)                  |
+| combo    | a + plus  |               | false  | start calibration                 |
+| combo    | a + minus |               | false  | reset calibration                 |
+
+
+
 ## Known Issues
 
 ### 1. Failure of IR LEDs on the DolphinBar
@@ -61,31 +88,6 @@ It is important to remember to disconnect the Wiimote using the power button at 
 - You are too close to the TV.
 - If using DolphinBar, one of the IR LEDs may be damaged.  
   **Solution:** You can check the behavior of the calibration points using the "Debug" option in RetroPie Setup.
-
-![Standard configuration for Wii sensor](docs/setup.jpeg)
-
-| device   | button    | map           | shared | mame default                      |
-|----------|-----------|---------------|--------|-----------------------------------|
-| wiimote  | ir        | mouse cursor  | false  | cursor                            |
-| wiimote  | a         | auto key      | false  | bomb                              |
-| wiimote  | b         | mouse left    | false  | trigger                           |
-| wiimote  | home      | key enter     | true   | select                            |
-| wiimote  | 1         | mouse middle  | false  |                                   |
-| wiimote  | 2         | mouse right   | false  | reload (retroarch)                |
-| wiimote  | plus      | auto key      | false  | start                             |
-| wiimote  | minus     | auto key      | false  | 1 coin                            |
-| wiimote  | d-pad     | auto key      | false  | direction                         |
-| nunchuck | stick     | wiimote d-pad | false  | direction                         |
-| nunchuck | z         | auto key      | false  |                                   |
-| nunchuck | c         | auto key      | false  |                                   |
-| combo    | b + home  | key tab       | true   | menu (mame,flycast)               |
-| combo    | b + plus  |               | false  | disable/enable ir (useful in gui) |
-| combo    | b + minus | key esc       | true   | exit (retroarch)                  |
-| combo    | b + 1     | key space     | true   | fast forward                      |
-| combo    | b + 2     | key 2         | true   | start (P2)                        |
-| combo    | a + home  | key f1        | true   | menu (retroarch)                  |
-| combo    | a + plus  |               | false  | start calibration                 |
-| combo    | a + minus |               | false  | reset calibration                 |
 
 ## Calibration wherever
 
