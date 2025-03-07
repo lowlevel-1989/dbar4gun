@@ -151,7 +151,7 @@ class Dbar4Gun(object):
 
         if not attach and port >= 0:
             virtualgun_proc = Process(
-                    target=self._worker_create_virtualgun, args=(hidraw_io,))
+                    target=self._worker_create_virtualgun, args=(hidraw_io, port,))
 
             virtualgun_proc.start()
 
