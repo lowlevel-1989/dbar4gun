@@ -146,7 +146,7 @@ class Dbar4Gun(object):
         for i in range(len(self.port)):
             if self.port[i] > 0:
                 port = i
-                self.port[i]
+                self.port[i] = 0
                 break
 
         if not attach and port >= 0:
