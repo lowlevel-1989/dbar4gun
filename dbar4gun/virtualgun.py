@@ -1,6 +1,5 @@
 import re
 import os
-import uuid
 import evdev
 
 VIRTUALGUN_BUTTON_TWO_MASK   = 1 << 0x0
@@ -132,7 +131,7 @@ class VirtualGunDevice(object):
 
 
     def create_virtual_device(self) -> int:
-        gunname = "VirtualGun {}".format(str(uuid.uuid4())[:8])
+        gunname = "VirtualGun {:02}".format(self.index + 1)
         self.virtualgun = evdev.UInput(self.__get_capabilities(),
                                     name=gunname)
         print(gunname)
