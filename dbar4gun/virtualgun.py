@@ -76,12 +76,12 @@ class VirtualGunDevice(object):
     NUNCHUK_JOY_TOLERANCE = 0.2
     NUNCHUK_JOY_NEUTRAL   = 0.5
 
-    def __init__(self, width : int, height : int):
+    def __init__(self, width : int, height : int, port: int):
         self.cursor           = [0.5, 0.5]
         self.buttons          = 0x00
         self.nunchuck_joy     = [0.5, 0.5]
         self.nunchuck_buttons = 0xff
-        self.index            = 0
+        self.index            = port
         self.index_map        = 0
         self.width            = width
         self.height           = height
@@ -138,29 +138,15 @@ class VirtualGunDevice(object):
         print(gunname)
         # print(self.virtualgun.capabilities(verbose=True))
 
-        event = os.path.basename(self.virtualgun.device.path)
-
-        mouse = None
-        for entry in os.listdir(f"/sys/class/input/{event}/device/"):
-            if "mouse" in entry:
-                mouse = entry
-                break
-
-        index = 0xf
-        if mouse:
-            match = re.search(r'mouse(\d+)', mouse)
-            if match:
-                index = int(match.group(1)) + 1
-
         l   = len(_MAP) // _MAP_INDEX_MAX
-        off = ( ( index - 1 ) % l ) * _MAP_INDEX_MAX
+        off = ( ( self.index - 1 ) % l ) * _MAP_INDEX_MAX
 
         self.index_map = off
 
         # inportante debajo del off, para no tener en cuenta
         # el index para los botones.
         # agregamos los mouse reales a los indices
-        index = self.get_real_mouse() + index
+        index = self.get_real_mouse() + self.index
 
         return index
 

@@ -472,20 +472,19 @@ Byte	7	6	5	4	3	2	1	0
             if not self.is_pair:
                 self.enable_ir()
 
-            self.player = player
-            if not self.player or self.player > 0xf:
+            self.player = player % 4 + 1
+            if not player or player > 0xf:
                 self.io.write(bytearray(b"\x11\xf0"))
 
             else:
-                index  = 0x00
-                if player & 0x01:
-                    index = index | WIIMOTE_LED_4
-                if player & 0x02:
-                    index = index | WIIMOTE_LED_3
-                if player & 0x04:
-                    index = index | WIIMOTE_LED_2
-                if player & 0x08:
-                    index = index | WIIMOTE_LED_1
+                if self.player == 0x01:
+                    index = WIIMOTE_LED_4
+                if self.player == 0x02:
+                    index = WIIMOTE_LED_3
+                if self.player == 0x03:
+                    index = WIIMOTE_LED_2
+                if self.player == 0x04:
+                    index = WIIMOTE_LED_1
 
                 self.io.write(bytearray(b"\x11") + self.to_bytes(index))
 

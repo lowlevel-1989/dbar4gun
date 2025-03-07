@@ -36,7 +36,9 @@ class Dbar4Gun(object):
 
         self.queue  = Queue()
 
-        self.files      :Dict[str, Any] = {}
+        # soportaremos 16 puertos
+        self.port                       = [1] * 16
+        self.files = {}
         self.processes  :Dict[str, Any] = {}
         self.is_worker  = False
 
@@ -123,10 +125,12 @@ class Dbar4Gun(object):
         try:
             self.processes[hidraw_path].kill()
 
-            fd, hid = self.files[hidraw_path]
+            fd, hid, port = self.files[hidraw_path]
 
             hid.close()
             os.close(fd)
+
+            self.port[port] = 1
 
             del self.processes[hidraw_path]
             del self.files[hidraw_path]
@@ -137,7 +141,15 @@ class Dbar4Gun(object):
         fd        = os.open(hidraw_path, os.O_RDWR)
         hidraw_io = FileIO(fd, "rb+", closefd=False)
 
-        if not attach:
+        # buscamos un puerto disponible
+        port = -1
+        for i in range(len(self.port)):
+            if self.port[i] > 0:
+                port = i
+                self.port[i]
+                break
+
+        if not attach and port >= 0:
             virtualgun_proc = Process(
                     target=self._worker_create_virtualgun, args=(hidraw_io,))
 
@@ -152,9 +164,12 @@ class Dbar4Gun(object):
             print("\t\tSCREEN {}x{}".format(self.config.width, self.config.height))
             print("\t\tmonitor started, ctrl+c to exit or sudo kill -SIGTERM {}".format(pid))
 
-            self._create_virtualgun(hidraw_io)
+            # solo creamos el virtualgun si tenemos un puerto disponible
+            if port >= 0:
+                self._create_virtualgun(hidraw_io, port)
 
-        self.files[hidraw_path] = [fd, hidraw_io]
+        if port >= 0:
+            self.files[hidraw_path] = [fd, hidraw_io, port]
 
     def _set_worker_mode(self):
         self.is_worker = True
@@ -164,15 +179,16 @@ class Dbar4Gun(object):
         self.files     = {}
 
 
-    def _worker_create_virtualgun(self, hidraw_io):
+    def _worker_create_virtualgun(self, hidraw_io, port):
         self._set_worker_mode()
-        self._create_virtualgun(hidraw_io)
+        self._create_virtualgun(hidraw_io, port)
 
-    def _create_virtualgun(self, hidraw_io):
+    def _create_virtualgun(self, hidraw_io, port):
         wiimote = self.class_wiimotedevice(
                         hidraw_io,
                         self.class_calibration,
-                        self.class_irsetup)
+                        self.class_irsetup,
+                        port)
 
         wiimote.set_tilt_correction(
                         not self.config.disable_tilt_correction)
@@ -187,7 +203,6 @@ class Dbar4Gun(object):
             # test conexion con wiimote
             if wiimote.update_index(0xf):
                 index = virtualgun.create_virtual_device()
-                # update index
                 wiimote.update_index(index)
                 break
             time.sleep(0.2)
