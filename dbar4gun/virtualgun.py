@@ -139,7 +139,7 @@ class VirtualGunDevice(object):
         # print(self.virtualgun.capabilities(verbose=True))
 
         l   = len(_MAP) // _MAP_INDEX_MAX
-        off = ( ( self.index - 1 ) % l ) * _MAP_INDEX_MAX
+        off = ( ( self.index ) % l ) * _MAP_INDEX_MAX
 
         self.index_map = off
 
