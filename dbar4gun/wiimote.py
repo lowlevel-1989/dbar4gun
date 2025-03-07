@@ -472,7 +472,7 @@ Byte	7	6	5	4	3	2	1	0
             if not self.is_pair:
                 self.enable_ir()
 
-            self.player = player % 4 + 1
+            self.player = player % 4
             if not player or player > 0xf:
                 self.io.write(bytearray(b"\x11\xf0"))
 

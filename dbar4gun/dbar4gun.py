@@ -203,7 +203,7 @@ class Dbar4Gun(object):
             # test conexion con wiimote
             if wiimote.update_index(0xf):
                 index = virtualgun.create_virtual_device()
-                wiimote.update_index(index)
+                wiimote.update_index(index+1)
                 break
             time.sleep(0.2)
         try:
