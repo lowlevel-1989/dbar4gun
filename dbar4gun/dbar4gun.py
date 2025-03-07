@@ -187,8 +187,7 @@ class Dbar4Gun(object):
         wiimote = self.class_wiimotedevice(
                         hidraw_io,
                         self.class_calibration,
-                        self.class_irsetup,
-                        port)
+                        self.class_irsetup)
 
         wiimote.set_tilt_correction(
                         not self.config.disable_tilt_correction)
@@ -196,7 +195,8 @@ class Dbar4Gun(object):
         # virtualgun -> mouse / key
         virtualgun = self.class_virtualgundevice(
                         self.config.width,
-                        self.config.height)
+                        self.config.height,
+                        port)
 
         index = 0
         while 1:
