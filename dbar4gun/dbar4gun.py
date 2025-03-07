@@ -54,12 +54,12 @@ class Dbar4Gun(object):
             pass
 
         for _, o in self.files.items():
-            fd, hid, _ = o
+            fd, hid, port = o
             try:
                 hid.close()
                 os.close(fd)
 
-                print("stop: {:04d} {}".format(fd, hid))
+                print("DELETED: VirtualGun {:02}".format(port+1))
             except:
                 pass
 
