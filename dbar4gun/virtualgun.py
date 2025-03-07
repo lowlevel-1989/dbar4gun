@@ -113,6 +113,24 @@ class VirtualGunDevice(object):
 
         return gun_cap
 
+    def get_real_mouse(self) -> int:
+        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+
+        dev_c = 0
+        for dev in devices:
+            # solo cantamos los que no sean virtualgun
+            if "virtualgun" in dev.name.lower():
+                continue
+
+            event = os.path.basename(dev.path)
+            for entry in os.listdir(f"/sys/class/input/{event}/device/"):
+                if "mouse" in entry:
+                    dev_c = dev_c + 1
+                    break
+
+        return dev_c
+
+
     def create_virtual_device(self) -> int:
         gunname = "VirtualGun {}".format(str(uuid.uuid4())[:8])
         self.virtualgun = evdev.UInput(self.__get_capabilities(),
@@ -133,6 +151,9 @@ class VirtualGunDevice(object):
             match = re.search(r'mouse(\d+)', mouse)
             if match:
                 index = int(match.group(1)) + 1
+
+        # agregamos los mouse reales a los indices
+        index = self.get_real_mouse() + index
 
         l   = len(_MAP) // _MAP_INDEX_MAX
         off = ( ( index - 1 ) % l ) * _MAP_INDEX_MAX
