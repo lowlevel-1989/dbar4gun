@@ -148,7 +148,7 @@ class VirtualGunDevice(object):
         # agregamos los mouse reales a los indices
         index = self.get_real_mouse() + self.index
 
-        return index
+        return index + 1
 
     def set_buttons(self, buttons, nunchuck_buttons, nunchuck_joy):
         self.buttons          = buttons
