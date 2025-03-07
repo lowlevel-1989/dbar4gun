@@ -127,7 +127,7 @@ class Dbar4Gun(object):
 
             fd, hid, port = self.files[hidraw_path]
 
-            print("DELETED: VirtualGun {:02}", port+1)
+            print("DELETED: VirtualGun {:02}".format(port+1))
             self.port[port] = 1
 
             hid.close()
@@ -171,7 +171,7 @@ class Dbar4Gun(object):
 
         if port >= 0:
             self.files[hidraw_path] = [fd, hidraw_io, port]
-            print("CREATED: VirtualGun {:02}", port+1)
+            print("CREATED: VirtualGun {:02}".format(port+1))
 
     def _set_worker_mode(self):
         self.is_worker = True
