@@ -54,7 +54,7 @@ class Dbar4Gun(object):
             pass
 
         for _, o in self.files.items():
-            fd, hid = o
+            fd, hid, _ = o
             try:
                 hid.close()
                 os.close(fd)
