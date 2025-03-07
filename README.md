@@ -1,4 +1,4 @@
-# dbar4gun 0.17.2
+# dbar4gun 0.17.3
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support, specifically designed to function as 4 light guns.
 
@@ -25,7 +25,7 @@ It is important to remember to disconnect the Wiimote using the power button at 
 - calibration two points
 - calibration three points
 - Standard configuration for Wii sensor
-- wiimote led -> index mouse (bin number)
+- wiimote led -> index mouse
 - auto key
 - systemd
 - Smoothed cursor
@@ -74,6 +74,11 @@ It is important to remember to disconnect the Wiimote using the power button at 
 
 **Issue:** If you can move the pointer but can't shoot, the driver may be detecting a keyboard or mouse as a second light gun.  
 **Solution:** Change the "mouse index" in the emulator settings to match the light gun's index and avoid conflicts.
+
+wiimote led 4  -> mouse index 0
+wiimote led 3  -> mouse index 1
+wiimote led 2  -> mouse index 2
+wiimote led 1  -> mouse index 3
 
 ### 3. The pointer becomes unstable for no apparent reason
 

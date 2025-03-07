@@ -152,13 +152,15 @@ class VirtualGunDevice(object):
             if match:
                 index = int(match.group(1)) + 1
 
-        # agregamos los mouse reales a los indices
-        index = self.get_real_mouse() + index
-
         l   = len(_MAP) // _MAP_INDEX_MAX
         off = ( ( index - 1 ) % l ) * _MAP_INDEX_MAX
 
         self.index_map = off
+
+        # inportante debajo del off, para no tener en cuenta
+        # el index para los botones.
+        # agregamos los mouse reales a los indices
+        index = self.get_real_mouse() + index
 
         return index
 
