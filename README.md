@@ -38,28 +38,28 @@ It is important to remember to disconnect the Wiimote using the power button at 
 
 ![Standard configuration for Wii sensor](docs/setup.jpeg)
 
-| device   | button    | map           | shared | mame default                      |
-|----------|-----------|---------------|--------|-----------------------------------|
-| wiimote  | ir        | mouse cursor  | false  | cursor                            |
-| wiimote  | a         | auto key      | false  | bomb                              |
-| wiimote  | b         | mouse left    | false  | trigger                           |
-| wiimote  | home      | key enter     | true   | select                            |
-| wiimote  | 1         | mouse middle  | false  |                                   |
-| wiimote  | 2         | mouse right   | false  | reload (retroarch)                |
-| wiimote  | plus      | auto key      | false  | start                             |
-| wiimote  | minus     | auto key      | false  | 1 coin                            |
-| wiimote  | d-pad     | auto key      | false  | direction                         |
-| nunchuck | stick     | wiimote d-pad | false  | direction                         |
-| nunchuck | z         | auto key      | false  |                                   |
-| nunchuck | c         | auto key      | false  |                                   |
-| combo    | b + home  | key tab       | true   | menu (mame,flycast)               |
-| combo    | b + plus  |               | false  | disable/enable ir (useful in gui) |
-| combo    | b + minus | key esc       | true   | exit (retroarch)                  |
-| combo    | b + 1     | key space     | true   | fast forward                      |
-| combo    | b + 2     | key 2         | true   | start (P2)                        |
-| combo    | a + home  | key f1        | true   | menu (retroarch)                  |
-| combo    | a + plus  |               | false  | start calibration                 |
-| combo    | a + minus |               | false  | reset calibration                 |
+| device   | button    | map           | only cursor          | shared        | mame default                      |
+|----------|-----------|---------------|----------------------|---------------|-----------------------------------|
+| wiimote  | ir        | mouse cursor  | same                 | false         | cursor                            |
+| wiimote  | a         | auto key      | btn a    (Bluetooth) | false         | bomb                              |
+| wiimote  | b         | mouse left    | same                 | false         | trigger                           |
+| wiimote  | home      | key enter     | btn home (Bluetooth) | true / false  | select                            |
+| wiimote  | 1         | mouse middle  | btn 1    (Bluetooth) | false         |                                   |
+| wiimote  | 2         | mouse right   | btn 2    (Bluetooth) | false         | reload (retroarch)                |
+| wiimote  | plus      | auto key      | key next (Bluetooth) | false / true  | start                             |
+| wiimote  | minus     | auto key      | key prev (Bluetooth) | false / true  | 1 coin                            |
+| wiimote  | d-pad     | auto key      | arrows   (Bluetooth) | false / true  | direction                         |
+| nunchuck | stick     | wiimote d-pad | abs hat  (Bluetooth) | false         | direction                         |
+| nunchuck | z         | auto key      | btn z    (Bluetooth) | false         |                                   |
+| nunchuck | c         | auto key      | btn c    (Bluetooth) | false         |                                   |
+| combo    | b + home  | key tab       | same                 | true          | menu (mame,flycast)               |
+| combo    | b + plus  |               | same                 | false         | disable/enable ir (useful in gui) |
+| combo    | b + minus | key esc       | same                 | true          | exit (retroarch)                  |
+| combo    | b + 1     | key space     | same                 | true          | fast forward                      |
+| combo    | b + 2     | key 2         | same                 | true          | start (P2)                        |
+| combo    | a + home  | key f1        | same                 | true          | menu (retroarch)                  |
+| combo    | a + plus  |               | same                 | false         | start calibration                 |
+| combo    | a + minus |               | same                 | false         | reset calibration                 |
 
 
 
@@ -225,7 +225,7 @@ pip install $(pwd)
 
 #### help service
 ```
-usage: dbar4gun [-h] [--calibration {0,1,2}] [--setup {1}] [--width WIDTH] [--height HEIGHT] [--disable-tilt-correction] [--port PORT]
+usage: dbar4gun [-h] [--calibration {0,1,2}] [--setup {1}] [--width WIDTH] [--height HEIGHT] [--only_cursor] [--disable-tilt-correction] [--port PORT]
                 [--smoothing-level SMOOTHING_LEVEL]
                 {start,attach,stop,version,gui} ...
 
@@ -248,6 +248,7 @@ options:
                         1: Standard (sensorbar, dolphinbar)
   --width WIDTH         1920
   --height HEIGHT       1080
+  --only_cursor
   --disable-tilt-correction
   --port PORT           35460
   --smoothing-level SMOOTHING_LEVEL
