@@ -248,14 +248,12 @@ pip install .[gui] pytest
 SDL_VIDEODRIVER=dummy python -m pytest -s
 ```
 
-Things that need real hardware are listed in [docs/HARDWARE_CHECKS.md](docs/HARDWARE_CHECKS.md).
 The old hardware test scripts are in `tools/`.
 
 ## To Do
 
 1. diamond ir setup
 2. square ir setup
-3. verify on hardware everything in docs/HARDWARE_CHECKS.md
 
 ## Install with RetroPie-Setup
 
@@ -367,6 +365,7 @@ dbar4gun version
 ```
 dbar4gun gui              # full screen, Wiimote only (Home to exit)
 dbar4gun gui --windowed --width 1280 --height 720
+dbar4gun gui --lang es    # Spanish
 ```
 
 #### stop service with root

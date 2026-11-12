@@ -63,11 +63,15 @@ function _params_dbar4gun() {
     echo "$dbar4gun_params"
 }
 
-# comando del calibrator; db_calibrator_size "native" o "ANCHOxALTO"
+# comando del calibrator; db_calibrator_size "native" o "ANCHOxALTO",
+# db_calibrator_lang "en" o "es"
 function _calibrator_cmd_dbar4gun() {
     local cmd="$md_inst/bin/dbar4gun gui --port $db_port"
     if [[ "$db_calibrator_size" =~ ^([0-9]+)x([0-9]+)$ ]]; then
         cmd+=" --width ${BASH_REMATCH[1]} --height ${BASH_REMATCH[2]}"
+    fi
+    if [[ "$db_calibrator_lang" == "es" ]]; then
+        cmd+=" --lang es"
     fi
     echo "$cmd"
 }
@@ -196,6 +200,7 @@ function _loadconfig_dbar4gun() {
         'db_distance_compensation=1' \
         'db_calibrator_entry=1' \
         'db_calibrator_size=native' \
+        'db_calibrator_lang=en' \
         'db_runcommand_hooks=1'
     )"
 }
@@ -237,6 +242,7 @@ function _menu_start_dbar4gun() {
         fi
 
         options+=(12 "calibrator resolution: $db_calibrator_size")
+        options+=(13 "calibrator language: $db_calibrator_lang")
 
         if [[ "$db_runcommand_hooks" -eq 1 ]]; then
             options+=(11 "disable area profiles per game (runcommand)")
@@ -304,6 +310,14 @@ function _menu_start_dbar4gun() {
                     local cmd_in=(dialog --backtitle "$__backtitle" --inputbox "Calibrator resolution: native, or WIDTHxHEIGHT (e.g. 1280x720) if it is slow on the TV" 10 70 "$db_calibrator_size")
                     local value
                     value=$("${cmd_in[@]}" 2>&1 >/dev/tty) && _set_calibrator_size_dbar4gun "$value"
+                    ;;
+                13)
+                    if [[ "$db_calibrator_lang" == "es" ]]; then
+                        db_calibrator_lang="en"
+                    else
+                        db_calibrator_lang="es"
+                    fi
+                    iniSet "db_calibrator_lang" "$db_calibrator_lang"
                     ;;
             esac
         else

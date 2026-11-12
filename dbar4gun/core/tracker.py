@@ -23,8 +23,8 @@ SQUARE_Y = 767.0 / 1023.0
 PAIR_TIMEOUT = 0.5
 
 ACC_ZERO = 0x80
-# signo del eje X del acelerometro frente al roll (pendiente de verificar con
-# hardware, docs/HARDWARE_CHECKS.md)
+# signo del eje X del acelerometro frente al roll (lo comprueba el calibrator
+# y se guarda con `dbar4gun hw`)
 ACC_X_SIGN = -1.0
 # |g| minimo en el plano X/Z (cuentas) para fiarse del roll
 ACC_MIN_XZ = 8

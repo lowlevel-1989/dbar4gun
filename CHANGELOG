@@ -23,6 +23,8 @@
 - fixed: por Bluetooth, hid-wiimote apagaba la camara IR al cerrarse sus evdev
   (emulador, escritorio, calibrator); ahora el driver lo detecta y la reactiva
 - added: bluez/pair-wiimote.sh, emparejar un Wiimote por Bluetooth sin saber su MAC
+- added: calibrator en español (`dbar4gun gui --lang es`, opcion en el menu de RetroPie);
+  hardware check como primera opcion del menu
 - added: IR sensitivity en caliente (hw ir_sensitivity, hardware.json); el hardware
   check la prueba y vuelve a medir
 - fixed: al reconectar se configuraba la camara IR dos veces (1.6 s bloqueado)

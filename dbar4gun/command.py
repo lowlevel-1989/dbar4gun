@@ -161,6 +161,7 @@ class Command(object):
         command_gui.add_argument("--port",   type=int, default=35460, help="35460")
         command_gui.add_argument("--windowed", action="store_true", help="window instead of full screen")
         command_gui.add_argument("--socket", type=str, default=SOCKET_PATH, help=SOCKET_PATH)
+        command_gui.add_argument("--lang", type=str, default="en", choices=["en", "es"], help="en")
 
         config = parser.parse_args()
 
@@ -197,7 +198,8 @@ class Command(object):
             from dbar4gun.gui import GUI
 
             gui = GUI(width=config.width, height=config.height, port=config.port,
-                      fullscreen=not config.windowed, socket_path=config.socket)
+                      fullscreen=not config.windowed, socket_path=config.socket,
+                      lang=config.lang)
 
             gui.open()
             gui.loop()

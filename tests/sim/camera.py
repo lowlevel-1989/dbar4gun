@@ -74,8 +74,8 @@ class CameraPose(object):
         """
         Componentes de +1g (reaccion a la gravedad, hacia arriba) en ejes del
         Wiimote: (x = derecha, y = delante, z = arriba).
-        El signo de X frente al hardware real esta pendiente de verificar
-        (docs/HARDWARE_CHECKS.md).
+        El signo de X frente al hardware real lo comprueba el calibrator
+        (hw / AccSignCheck).
         """
         return (dot(WORLD_UP, self.right),
                 dot(WORLD_UP, self.forward),

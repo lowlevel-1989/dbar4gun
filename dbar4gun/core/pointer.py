@@ -17,7 +17,7 @@ from dbar4gun.core.tracker import SQUARE_Y
 CENTER = (0.5, 0.5 * SQUARE_Y)
 
 # focal en unidades normalizadas (1 = 1023 px): 512 / tan(33 / 2 grados) / 1023
-# (FOV pendiente de medir con hardware, docs/HARDWARE_CHECKS.md)
+# (el FOV real lo mide el calibrator y se guarda con `dbar4gun hw`)
 FOV_H_DEG = 33.0
 FOCAL = (512.0 / math.tan(math.radians(FOV_H_DEG / 2.0))) / 1023.0
 

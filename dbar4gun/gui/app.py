@@ -82,8 +82,10 @@ class Screen(object):
 
 
 class MenuScreen(Screen):
-    ITEMS = ["menu.wizard", "menu.gallery", "menu.tune", "menu.reach", "menu.install",
-             "menu.diag", "menu.hardware", "menu.players", "menu.profiles", "menu.history",
+    # primero el hardware check: antes de calibrar, que la barra, el IR y el
+    # FOV esten bien
+    ITEMS = ["menu.hardware", "menu.wizard", "menu.gallery", "menu.tune", "menu.reach",
+             "menu.install", "menu.diag", "menu.players", "menu.profiles", "menu.history",
              "menu.exit"]
 
     def __init__(self, app):

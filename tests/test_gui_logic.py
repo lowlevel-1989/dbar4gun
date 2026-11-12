@@ -233,6 +233,33 @@ def test_every_gui_text_exists():
         assert "hw.{}.run".format(step) in STRINGS["en"]
 
 
+def test_every_language_has_every_text():
+    """Cada idioma tiene las mismas claves y los mismos campos {x} que el ingles."""
+    import string
+    from dbar4gun.gui.i18n import STRINGS
+    fmt = string.Formatter()
+
+    def fields(text):
+        return set(f[1] for f in fmt.parse(text) if f[1])
+
+    for lang, texts in STRINGS.items():
+        assert set(texts) == set(STRINGS["en"]), lang
+        for k, v in texts.items():
+            assert fields(v) == fields(STRINGS["en"][k]), (lang, k)
+
+
+def test_set_lang():
+    from dbar4gun.gui import i18n
+    try:
+        assert i18n.set_lang("es") == "es"
+        assert i18n.t("menu.exit") == "Salir"
+        assert i18n.t("hw.progress", n=3, m=10) == "3 / 10 muestras"
+        assert i18n.set_lang("xx") == "en"          # desconocido: ingles
+        assert i18n.t("menu.exit") == "Exit"
+    finally:
+        i18n.set_lang("en")
+
+
 def test_gallery_games_from_the_readme_list():
     presets = L.gallery_presets()
     keys = [p[0] for p in presets]

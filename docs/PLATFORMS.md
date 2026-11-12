@@ -28,5 +28,4 @@ history, filter), `hardware.json` (valores medidos con el hardware check),
    platforms/desktop/dbar4gun-run.sh arcade mame ghoul.zip -- mame ghoul
    ```
 
-Batocera y Recalbox quedan fuera por ahora. Lo pendiente de verificar con
-hardware en cada plataforma está en `docs/HARDWARE_CHECKS.md`.
+Batocera y Recalbox quedan fuera por ahora.

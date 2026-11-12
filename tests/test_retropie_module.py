@@ -99,6 +99,12 @@ def test_calibrator_size(tmp_path, size, args):
     assert r.stdout.strip() == "{}/bin/dbar4gun gui --port 35000{}".format(tmp_path / "inst", args)
 
 
+@pytest.mark.parametrize("lang,args", [("en", ""), ("es", " --lang es")])
+def test_calibrator_lang(tmp_path, lang, args):
+    r = run_bash(tmp_path, '    db_calibrator_lang={}; db_port=35000; _calibrator_cmd_dbar4gun'.format(lang))
+    assert r.stdout.strip() == "{}/bin/dbar4gun gui --port 35000{}".format(tmp_path / "inst", args)
+
+
 @pytest.mark.parametrize("value,ok", [("native", True), ("1280x720", True), ("big", False), ("1280", False)])
 def test_calibrator_size_is_validated(tmp_path, value, ok):
     body = ('    iniSet() {{ echo "SET $1=$2"; }}\n'
