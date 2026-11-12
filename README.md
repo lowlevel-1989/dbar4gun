@@ -181,6 +181,45 @@ dbar4gun 0.18.2 with `--smoothing-level 0`, each game with the emulator above.
 Gun options of the cores: `mame_current_xy_type = "lightgun"` (lr-mame),
 `mame2003-plus_xy_device = "lightgun"`, `mame2015_mouse_mode = "lightgun"`.
 
+### Change the emulator of a game with the Wiimote (RetroPie)
+
+1. Start the game from EmulationStation.
+2. While "Launching..." is on screen, press **home** (`key enter`): the runcommand menu opens.
+3. Move with the **d-pad**, choose **Select emulator for ROM** and then the emulator, confirming with **home**.
+4. Choose **Launch**. From then on, that game always starts with that emulator.
+
+To leave the game: **b + minus** (`key esc`).
+
+### Raspberry Pi 5: Point Blank 3 and the lr-mame version
+
+Emulation speed of Point Blank 3 (`ptblank3`) on a Raspberry Pi 5 with lr-mame,
+measured without video or sound output. The game needs 60 fps.
+
+| lr-mame core                                    | measures (fps)                          | average | always above 60 |
+|-------------------------------------------------|-----------------------------------------|---------|-----------------|
+| 0.289, full (arcade, as RetroPie installs it)   | 56.0, 57.3, 57.7                        | 57.0    | no              |
+| 0.289, only Namco System 10/12                  | 60.6, 61.6, 60.5, 60.1, 57.2            | 60.0    | no              |
+| 0.278, only Namco System 10/12                  | 61.8, 58.5, 64.8, 58.9                  | 61.0    | no              |
+| 0.276, only Namco System 10/12                  | 62.3, 62.5, 67.2, 61.3, 61.6, 62.0      | 62.8    | yes             |
+
+Conclusion:
+
+- The full lr-mame core (0.289) never reaches full speed with Point Blank 3 on a Pi 5.
+- A core built only with the drivers the game needs is about 3 fps faster.
+- Since lr-mame 0.278 the game is slower and less steady. lr-mame 0.276, built
+  only with the needed drivers, is the only one that always stays above 60 fps.
+
+Point Blank 2 and Ghoul Panic run on Namco System 12, so the same core covers
+them.
+
+Test setup: Raspberry Pi 5 (4 GB) with RetroPie and RetroArch 1.19.1, overclocked
+in `/boot/firmware/config.txt` (it needs good cooling, a heatsink and a fan):
+
+```
+arm_freq=2600
+over_voltage_delta=50000
+```
+
 ## Memory Consumption of the dbar4gun
 
 Currently, the dbar4gun consumes ~24 MB. For each Wiimote connected via Bluetooth, an additional ~19 MB is consumed, as a dedicated process is generated to manage each Wiimote.

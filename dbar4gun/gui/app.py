@@ -131,6 +131,10 @@ class MenuScreen(Screen):
         app = self.app
         w, h = surf.get_size()
         app.text(surf, t("title"), (w // 2, h // 10), app.font_big, WHITE, center=True)
+        # la opcion la hace el Wiimote que pulsa A
+        app.text(surf, t("menu.who"),
+                 (w // 2, h // 10 + app.font_big.get_height() // 2 + app.font_small.get_height() // 2 + 4),
+                 app.font_small, CYAN, center=True)
         guns = app.hub.active(app.now)
         if not guns:
             app.text(surf, t("waiting"), (w // 2, h // 4), app.font, YELLOW, center=True)
@@ -451,13 +455,10 @@ class WizardScreen(GunScreen):
                 self.state = "done"
 
         elif self.state == "done":
-            if g.was_pressed(L.BTN_HOME):
+            # cada jugador entra en Calibrar desde el menu con su Wiimote
+            if g.was_pressed(L.BTN_HOME) or g.was_pressed(L.BTN_A):
                 self.app.go(MenuScreen(self.app))
                 return
-            # D12: varios jugadores, uno detras de otro
-            other = self.app.hub.first_pressed(L.BTN_A, now)
-            if other is not None and other.virtualgun != self.vg:
-                self.app.go(WizardScreen(self.app, other.virtualgun))
 
     def check_geometry(self):
         status = self.app.refresh_status().get(self.vg, {})

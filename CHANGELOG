@@ -33,6 +33,11 @@
   recalibracion rapida sigue con una vuelta
 - added: mapa de la shooting gallery con leyenda y colores segun la calibracion
   (lo que no explica la punteria), no segun un umbral fijo
+- fixed: al reconectar la DolphinBar, udev avisa de los slots desordenados y
+  el slot 1 podia quedar como VirtualGun 03; ahora el slot N es siempre la
+  VirtualGun N
+- changed: en el calibrator, cada opcion la usa el Wiimote que la elige en el
+  menu (calibrar a otro jugador: entrar desde el menu con su Wiimote)
 - added: IR sensitivity en caliente (hw ir_sensitivity, hardware.json); el hardware
   check la prueba y vuelve a medir
 - fixed: al reconectar se configuraba la camara IR dos veces (1.6 s bloqueado)

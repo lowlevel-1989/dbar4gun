@@ -185,3 +185,29 @@ def test_remove_joins_process(daemon):
     proc = FakeProcess.created[0]
     daemon.handle_event("remove", "/dev/hidraw3")
     assert proc.joined == dbar4gun_module.JOIN_TIMEOUT
+
+
+def test_preferred_port_and_take_port():
+    from dbar4gun.dbar4gun import preferred_port, take_port
+    assert preferred_port("usb:usb-xhci-hcd.1-1/input0") == 0
+    assert preferred_port("usb:usb-xhci-hcd.1-1/input3") == 3
+    assert preferred_port("bt:00:11:22:33:44:55") is None
+    assert preferred_port(None) is None
+    ports = [1] * 6
+    assert take_port(ports, "usb:x/input2") == 2
+    assert take_port(ports, "bt:aa") == 0                 # Bluetooth: el primero libre
+    assert take_port(ports, "usb:x/input0") == 1          # su slot ocupado: el primero libre
+    assert take_port([0, 0], "usb:x/input0") == -1
+
+
+def test_dolphinbar_replug_out_of_order_keeps_slot_numbers(daemon, monkeypatch):
+    """
+    Al reconectar la DolphinBar, udev avisa de sus 4 slots desordenados
+    (hidraw3, 2, 0, 1): cada slot sigue siendo su VirtualGun (slot 1 = 01).
+    """
+    iface = {"/dev/hidraw0": 0, "/dev/hidraw1": 1, "/dev/hidraw2": 2, "/dev/hidraw3": 3}
+    monkeypatch.setattr(dbar4gun_module, "device_key",
+                        lambda path: "usb:usb-xhci-hcd.1-1/input{}".format(iface[path]))
+    for path in ("/dev/hidraw3", "/dev/hidraw2", "/dev/hidraw0", "/dev/hidraw1"):
+        daemon.handle_event("add", path)
+    assert {p: daemon.files[p][2] for p in iface} == iface

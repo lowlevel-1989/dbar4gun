@@ -112,6 +112,34 @@ CLIENT_COMMANDS = ("gui", "status", "area", "calibrate", "cancel", "reload", "hw
 KILL_WAIT = 5.0
 
 
+def preferred_port(key):
+    """
+    Puerto (VirtualGun - 1) que le toca a un dispositivo: en la DolphinBar el
+    slot N (interfaz N - 1 de la clave "usb:...inputN") es siempre la
+    VirtualGun N, aunque udev avise de los slots desordenados (al reconectar
+    la barra llegan en cualquier orden). Por Bluetooth, None (el primero libre).
+    """
+    if not key or not key.startswith("usb:"):
+        return None
+    tail = key.rsplit("input", 1)
+    if len(tail) == 2 and tail[1].isdigit():
+        return int(tail[1])
+    return None
+
+
+def take_port(ports, key):
+    """Reserva el puerto de `key` en `ports` (1 = libre); -1 si no hay."""
+    want = preferred_port(key)
+    if want is not None and 0 <= want < len(ports) and ports[want] > 0:
+        ports[want] = 0
+        return want
+    for i in range(len(ports)):
+        if ports[i] > 0:
+            ports[i] = 0
+            return i
+    return -1
+
+
 def is_daemon_cmdline(args):
     """
     True si los argumentos (de /proc/<pid>/cmdline) son los del daemon:
@@ -494,13 +522,9 @@ class Dbar4Gun(object):
         fd        = os.open(hidraw_path, os.O_RDWR)
         hidraw_io = FileIO(fd, "rb+", closefd=False)
 
-        # buscamos un puerto disponible
-        port = -1
-        for i in range(len(self.port)):
-            if self.port[i] > 0:
-                port = i
-                self.port[i] = 0
-                break
+        key = device_key(hidraw_path)
+        # buscamos un puerto disponible (en la DolphinBar, el de su slot)
+        port = take_port(self.port, key)
 
         if port < 0:
             # E3: sin puerto libre se cierra el hidraw (antes quedaba abierto)
@@ -511,8 +535,6 @@ class Dbar4Gun(object):
             except OSError as e:
                 log.debug("close %s: %s", hidraw_path, e)
             return
-
-        key = device_key(hidraw_path)
 
         if not attach:
             parent_conn, child_conn = Pipe()
@@ -811,18 +833,12 @@ class Dbar4Gun(object):
             log.info("REATTACHED: VirtualGun %02d (%s, %s, single process)", g["port"] + 1, hidraw_path, key)
             return
 
-        port = -1
-        for i in range(len(self.port)):
-            if self.port[i] > 0:
-                port = i
-                self.port[i] = 0
-                break
+        port = take_port(self.port, key)
         if port < 0:
             log.warning("no free VirtualGun port for %s", hidraw_path)
             return
 
         fd, hidraw_io = self.open_device(hidraw_path)
-        key = device_key(hidraw_path)
         store = self.store()
         pipeline = self.make_pipeline(key)
         wiimote = self.class_wiimotedevice(hidraw_io, pipeline,

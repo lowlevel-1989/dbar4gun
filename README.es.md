@@ -182,6 +182,49 @@ dbar4gun 0.18.2 con `--smoothing-level 0`, cada juego con el emulador de la
 tabla. Opciones de pistola de los cores: `mame_current_xy_type = "lightgun"` (lr-mame),
 `mame2003-plus_xy_device = "lightgun"`, `mame2015_mouse_mode = "lightgun"`.
 
+### Cambiar el emulador de un juego con el Wiimote (RetroPie)
+
+1. Abre el juego desde EmulationStation.
+2. Mientras sale "Launching..." en pantalla, pulsa **home** (`key enter`): se abre el menú de runcommand.
+3. Muévete con la **cruceta**, elige **Select emulator for ROM** y después el emulador, confirmando con **home**.
+4. Elige **Launch**. A partir de ahí, ese juego arranca siempre con ese emulador.
+
+Para salir del juego: **b + minus** (`key esc`).
+
+### Raspberry Pi 5: Point Blank 3 y la versión de lr-mame
+
+Velocidad de emulación de Point Blank 3 (`ptblank3`) en una Raspberry Pi 5 con
+lr-mame, medida sin salida de vídeo ni de sonido. El juego necesita 60 fps.
+
+| core de lr-mame                                 | medidas (fps)                           | media | siempre por encima de 60 |
+|-------------------------------------------------|-----------------------------------------|-------|--------------------------|
+| 0.289, completo (arcade, como lo instala RetroPie) | 56.0, 57.3, 57.7                     | 57.0  | no                       |
+| 0.289, solo Namco System 10/12                  | 60.6, 61.6, 60.5, 60.1, 57.2            | 60.0  | no                       |
+| 0.278, solo Namco System 10/12                  | 61.8, 58.5, 64.8, 58.9                  | 61.0  | no                       |
+| 0.276, solo Namco System 10/12                  | 62.3, 62.5, 67.2, 61.3, 61.6, 62.0      | 62.8  | sí                       |
+
+Conclusión:
+
+- El core completo de lr-mame (0.289) nunca llega a la velocidad completa con
+  Point Blank 3 en una Pi 5.
+- Un core compilado solo con los drivers que necesita el juego va unos 3 fps
+  más rápido.
+- Desde lr-mame 0.278 el juego va más lento y menos estable. lr-mame 0.276,
+  compilado solo con los drivers necesarios, es el único que siempre se mantiene
+  por encima de 60 fps.
+
+Point Blank 2 y Ghoul Panic usan Namco System 12, así que el mismo core sirve
+para ellos.
+
+Equipo de prueba: Raspberry Pi 5 (4 GB) con RetroPie y RetroArch 1.19.1, con
+overclock en `/boot/firmware/config.txt` (necesita buena refrigeración,
+disipador y ventilador):
+
+```
+arm_freq=2600
+over_voltage_delta=50000
+```
+
 ## Consumo de memoria de dbar4gun
 
 Ahora mismo dbar4gun consume ~24 MB. Cada Wiimote conectado por Bluetooth suma ~19 MB más, porque se crea un proceso dedicado para gestionar cada Wiimote.

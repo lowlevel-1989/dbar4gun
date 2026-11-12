@@ -120,8 +120,9 @@ def test_wizard_two_players(monkeypatch):
     try:
         g1, g2 = rig.guns
         rig.frames(3)
-        go_menu_item(rig, g1, "menu.wizard")
         for gun in (g1, g2):
+            # cada jugador entra en Calibrar desde el menu con su Wiimote
+            go_menu_item(rig, gun, "menu.wizard")
             wiz = rig.app.screen
             assert wiz.vg == gun.vg
             rig.press(gun, L.BTN_A)
@@ -131,8 +132,11 @@ def test_wizard_two_players(monkeypatch):
             rig.frames(10)
             rig.press(gun, L.BTN_B)
             assert wiz.state == "done"
-            if gun is g1:
-                rig.press(g2, L.BTN_A)      # el siguiente jugador
+            other = g2 if gun is g1 else g1
+            rig.press(other, L.BTN_A)       # el otro Wiimote no cambia de jugador
+            assert rig.app.screen is wiz
+            rig.press(gun, L.BTN_A)         # vuelve al menu
+            assert isinstance(rig.app.screen, A.MenuScreen)
         assert g1.drv.saved and g2.drv.saved
     finally:
         rig.close()
@@ -707,3 +711,25 @@ def test_gallery_home_finishes_after_the_first_round(rig_store):
     rig.press(gun, L.BTN_HOME)                     # cortar en la segunda vuelta
     assert screen.summary is not None and isinstance(rig.app.screen, A.GalleryScreen)
     assert len(screen.shots) == 20
+
+
+def test_players_screen_only_the_opener_exits(monkeypatch):
+    """En Jugadores y botones solo sale el Wiimote que abrio la pantalla."""
+    rig = Rig(monkeypatch, n_guns=2)
+    try:
+        g1, g2 = rig.guns
+        rig.frames(3)
+        go_menu_item(rig, g1, "menu.players")
+        screen = rig.app.screen
+        assert isinstance(screen, A.PlayersScreen) and screen.vg == g1.vg
+        g2.buttons |= L.BTN_HOME                  # el otro jugador prueba Home
+        rig.frames(90)
+        g2.buttons &= ~L.BTN_HOME
+        rig.frames(2)
+        assert rig.app.screen is screen
+        g1.buttons |= L.BTN_HOME                  # el que la abrio, 1 s
+        rig.frames(90)
+        g1.buttons &= ~L.BTN_HOME
+        assert isinstance(rig.app.screen, A.MenuScreen)
+    finally:
+        rig.close()
