@@ -53,8 +53,9 @@ def native_size(info):
 # s que se espera a la camara IR tras cambiar su sensibilidad
 IR_SETTLE = 1.5
 # pasos en los que hay que apuntar: se empiezan con A o con el gatillo (B) y la
-# medida empieza tras una cuenta atras, para que pulsar no mueva la punteria
-AIM_STEPS = ("ir", "fov", "bar")
+# medida empieza tras una cuenta atras, para que el movimiento de la mano al
+# pulsar no cuente
+AIM_STEPS = ("ir", "acc", "fov", "bar")
 AIM_COUNTDOWN = 3.0
 
 GUN_COLORS = [(228, 116, 89), (96, 205, 131), (96, 198, 205), (197, 96, 205)]
@@ -1311,7 +1312,7 @@ class HardwareScreen(GunScreen):
             out.append((t("hw.start_hint_aim" if step in AIM_STEPS else "hw.start_hint"), GREY))
         elif self.stage == "run" and self.app.now < self.settle_until and step in AIM_STEPS:
             left = int(math.ceil(self.settle_until - self.app.now))
-            out.append((t("hw.countdown", s=left), YELLOW))
+            out.append((t("hw.countdown_acc" if step == "acc" else "hw.countdown", s=left), YELLOW))
         elif self.stage == "run":
             out.append((t("hw.{}.run".format(step)), YELLOW))
             out.append((self.progress(), GREY))

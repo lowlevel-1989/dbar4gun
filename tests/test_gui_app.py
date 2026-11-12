@@ -392,7 +392,9 @@ def test_hardware_check_full_flow(monkeypatch):
 
         rig.press(gun, L.BTN_A)                       # 3: acelerometro
         assert hs.step == "acc"
-        rig.press(gun, L.BTN_A)
+        rig.press(gun, L.BTN_B)                       # tambien se empieza disparando
+        assert hs.stage == "run"
+        rig.frames(int(A.AIM_COUNTDOWN * 60))         # cuenta atras
         for i in range(240):
             gun.roll = 45.0 * math.sin(i / 120.0 * 2 * math.pi)
             rig.frames(1)
