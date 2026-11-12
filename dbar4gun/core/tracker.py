@@ -23,9 +23,10 @@ SQUARE_Y = 767.0 / 1023.0
 PAIR_TIMEOUT = 0.5
 
 ACC_ZERO = 0x80
-# signo del eje X del acelerometro frente al roll (lo comprueba el calibrator
-# y se guarda con `dbar4gun hw`)
-ACC_X_SIGN = -1.0
+# signo del eje X del acelerometro frente al roll: el eje X del Wiimote es
+# positivo hacia la izquierda (medido con hardware real en el hardware check;
+# se puede cambiar con `dbar4gun hw acc_x_sign -1`)
+ACC_X_SIGN = 1.0
 # |g| minimo en el plano X/Z (cuentas) para fiarse del roll
 ACC_MIN_XZ = 8
 

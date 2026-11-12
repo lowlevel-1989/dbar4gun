@@ -34,7 +34,7 @@ def opts(**kw):
 # core
 def test_hardware_config_defaults_and_validation():
     hw = HardwareConfig()
-    assert hw.to_dict() == {"fov_h_deg": 33.0, "acc_x_sign": -1.0, "bar_width_m": 0.20,
+    assert hw.to_dict() == {"fov_h_deg": 33.0, "acc_x_sign": 1.0, "bar_width_m": 0.20,
                             "ir_sensitivity": None}
     assert abs(focal_norm(33.0) - FOCAL) < 1e-12
     assert hw.set("fov", "38.5") == "fov_h_deg" and hw.fov_h_deg == 38.5
@@ -142,14 +142,16 @@ def _acc_run(monkeypatch, sign):
 
 
 def test_acc_sign_ok(monkeypatch):
-    r = _acc_run(monkeypatch, -1.0)
-    assert r["verdict"] == L.OK and r["acc_x_sign"] == -1.0
+    r = _acc_run(monkeypatch, 1.0)
+    assert r["verdict"] == L.OK and r["acc_x_sign"] == 1.0
     assert abs(r["slope"] + 1.0) < 0.1
 
 
 def test_acc_sign_inverted_is_detected(monkeypatch):
-    r = _acc_run(monkeypatch, 1.0)
-    assert r["verdict"] == L.FAIL and r["acc_x_sign"] == -1.0
+    """Como el hardware real con el signo antiguo (-1): pendiente ~ +1."""
+    r = _acc_run(monkeypatch, -1.0)
+    assert r["verdict"] == L.FAIL and r["acc_x_sign"] == 1.0
+    assert abs(r["slope"] - 1.0) < 0.1
 
 
 def test_acc_sign_needs_rotation(monkeypatch):

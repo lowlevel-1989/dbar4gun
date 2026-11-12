@@ -24,7 +24,10 @@
   (emulador, escritorio, calibrator); ahora el driver lo detecta y la reactiva
 - added: bluez/pair-wiimote.sh, emparejar un Wiimote por Bluetooth sin saber su MAC
 - added: calibrator en español (`dbar4gun gui --lang es`, opcion en el menu de RetroPie);
-  hardware check como primera opcion del menu
+  hardware check como primera opcion del menu; los pasos en los que hay que
+  apuntar se empiezan con el gatillo y dan 3 s para apuntar antes de medir
+- fixed: signo por defecto del eje X del acelerometro (acc_x_sign 1), medido con
+  hardware real en el hardware check
 - added: IR sensitivity en caliente (hw ir_sensitivity, hardware.json); el hardware
   check la prueba y vuelve a medir
 - fixed: al reconectar se configuraba la camara IR dos veces (1.6 s bloqueado)

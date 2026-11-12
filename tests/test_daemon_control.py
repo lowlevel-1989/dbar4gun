@@ -173,13 +173,13 @@ def test_hw_command_saves_and_applies(daemon, monkeypatch, tmp_path):
     r = ask(daemon, workers, "hw", monkeypatch)
     assert r["ok"] and r["hardware"]["fov_h_deg"] == 33.0
 
-    r = ask(daemon, workers, "hw fov 38.5 acc_x_sign 1 bar_width 0.22", monkeypatch)
+    r = ask(daemon, workers, "hw fov 38.5 acc_x_sign -1 bar_width 0.22", monkeypatch)
     assert r["ok"], r
     assert (tmp_path / "hardware.json").exists()
     for w in workers:
         hw = w.wm.pipeline.options.hardware
-        assert (hw.fov_h_deg, hw.acc_x_sign, hw.bar_width_m) == (38.5, 1.0, 0.22)
-        assert w.wm.pipeline.tracker.acc_x_sign == 1.0
+        assert (hw.fov_h_deg, hw.acc_x_sign, hw.bar_width_m) == (38.5, -1.0, 0.22)
+        assert w.wm.pipeline.tracker.acc_x_sign == -1.0
     st = ask(daemon, workers, "status", monkeypatch)
     assert st["hardware"]["fov_h_deg"] == 38.5
     assert st["wiimotes"][0]["hardware"]["bar_width_m"] == 0.22
@@ -189,7 +189,7 @@ def test_hw_command_saves_and_applies(daemon, monkeypatch, tmp_path):
     assert daemon.load_hardware().fov_h_deg == 38.5
 
     # un Wiimote nuevo arranca con los valores guardados
-    assert daemon.make_pipeline("bt:c").options.hardware.acc_x_sign == 1.0
+    assert daemon.make_pipeline("bt:c").options.hardware.acc_x_sign == -1.0
     # reload vuelve a leer el archivo
     (tmp_path / "hardware.json").write_text('{"fov_h_deg": 40}')
     ask(daemon, workers, "reload", monkeypatch)

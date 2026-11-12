@@ -82,15 +82,16 @@ Desde la línea de comandos: `dbar4gun status`, `dbar4gun area 4:3`,
 En el directorio de configuración, común a todos los Wiimotes:
 
 ```json
-{"acc_x_sign": -1.0, "bar_width_m": 0.2, "fov_h_deg": 33.0, "ir_sensitivity": null}
+{"acc_x_sign": 1.0, "bar_width_m": 0.2, "fov_h_deg": 33.0, "ir_sensitivity": null}
 ```
 
 - `fov_h_deg` y `bar_width_m` solo cambian las distancias (`distance_m`,
   reach test, distancia recomendada). El pipeline usa siempre la focal
   nominal (33°), así que medir el FOV no invalida las calibraciones guardadas
   (en el simulador, un FOV real de 38–42° da la misma precisión).
-- `acc_x_sign` es el signo del eje X del acelerómetro frente al roll; ordena
-  TL/TR cuando no hay un par reciente (más allá de ±90°).
+- `acc_x_sign` es el signo del eje X del acelerómetro frente al roll (`1`: el
+  eje X del Wiimote es positivo hacia la izquierda, medido con hardware real);
+  ordena TL/TR cuando no hay un par reciente (más allá de ±90°).
 - `ir_sensitivity`: `null` usa la `--ir-sensitivity` del servicio; si tiene un
   nivel, manda sobre la opción del servicio. Orden de más a menos sensible
   usado por el hardware check: `5`, `4`, `marcan`, `2`, `1`.

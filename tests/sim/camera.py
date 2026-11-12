@@ -73,10 +73,10 @@ class CameraPose(object):
     def gravity(self):
         """
         Componentes de +1g (reaccion a la gravedad, hacia arriba) en ejes del
-        Wiimote: (x = derecha, y = delante, z = arriba).
-        El signo de X frente al hardware real lo comprueba el calibrator
-        (hw / AccSignCheck).
+        acelerometro del Wiimote: (x = izquierda, y = delante, z = arriba).
+        Como el hardware real (wiibrew; medido con el hardware check: con el
+        Wiimote boca arriba, X positivo hacia la izquierda).
         """
-        return (dot(WORLD_UP, self.right),
+        return (-dot(WORLD_UP, self.right),
                 dot(WORLD_UP, self.forward),
                 dot(WORLD_UP, self.up))

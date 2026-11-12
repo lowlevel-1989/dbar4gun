@@ -368,7 +368,7 @@ def test_hardware_check_full_flow(monkeypatch):
     """
     from dbar4gun.core.gun import GunOptions
     from dbar4gun.core.hardware import HardwareConfig
-    opts = GunOptions(smoothing_level=0, hardware=HardwareConfig(acc_x_sign=1.0))
+    opts = GunOptions(smoothing_level=0, hardware=HardwareConfig(acc_x_sign=-1.0))
     rig = Rig(monkeypatch, options=opts)
     gun = rig.guns[0]
     pipe = gun.drv.pipeline
@@ -382,8 +382,12 @@ def test_hardware_check_full_flow(monkeypatch):
         assert hs.step == "link" and hs.stage == "result"
         rig.press(gun, L.BTN_A)                       # 2: calidad IR
         assert hs.step == "ir"
-        rig.press(gun, L.BTN_A)
-        rig.frames(90)
+        rig.press(gun, L.BTN_B)                       # se empieza disparando
+        assert hs.stage == "run"
+        assert any("3" in line for line, _ in hs.lines())   # cuenta atras
+        rig.frames(int(A.AIM_COUNTDOWN * 60) - 10)
+        assert hs.check.n == 0                        # nada medido durante la cuenta
+        rig.frames(100)
         assert hs.stage == "result" and hs.results["ir"]["verdict"] == L.OK
 
         rig.press(gun, L.BTN_A)                       # 3: acelerometro
@@ -397,7 +401,7 @@ def test_hardware_check_full_flow(monkeypatch):
         gun.roll = 0.0
         assert hs.results["acc"]["verdict"] == L.FAIL
         rig.press(gun, L.BTN_TWO)                     # aplicar
-        assert pipe.tracker.acc_x_sign == -1.0, (hs.stage, hs.message, rig.control.lines[-3:])
+        assert pipe.tracker.acc_x_sign == 1.0, (hs.stage, hs.message, rig.control.lines[-3:])
         assert hs.results["acc"]["applied"]
 
         rig.press(gun, L.BTN_A)                       # 4: FOV a 3.0 m
@@ -406,8 +410,8 @@ def test_hardware_check_full_flow(monkeypatch):
         rig.press(gun, L.BTN_DOWN)
         assert hs.distance == 3.0 and hs.bar_width == 0.20
         gun.aim = (0.5, 0.0)
-        rig.press(gun, L.BTN_A)
-        rig.frames(60)
+        rig.press(gun, L.BTN_B)
+        rig.frames(int(A.AIM_COUNTDOWN * 60) + 60)
         r = hs.results["fov"]
         assert hs.stage == "result" and abs(r["fov_h_deg"] - 33.0) < 0.6, r
         rig.press(gun, L.BTN_TWO)
@@ -418,7 +422,7 @@ def test_hardware_check_full_flow(monkeypatch):
         assert hs.step == "bar"
         gun.aim = (0.5, 0.5)
         rig.press(gun, L.BTN_A)
-        rig.frames(30)
+        rig.frames(int(A.AIM_COUNTDOWN * 60) + 30)
         assert hs.results["bar"]["verdict"] == L.OK
         assert hs.results["bar"]["measured"] == "top"
 
@@ -428,7 +432,7 @@ def test_hardware_check_full_flow(monkeypatch):
         assert hs.step == "summary"
         rep = rig.control.report
         assert rep["results"]["acc"]["applied"] and rep["results"]["disconnect"]["skipped"]
-        assert rep["hardware"]["acc_x_sign"] == -1.0
+        assert rep["hardware"]["acc_x_sign"] == 1.0
         assert rep["overall"] == L.FAIL               # el acelerometro estaba mal
         assert hs.report_path
         rig.press(gun, L.BTN_A)
@@ -504,7 +508,7 @@ def test_hardware_check_tries_ir_sensitivity(monkeypatch):
         hs.enter(hs.STEPS.index("ir"), rig.t)
         gun.drop = (1,)                                # el LED derecho no se ve
         rig.press(gun, L.BTN_A)
-        rig.frames(90)
+        rig.frames(int(A.AIM_COUNTDOWN * 60) + 90)
         r = hs.results["ir"]
         assert hs.stage == "result" and r["sensitivity"] == "higher", r
         assert r["ir_sensitivity"] == "marcan" and r["suggest"] == "4"
@@ -512,7 +516,7 @@ def test_hardware_check_tries_ir_sensitivity(monkeypatch):
         rig.press(gun, L.BTN_TWO)
         assert gun.drv.wm.ir_sensitivity == "4"
         assert hs.stage == "run" and hs.ir_tried == ["4"]
-        rig.frames(200)                               # 1.5 s de settle + la medida
+        rig.frames(int(A.AIM_COUNTDOWN * 60) + 120)   # cuenta atras (y settle) + la medida
         r = hs.results["ir"]
         assert hs.stage == "result" and r["ir_sensitivity"] == "4" and r["tried"] == ["4"]
         assert any("hardware.json" in line for line, _ in hs.lines())
