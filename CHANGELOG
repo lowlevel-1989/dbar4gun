@@ -1,6 +1,7 @@
 1.0.1
 - fixed: instalador de RetroPie: python3 -m venv (como en RetroPie-Setup) y
   dependencia python3-venv; comentarios en ingles
+- added: CI con python 3.13 (Debian 13); funciona de python 3.7 a 3.13
 - changed: comentarios y documentacion sin etiquetas internas del plan
 
 1.0.0
