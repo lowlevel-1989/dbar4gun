@@ -23,7 +23,7 @@ def dots_of(scene, sx, sy, roll=0.0, drop=()):
     return parse_ir_basic(rep[6:16]), tuple(rep[3:6])
 
 
-# ---------------------------------------------------------------- parser (C14)
+# ---------------------------------------------------------------- parser
 def test_parser_absent_only_by_full_y():
     raw = parse_ir_basic_raw(ir_basic_payload([(1023, 767), (255, 255), None, (0, 0)]))
     assert raw == [(1023, 767), (255, 255), None, (0, 0)]
@@ -329,7 +329,7 @@ def test_area_invalid(bad):
         AreaProfile.parse(bad)
 
 
-# ---------------------------------------------------------------- rumble (C12)
+# ---------------------------------------------------------------- rumble
 def test_rumble_error_pattern_two_pulses_without_sleep():
     r = Rumble()
     r.start("error", 10.0)
@@ -344,7 +344,7 @@ def test_rumble_error_pattern_two_pulses_without_sleep():
     assert not r.active
 
 
-# ---------------------------------------------------------------- C8
+# ----------------------------------------------------------------
 from dbar4gun.core.tracker import merge_close
 
 
@@ -388,7 +388,7 @@ def test_tracker_recovers_after_sudden_distance_change():
     assert st.full and st.tl == ref.tl and st.tr == ref.tr
 
 
-# ---------------------------------------------------------------- C16
+# ----------------------------------------------------------------
 from dbar4gun.core.calibration import HomographyMap, solve_homography_4pt, MODE_4PT
 
 

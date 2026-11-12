@@ -25,7 +25,7 @@ def test_tv_size():
 
 def test_payload_roundtrip_with_real_parser(monkeypatch):
     wm, _ = make_wiimote(monkeypatch)
-    # (1023, 767) es un dot valido (el parser antiguo lo daba por ausente, C14)
+    # (1023, 767) es un dot valido (el parser antiguo lo daba por ausente)
     dots = [(1, 2), (1023, 767), (512, 300), None]
     wm.parser_ir(ir_basic_payload(dots))
     for (rx, ry), parsed in zip(dots[:3], wm.core_ir_dot[:3]):

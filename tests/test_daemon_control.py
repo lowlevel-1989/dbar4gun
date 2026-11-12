@@ -1,4 +1,4 @@
-"""P1 en el daemon: comandos repartidos a los workers por Pipe."""
+"""Comandos de control en el daemon: comandos repartidos a los workers por Pipe."""
 
 import types
 
@@ -232,7 +232,7 @@ class EmptySlot(object):
 def test_waiting_worker_answers_status(daemon, monkeypatch):
     """
     La DolphinBar expone siempre 4 slots: el worker de un slot vacio responde
-    a P1 (paired: false) en vez de dejar `status` esperando el timeout.
+    a los comandos (paired: false) en vez de dejar `status` esperando el timeout.
     """
     import threading
     from dbar4gun import wiimote as W
@@ -283,7 +283,7 @@ def test_hw_ir_sensitivity_applies_and_overrides_service_option(daemon, monkeypa
 def test_silent_paired_worker_answers_quickly(daemon, monkeypatch):
     """
     Un Wiimote emparejado que deja de enviar reports (apagado en la DolphinBar,
-    antes de los 10 s de E6): su worker responde a status sin esperar al
+    antes de los 10 s de la reconexion): su worker responde a status sin esperar al
     timeout de lectura.
     """
     import os

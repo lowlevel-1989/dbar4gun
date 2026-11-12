@@ -12,7 +12,7 @@ from tests.fakes import FakeHidraw
 class NewDriver(object):
     """
     Sin options, el filter va desactivado: los tests de precision miden la
-    calibracion; el filter (C13) se testea aparte.
+    calibracion; el filter se testea aparte.
     """
 
     def __init__(self, monkeypatch, options=None, calibration=None):

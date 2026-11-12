@@ -46,7 +46,7 @@ def drv_with_filter(monkeypatch, level=3):
 
 
 def test_filter_reduces_jitter_in_driver(monkeypatch):
-    """C13 en el driver: quieto, el jitter del cursor baja mucho respecto al raw."""
+    """One Euro filter en el driver: quieto, el jitter del cursor baja mucho respecto al raw."""
     scene = Scene(tv=TV(45), noise_px=0.5, seed=5)
     drv = drv_with_filter(monkeypatch)
     raw, out = [], []
@@ -102,7 +102,7 @@ def test_set_filter_persists_without_history(monkeypatch):
     assert drv.pipeline.filter.fc_min == 0.5
 
 
-# ---------------------------------------------------------------- history (D16)
+# ---------------------------------------------------------------- history
 def cal(tx, ts):
     return CalibrationData(affine=AffineMap(0.12, 0, 0, 0.2, tx, 0), calibrated=True, timestamp=ts)
 

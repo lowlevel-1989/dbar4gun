@@ -1,4 +1,4 @@
-"""P4: wrapper de escritorio (con un dbar4gun falso)."""
+"""wrapper de escritorio (con un dbar4gun falso)."""
 
 import os
 import subprocess

@@ -1,5 +1,5 @@
 """
-C13: One Euro filter (Casiez et al., 2012) para el cursor.
+One Euro filter (Casiez et al., 2012) para el cursor.
 
 Paso bajo con frecuencia de corte adaptativa: quieto filtra mucho (fc_min,
 quita el jitter) y al moverse rapido sube la frecuencia de corte (beta,

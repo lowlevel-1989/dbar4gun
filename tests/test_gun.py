@@ -57,7 +57,7 @@ def test_a_plus_runs_3pt_and_saves():
     assert kinds[-3:] == ["rumble", "restore_leds", "save"]
     data = actions[-1][1]
     assert data.calibrated and data.mode == MODE_3PT and data.sep_ref > 0
-    # despues de calibrar, A+plus hace la recalibracion rapida (C19)
+    # despues de calibrar, A+plus hace la recalibracion rapida
     assert p.default_kind() == "quick"
 
 
@@ -95,7 +95,7 @@ def test_no_ir_capture_error():
 
 @pytest.mark.parametrize("bar_offset", [(0.10, 0.0), (0.0, 0.03), (-0.08, 0.02)])
 def test_quick_recalibration_after_bar_moved(monkeypatch, bar_offset):
-    """C19: la barra se ha movido; A+plus (2 puntos) recupera la precision."""
+    """la barra se ha movido; A+plus (2 puntos) recupera la precision."""
     from tests.sim.metrics import measure_grid
 
     tv = TV(45)
@@ -199,7 +199,7 @@ def test_calibration_valid_across_area_profiles():
     assert error_tv_px(cursor, (0.3, 0.4)) < 25
 
 
-# ---------------------------------------------------------------- C18
+# ----------------------------------------------------------------
 def test_lost_goes_to_exit_edge():
     scene, clock = Scene(tv=TV(45), player=(0, 0, 2.5)), Clock()
     p = GunPipeline(GunOptions(smoothing_level=0))

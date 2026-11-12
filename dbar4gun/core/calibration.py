@@ -2,13 +2,13 @@
 Calibracion: de camera point a pantalla (coordenadas normalizadas de la TV
 completa, y hacia abajo).
 
-- C1/C2/C3/C10: afin exacta de 3 puntos, screen = A*c + b, con targets
+- afin exacta de 3 puntos, screen = A*c + b, con targets
   configurables, sin offsets fijos; el clamp solo se aplica al cursor final.
 - modo 1: escala y offset por eje con 2 puntos.
-- C4: captura = mediana por eje del ring buffer (8 frames anteriores al flanco
+- captura = mediana por eje del ring buffer (8 frames anteriores al flanco
   de B); si la dispersion supera el umbral, error UNSTABLE.
-- C19: recalibracion rapida de 2 puntos (esquinas del lado de la barra).
-- C16: modo 3, homografia con 4 puntos (esquinas).
+- recalibracion rapida de 2 puntos (esquinas del lado de la barra).
+- modo 3, homografia con 4 puntos (esquinas).
 """
 
 import math
@@ -75,7 +75,7 @@ class AffineMap(object):
 
 
 class HomographyMap(object):
-    """C16: screen = H * (c, 1), con division perspectiva."""
+    """screen = H * (c, 1), con division perspectiva."""
 
     __slots__ = ("h",)
 
@@ -146,7 +146,7 @@ def _solve_linear(m, v):
 
 
 def solve_homography_4pt(cams, screens):
-    """C16: homografia exacta de 4 camera points a 4 puntos de pantalla."""
+    """homografia exacta de 4 camera points a 4 puntos de pantalla."""
     m, v = [], []
     for (x, y), (u, w) in zip(cams, screens):
         m.append([x, y, 1, 0, 0, 0, -u * x, -u * y])
@@ -194,7 +194,7 @@ def solve_scale_offset_2pt(cams, screens):
 
 def quick_recalibrate(base, cams, screens):
     """
-    C19: corrige `base` con 2 capturas en las esquinas del lado de la barra.
+    corrige `base` con 2 capturas en las esquinas del lado de la barra.
     Ajusta escala y offset en x y el offset en y; conserva la escala vertical
     y la rotacion de la calibracion principal.
     """
@@ -249,7 +249,7 @@ def nominal_map(bar_on_top=True):
 
 
 class CalibrationData(object):
-    """Lo que se guarda por Wiimote (C11)."""
+    """Lo que se guarda por Wiimote."""
 
     VERSION = 1
 
@@ -264,7 +264,7 @@ class CalibrationData(object):
         self.bar_on_top = bar_on_top
         self.calibrated = calibrated
         self.timestamp = timestamp
-        # C13: parametros del One Euro de este Wiimote (None = los del servicio)
+        # parametros del One Euro de este Wiimote (None = los del servicio)
         self.filter = dict(filter) if filter else None
 
     def map_for(self, distance_compensation):
@@ -322,7 +322,7 @@ def _median(values):
 
 
 class CaptureBuffer(object):
-    """C4: ring buffer de camera points validos."""
+    """ring buffer de camera points validos."""
 
     def __init__(self, size=RING_SIZE):
         self.size = size
@@ -370,7 +370,7 @@ class CalibrationSession(object):
     Maquina de estados de una calibracion: un target por paso, captura en el
     flanco de subida de B.
 
-    kind: "3pt" (TL, TR, BC), "2pt" (modo 1: centro, TL) o "quick" (C19).
+    kind: "3pt" (TL, TR, BC), "2pt" (modo 1: centro, TL) o "quick".
     targets: puntos en pantalla (normalizados a la TV completa).
     shots: vueltas a los targets. Cada vuelta pasa por todos (TL, TR, BC, TL,
     TR, BC): cada disparo es un apuntado nuevo y la media de los de un target

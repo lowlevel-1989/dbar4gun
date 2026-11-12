@@ -1,4 +1,4 @@
-"""D14: describe_outputs() coincide con lo que escribe VirtualGunDevice.sync()."""
+"""describe_outputs() coincide con lo que escribe VirtualGunDevice.sync()."""
 
 import itertools
 

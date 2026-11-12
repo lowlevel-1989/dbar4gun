@@ -1,5 +1,5 @@
 """
-C14: parser del IR basico (10 bytes, wiibrew).
+Parser del IR basico (10 bytes, wiibrew).
 
 Cada dot se devuelve como (x, y, found) normalizado:
     x = 1 - raw_x / 1023   (invertido: apuntar a la derecha -> x crece)

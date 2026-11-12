@@ -6,9 +6,9 @@ Parametros del hardware medidos con el calibrator (hardware.json).
                siempre la focal nominal, asi una medida nueva no invalida las
                calibraciones guardadas (en el simulador, un FOV real de 38-42
                grados con la focal de 33 da la misma precision).
-- acc_x_sign:  signo del eje X del acelerometro frente al roll (C17).
+- acc_x_sign:  signo del eje X del acelerometro frente al roll.
 - bar_width_m: distancia entre los centros de los 2 grupos de LEDs de la barra.
-- ir_sensitivity: nivel de la camara IR (C15). None = el del servicio
+- ir_sensitivity: nivel de la camara IR. None = el del servicio
   (--ir-sensitivity); si se fija aqui, manda sobre la opcion del servicio.
 """
 

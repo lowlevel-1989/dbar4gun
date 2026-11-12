@@ -1,5 +1,5 @@
 """
-P2: perfil de area por juego/system/emulator desde runcommand de RetroPie.
+Perfil de area por juego/system/emulator desde runcommand de RetroPie.
 
 profiles.cfg (formato "clave = perfil", # para comentarios). Prioridad:
 
@@ -210,7 +210,7 @@ def uninstall_hooks(configs_dir=RETROPIE_CONFIGS):
 
 def set_entry(path, key, value):
     """
-    D15: fija "key = value" en profiles.cfg sin tocar el resto: reemplaza la
+    fija "key = value" en profiles.cfg sin tocar el resto: reemplaza la
     linea activa de esa clave o la anade al final.
     """
     lines = []

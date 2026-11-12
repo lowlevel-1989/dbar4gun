@@ -1,5 +1,5 @@
 """
-P1: socket Unix de control. Protocolo de texto: el cliente envia una linea y
+Socket Unix de control. Protocolo de texto: el cliente envia una linea y
 recibe una linea JSON.
 
     area <perfil>               full | 4:3 | custom:x0,y0,w,h

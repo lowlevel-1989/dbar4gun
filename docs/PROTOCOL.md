@@ -50,7 +50,7 @@ Flags de TL/TR: 0x01 válido, 0x02 reconstruido.
 
 La distancia aproximada a la barra es `0.20 / (2 * tan(separation / 2))` m.
 
-## Socket de control (P1)
+## Socket de control
 
 `/run/dbar4gun.sock` (`--socket`), Unix stream, permisos 0666. El cliente envía
 una línea y recibe una línea JSON con al menos `ok`.

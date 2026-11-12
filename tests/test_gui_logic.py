@@ -138,7 +138,7 @@ def sweep_reach(monkeypatch, distance):
 
 
 def test_reach_and_recommendation(monkeypatch):
-    """D11: de cerca no se llega abajo; a la distancia recomendada, si."""
+    """de cerca no se llega abajo; a la distancia recomendada, si."""
     test, p = sweep_reach(monkeypatch, 1.8)
     reach = test.reach()
     assert 0.3 < reach < 0.85
@@ -161,7 +161,7 @@ def test_stability_levels():
     assert L.stability(0.5) == "bad"
 
 
-# ---------------------------------------------------------------- D5
+# ----------------------------------------------------------------
 def test_gallery_targets_inside_area_and_useful_zone():
     t = L.gallery_targets((0.125, 0.0, 0.75, 1.0), 0.8)
     assert len(t) == 15                     # 5x3: con columna central
@@ -177,7 +177,7 @@ def test_shot_error_units():
     assert s["mean_tv"] == 6.75 and s["max_game"] == 2.0
 
 
-# ---------------------------------------------------------------- D13
+# ----------------------------------------------------------------
 def record(monkeypatch, path):
     scene = Scene(tv=TV(45), noise_px=0.5, seed=5)
     g = SimGun(monkeypatch, scene)

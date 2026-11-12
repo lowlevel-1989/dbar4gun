@@ -1,5 +1,5 @@
 """
-C12: rumble sin bloquear el bucle. Los pulsos se apagan por timestamp: cada
+Rumble sin bloquear el bucle. Los pulsos se apagan por timestamp: cada
 report se llama a update(now) y devuelve el nuevo estado del motor si cambia.
 """
 

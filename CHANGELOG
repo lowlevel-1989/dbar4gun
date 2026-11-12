@@ -1,5 +1,10 @@
+1.0.1
+- fixed: instalador de RetroPie: python3 -m venv (como en RetroPie-Setup) y
+  dependencia python3-venv; comentarios en ingles
+- changed: comentarios y documentacion sin etiquetas internas del plan
+
 1.0.0
-- precision: nuevo pipeline (parser C14, tracker con continuidad y reconstruccion,
+- precision: nuevo pipeline (parser, tracker con continuidad y reconstruccion,
   roll del acelerometro, camera point con distance compensation angular,
   calibracion afin exacta), simulador: 143 -> 9 px de error medio
 - added: calibracion guardada por Wiimote (MAC / slot DolphinBar) con history

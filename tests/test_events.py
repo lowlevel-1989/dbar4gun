@@ -172,7 +172,7 @@ def test_monitor_listens_before_first_scan(monkeypatch):
 
 
 def test_no_free_port_closes_fd(daemon):
-    """E3: sin puerto libre se cierra el hidraw."""
+    """sin puerto libre se cierra el hidraw."""
     daemon.port = [0] * 16
     daemon.handle_event("add", "/dev/hidraw7")
     assert daemon.closed_fds == [101]
@@ -180,7 +180,7 @@ def test_no_free_port_closes_fd(daemon):
 
 
 def test_remove_joins_process(daemon):
-    """E4: el proceso se recoge con join(timeout)."""
+    """el proceso se recoge con join(timeout)."""
     daemon.handle_event("add", "/dev/hidraw3")
     proc = FakeProcess.created[0]
     daemon.handle_event("remove", "/dev/hidraw3")

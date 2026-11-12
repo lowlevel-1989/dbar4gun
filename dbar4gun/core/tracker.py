@@ -4,14 +4,14 @@ Tracker de los 2 dots de la barra (TL/TR).
 Trabaja en espacio cuadrado: (x, y * 767/1023), para que las distancias y los
 angulos no dependan del aspecto del sensor.
 
-- C5: TL/TR se mantienen por continuidad (vecino mas cercano). Si se pierde un
+- TL/TR se mantienen por continuidad (vecino mas cercano). Si se pierde un
   dot se reconstruye con el ultimo vector TL->TR, valido PAIR_TIMEOUT segundos
   desde el ultimo par completo.
-- C17: roll desde el acelerometro (centro 0x80). Se usa cuando no hay un par
+- roll desde el acelerometro (centro 0x80). Se usa cuando no hay un par
   reciente: para ordenar TL/TR (tambien mas alla de +-90 grados) y para
   orientar la reconstruccion.
-- C18: sin dots, el estado queda `lost` (el pipeline lleva el cursor al borde).
-- C8: los dots mas cercanos que MERGE_DIST se fusionan en su centroide
+- sin dots, el estado queda `lost` (el pipeline lleva el cursor al borde).
+- los dots mas cercanos que MERGE_DIST se fusionan en su centroide
   (reflejos que parten un LED) y el par se elige con un coste de continuidad
   mas la separacion y el angulo esperados (fuentes IR ajenas a la barra).
 """
@@ -30,7 +30,7 @@ ACC_X_SIGN = 1.0
 # |g| minimo en el plano X/Z (cuentas) para fiarse del roll
 ACC_MIN_XZ = 8
 
-# C8: distancia de fusion (espacio cuadrado normalizado, ~15 px del sensor)
+# distancia de fusion (espacio cuadrado normalizado, ~15 px del sensor)
 MERGE_DIST = 0.015
 # pesos del coste del par
 W_SEP = 1.0
@@ -66,7 +66,7 @@ def dot_angle_from_roll(roll):
 
 
 def merge_close(pts, dist=MERGE_DIST):
-    """C8: fusiona en su centroide los dots a menos de `dist` entre si."""
+    """fusiona en su centroide los dots a menos de `dist` entre si."""
     groups = []
     d2 = dist * dist
     for p in pts:
@@ -205,7 +205,7 @@ class Tracker(object):
 
     def pair_cost(self, a, b, continuity, expected_angle):
         """
-        C8: (coste total, coste de forma) del par. La forma (separacion y
+        (coste total, coste de forma) del par. La forma (separacion y
         angulo esperados) decide si el par puede ser la barra; la continuidad
         solo ayuda a elegir entre pares plausibles.
         """

@@ -1,5 +1,5 @@
 """
-D6: paquete UDP v2 (driver -> calibrator). Struct fija en orden de red,
+Paquete UDP v2 (driver -> calibrator). Struct fija en orden de red,
 documentada en docs/PROTOCOL.md. Un paquete por report 0x37 y Wiimote.
 """
 

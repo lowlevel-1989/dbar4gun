@@ -46,12 +46,12 @@ WAIT_PAIR_INTERVAL = 0.2
 WAIT_PAIR_MAX = 2.0
 # cada cuanto se recalcula el mouse index de cada pistola (LED y teclas)
 INDEX_REFRESH = 3.0
-# E4: espera maxima al terminar un proceso (s)
+# espera maxima al terminar un proceso (s)
 JOIN_TIMEOUT = 1.0
 
 
 class LocalConn(object):
-    """E13: extremo de un pipe entre hilos con la interfaz de multiprocessing.Connection."""
+    """extremo de un pipe entre hilos con la interfaz de multiprocessing.Connection."""
 
     def __init__(self, inbox, outbox, cond):
         self.inbox = inbox
@@ -190,7 +190,7 @@ class Dbar4Gun(object):
         self.is_worker  = False
         self.pid_file   = PID_FILE
 
-        # P1: canal de control por worker: hidraw_path -> [conn, port, key]
+        # canal de control por worker: hidraw_path -> [conn, port, key]
         self.workers    = {}
         self.lock       = threading.Lock()
         self.request_id = 0
@@ -318,7 +318,7 @@ class Dbar4Gun(object):
                 proc.kill()
             except Exception as e:
                 log.debug("kill: %s", e)
-        # E4: esperar a que terminen (sin bloquear para siempre)
+        # esperar a que terminen (sin bloquear para siempre)
         for _, proc in self.processes.items():
             try:
                 proc.join(JOIN_TIMEOUT)
@@ -403,7 +403,7 @@ class Dbar4Gun(object):
         print("\t\tmonitor started, ctrl+c to exit or sudo kill -SIGTERM {}".format(main_pid))
 
         if self._cfg("single_process", False):
-            # E13 (experimental): monitor en un hilo y sin procesos por Wiimote
+            # experimental: monitor en un hilo y sin procesos por Wiimote
             log.info("single process mode (experimental)")
             self.start_control()
             self.run_single()
@@ -500,7 +500,7 @@ class Dbar4Gun(object):
         if proc is not None:
             try:
                 proc.kill()
-                # E4: recoger el proceso (sin zombies) sin bloquear para siempre
+                # recoger el proceso (sin zombies) sin bloquear para siempre
                 proc.join(JOIN_TIMEOUT)
             except Exception as e:
                 log.debug("kill %s: %s", hidraw_path, e)
@@ -527,7 +527,7 @@ class Dbar4Gun(object):
         port = take_port(self.port, key)
 
         if port < 0:
-            # E3: sin puerto libre se cierra el hidraw (antes quedaba abierto)
+            # sin puerto libre se cierra el hidraw (antes quedaba abierto)
             log.warning("no free VirtualGun port for %s", hidraw_path)
             try:
                 hidraw_io.close()
@@ -575,7 +575,7 @@ class Dbar4Gun(object):
         self._create_virtualgun(hidraw_io, port, key, conn, hidraw_path)
 
     def make_pipeline(self, key):
-        """Pipeline del Wiimote con la calibracion guardada (C11) si existe."""
+        """Pipeline del Wiimote con la calibracion guardada si existe."""
         options = self.gun_options()
         data = None
         if key:
@@ -626,7 +626,7 @@ class Dbar4Gun(object):
                 next_try = now + wait
                 wait = min(wait * 2.0, WAIT_PAIR_MAX)
             # la DolphinBar expone siempre sus 4 slots: mientras no haya un
-            # Wiimote en este, el worker sigue respondiendo a P1 (paired: false)
+            # Wiimote en este, el worker sigue respondiendo a los comandos (paired: false)
             timeout = max(0.01, min(WAIT_PAIR_INTERVAL, next_try - time.monotonic()))
             if conn is not None and conn.poll(timeout):
                 self._worker_command(conn, wiimote, port, key, hidraw_path, store)
@@ -668,7 +668,7 @@ class Dbar4Gun(object):
 
     def _wait_attach(self, conn, wiimote, port, key, hidraw_path, store):
         """
-        Worker sin Wiimote (desconectado por Bluetooth): responde a P1
+        Worker sin Wiimote (desconectado por Bluetooth): responde a los comandos
         (paired: false) hasta que el daemon le pasa el hidraw nuevo del mismo
         Wiimote ("attach"). Devuelve (io, ruta).
         """
@@ -717,7 +717,7 @@ class Dbar4Gun(object):
         nunchuck_buttons,  \
         nunchuck_joy = wiimote.read(timeout)
 
-        # C13: el suavizado (One Euro) ya va en el pipeline
+        # el suavizado (One Euro) ya va en el pipeline
         cursor = wiimote.get_cursor()
 
         virtualgun.set_buttons(buttons, nunchuck_buttons, nunchuck_joy)
@@ -727,7 +727,7 @@ class Dbar4Gun(object):
         self.send_debug_data(wiimote, index, port)
 
     # ------------------------------------------------------------------
-    # E13 (experimental): un solo proceso para todos los Wiimotes
+    # experimental: un solo proceso para todos los Wiimotes
     def open_device(self, hidraw_path):
         fd = os.open(hidraw_path, os.O_RDWR)
         return fd, FileIO(fd, "rb+", closefd=False)
@@ -735,7 +735,7 @@ class Dbar4Gun(object):
     def run_single(self, stop_event=None):
         """
         Lee todos los hidraw con select en un solo proceso (un uinput por gun).
-        Los comandos P1 usan el mismo codigo que los workers, con un pipe entre
+        Los comandos de control usan el mismo codigo que los workers, con un pipe entre
         hilos. Crear un Wiimote bloquea el bucle ~0.8 s (enable_ir).
         """
         import queue as queue_module
@@ -776,10 +776,10 @@ class Dbar4Gun(object):
             for g in list(self.guns.values()):
                 try:
                     if g["fd"] is None:
-                        pass        # Bluetooth desconectado: solo responde a P1
+                        pass        # Bluetooth desconectado: solo responde a los comandos
                     elif not g["index"]:
                         # sin Wiimote (slot vacio de la DolphinBar): sigue
-                        # respondiendo a P1 con paired: false
+                        # respondiendo a los comandos con paired: false
                         self._single_connect(g)
                     elif g["fd"] in ready:
                         g["index"] = self._refresh_index(g["wiimote"], g["virtualgun"], g["index"])
@@ -904,7 +904,7 @@ class Dbar4Gun(object):
         log.info("DELETED: VirtualGun %02d", g["port"] + 1)
 
     # ------------------------------------------------------------------
-    # P1: comandos (lado worker)
+    # comandos (lado worker)
     def _worker_command(self, conn, wiimote, port, key, hidraw_path, store):
         """Atiende un comando del daemon. False si el canal se ha cerrado."""
         try:
@@ -965,7 +965,7 @@ class Dbar4Gun(object):
             pass
 
     # ------------------------------------------------------------------
-    # P1: comandos (lado daemon)
+    # comandos (lado daemon)
     def start_control(self):
         path = self._cfg("socket", SOCKET_PATH)
         try:
@@ -1021,7 +1021,7 @@ class Dbar4Gun(object):
         return None
 
     def _history_command(self, cmd, args):
-        """D16: history de calibraciones (lo gestiona el daemon en el store)."""
+        """history de calibraciones (lo gestiona el daemon en el store)."""
         try:
             vg = int(args[0])
         except (ValueError, IndexError):
@@ -1145,7 +1145,7 @@ class Dbar4Gun(object):
             return {"ok": True}
 
         if cmd == "irmode":
-            # D9: modo IR extendido (tamano de los dots) hasta verificarlo con hardware
+            # modo IR extendido (tamano de los dots) hasta verificarlo con hardware
             if not self._cfg("experimental_ir_extended", False):
                 return {"ok": False, "error": "irmode needs --experimental-ir-extended"}
             if len(args) != 1 or args[0] not in ("basic", "extended"):
@@ -1165,7 +1165,7 @@ class Dbar4Gun(object):
             return {"ok": True, "useful_zone": v}
 
         if cmd == "save":
-            # D15: el area y la useful zone actuales pasan a profiles.cfg
+            # el area y la useful zone actuales pasan a profiles.cfg
             from dbar4gun import profiles
             path = self.profiles_path()
             try:
@@ -1246,7 +1246,7 @@ class Dbar4Gun(object):
         return {"ok": True, "hardware": hw.to_dict(), "path": store.hw_path}
 
     def send_debug_data(self, wiimote, index, port):
-        """D6: paquete UDP v2 para el calibrator (docs/PROTOCOL.md)."""
+        """paquete UDP v2 para el calibrator (docs/PROTOCOL.md)."""
         try:
             data = build_packet(wiimote, index, port + 1).pack()
             self.sock.sendto(data, ("127.0.0.1", self.config.port))

@@ -2,9 +2,9 @@
 Camera point: de TL/TR (espacio cuadrado) a un punto 2D independiente del
 roll y, opcionalmente, de la distancia.
 
-- C6/C7: midpoint en espacio cuadrado, respecto al centro del sensor, y tilt
+- midpoint en espacio cuadrado, respecto al centro del sensor, y tilt
   correction (girar por -angulo de TL->TR). Tambien con dots reconstruidos.
-- C9: dividir el offset entre la separacion de los dots. Se usa la separacion
+- dividir el offset entre la separacion de los dots. Se usa la separacion
   angular (radianes, con la focal de la camara) y no la distancia en la imagen:
   la separacion en la imagen crece al apuntar lejos de la barra (1/cos^2) y eso
   deformaba las esquinas. La separacion angular solo depende de la distancia.

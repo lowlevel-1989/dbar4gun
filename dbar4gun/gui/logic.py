@@ -1,11 +1,11 @@
 """
 Logica del calibrator, sin pygame (testeable con el simulador).
 
-- D1/D2: PacketSource vacia el socket en cada frame y se queda con el ultimo
+- PacketSource vacia el socket en cada frame y se queda con el ultimo
   paquete de cada VirtualGun; WiimoteState guarda el estado por Wiimote.
-- D10: distancia, nivel y centrado de la barra.
-- D11: reach test y distancia recomendada.
-- D12: targets adaptativos, comprobacion de geometria y verificacion.
+- distancia, nivel y centrado de la barra.
+- reach test y distancia recomendada.
+- targets adaptativos, comprobacion de geometria y verificacion.
 - Autodiagnostico de hardware (enlace, calidad IR, acelerometro, FOV,
   barra y desconexion).
 """
@@ -75,7 +75,7 @@ class WiimoteState(object):
         self.last_seen = 0.0
         self.frame_packets = []
         self.reach = None   # resultado de la reach test (fraccion de alto)
-        self.status = {}    # ultimo status por P1
+        self.status = {}    # ultimo status del socket de control
 
     def feed(self, packets, now):
         """Paquetes de este Wiimote recibidos en el frame (en orden)."""
@@ -111,7 +111,7 @@ class WiimoteState(object):
 
 
 class Hub(object):
-    """Todos los Wiimotes vistos y el reparto de paquetes por frame (D1/D2)."""
+    """Todos los Wiimotes vistos y el reparto de paquetes por frame."""
 
     TIMEOUT = 2.0
 
@@ -143,7 +143,7 @@ class Hub(object):
 
 
 # ----------------------------------------------------------------------
-# D10: instalacion
+# instalacion
 def distance_m(packet, hw=None):
     """Distancia a la barra; con `hw` usa el FOV y el ancho medidos."""
     if packet is None or packet.separation <= 0:
@@ -172,7 +172,7 @@ def bar_tilt_deg(packet):
 
 def bar_position(status):
     """
-    Posicion de la barra en la TV segun la calibracion (status por P1): el
+    Posicion de la barra en la TV segun la calibracion (status del socket de control): el
     camera point (0, 0) es apuntar justo a la barra. (x, y) normalizados.
     """
     pos = (status or {}).get("bar_position")
@@ -180,7 +180,7 @@ def bar_position(status):
 
 
 # ----------------------------------------------------------------------
-# D11: alcance
+# alcance
 class ReachTest(object):
     """Rastro de la reach test: (x, y, dots) en pantalla."""
 
@@ -207,7 +207,7 @@ class ReachTest(object):
 
 def recommend_distance(distance, reach, useful_zone):
     """
-    D11: factor = useful_zone / reach; D_nueva = D * factor. Devuelve
+    factor = useful_zone / reach; D_nueva = D * factor. Devuelve
     (factor, distancia nueva o None).
     """
     if not reach or reach <= 0:
@@ -217,7 +217,7 @@ def recommend_distance(distance, reach, useful_zone):
 
 
 # ----------------------------------------------------------------------
-# D12: wizard
+# wizard
 TOP_TARGET = 0.10
 REACH_MARGIN = 0.05
 
@@ -243,7 +243,7 @@ def adaptive_targets(area, useful_zone, reach=None, bar_on_top=True, points=3):
         near_y = y0 + (1.0 - TOP_TARGET) * h
         far_y = y0 + (1.0 - far) * h
     if points == 4:
-        # C16: esquinas TL, TR, BR, BL (lado de la barra primero)
+        # esquinas TL, TR, BR, BL (lado de la barra primero)
         return [(left, near_y), (right, near_y), (right, far_y), (left, far_y)]
     return [(left, near_y), (right, near_y), (center, far_y)]
 
@@ -298,7 +298,7 @@ def bar_on_top(packet):
 
 
 # ----------------------------------------------------------------------
-# D5: shooting gallery
+# shooting gallery
 GAME_W = 320
 GAME_H = 240
 
@@ -608,7 +608,7 @@ def gallery_analysis(targets, errors, area, game):
 
 
 # ----------------------------------------------------------------------
-# D13: auto-tune del One Euro
+# auto-tune del One Euro
 FC_CANDIDATES = (4.0, 3.0, 2.0, 1.5, 1.0, 0.7, 0.5, 0.35, 0.25)
 BETA_CANDIDATES = (1.0, 2.0, 5.0, 10.0, 20.0, 40.0)
 JITTER_TARGET_GAME = 0.5
@@ -787,7 +787,7 @@ class IRQuality(object):
         elif both < 0.95 and lost < 0.5:
             verdict = WARN if verdict == OK else verdict
             notes.append("dots_drop")
-        # recomendacion de --ir-sensitivity (C15)
+        # recomendacion de --ir-sensitivity
         sensitivity = None
         if "extra_ir" in notes:
             sensitivity = "lower"
@@ -802,7 +802,7 @@ class IRQuality(object):
 
 class AccSignCheck(object):
     """
-    Paso 3 (C17): girando el Wiimote despacio (+-45 grados) con la barra a la
+    Paso 3: girando el Wiimote despacio (+-45 grados) con la barra a la
     vista, el angulo de los dots no depende del acelerometro: con el signo bien,
     angulo = -roll (+ inclinacion fija de la barra). Pendiente de la recta
     angulo/roll: ~ -1 bien, ~ +1 invertido.
@@ -990,7 +990,7 @@ class BarSideCheck(object):
 
 class DisconnectCheck(object):
     """
-    Paso 6 (E6): el jugador apaga el Wiimote y lo vuelve a encender.
+    Paso 6: el jugador apaga el Wiimote y lo vuelve a encender.
     - stop: los paquetes dejan de llegar (o llegan identicos: la barra repite).
     - back: vuelven a llegar paquetes de ese Wiimote (reconexion automatica).
     """

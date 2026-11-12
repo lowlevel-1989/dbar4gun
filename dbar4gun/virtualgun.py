@@ -271,7 +271,7 @@ class VirtualGunDevice(object):
 
 def describe_outputs(buttons, port, nunchuck_buttons=0, nunchuck_joy=(0.5, 0.5)):
     """
-    D14: nombres de las teclas/botones que VirtualGunDevice.sync() deja
+    nombres de las teclas/botones que VirtualGunDevice.sync() deja
     pulsados para un estado de botones (misma logica que sync()).
     """
     tol = VirtualGunDevice.NUNCHUK_JOY_TOLERANCE

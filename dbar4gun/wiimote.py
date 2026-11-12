@@ -44,10 +44,10 @@ WIIMOTE_LED_4 = 0x80
 WIIMOTE_REPORT_STATUS_ID   = 0x20
 WIIMOTE_REPORT_RESULT_ID   = 0x22
 WIIMOTE_REPORT_MODE_X37_ID = 0x37
-# D9 (experimental): botones + acelerometro + IR extendido (tamano de los dots)
+# experimental: botones + acelerometro + IR extendido (tamano de los dots)
 WIIMOTE_REPORT_MODE_X33_ID = 0x33
 
-# E6: espera maxima de un report en read() (s); el bucle sigue vivo sin datos
+# espera maxima de un report en read() (s); el bucle sigue vivo sin datos
 READ_TIMEOUT = 0.5
 # sin reports o con el mismo report completo repetido durante este tiempo se
 # considera el Wiimote desconectado (DolphinBar con el Wiimote apagado)
@@ -76,12 +76,12 @@ IR_REENABLE_INTERVAL = 30.0
 RESET_BACKOFF_MIN = 0.2
 RESET_BACKOFF_MAX = 2.0
 
-# E7: longitud minima de cada report
+# longitud minima de cada report
 REPORT_MIN_LEN = {0x20: 7, 0x22: 5, 0x33: 18, 0x37: 22}
 
 log = logging.getLogger("dbar4gun.wiimote")
 
-# C15: bloques de sensibilidad de la camara IR (wiibrew). "marcan" es el que
+# bloques de sensibilidad de la camara IR (wiibrew). "marcan" es el que
 # usaba la v0.18.2 (por defecto).
 IR_SENSITIVITY = {
     "1":      (b"\x02\x00\x00\x71\x01\x00\x64\x00\xfe", b"\xfd\x05"),
@@ -176,7 +176,7 @@ class WiiMoteDevice(object):
         self.is_pair = False
         self.ir_sensitivity = ir_sensitivity
 
-        # D9: IR basico (report 0x37) o extendido (0x33, sin Nunchuk)
+        # IR basico (report 0x37) o extendido (0x33, sin Nunchuk)
         self.ir_mode     = IR_MODE_BASIC
         self.REPORT_MODE = b"\x37"
 
@@ -241,7 +241,7 @@ class WiiMoteDevice(object):
 
         self.is_alive_time_last = time.time()
 
-        # E6: deteccion de desconexion (sin reports o report identico repetido)
+        # deteccion de desconexion (sin reports o report identico repetido)
         self.last_report      = b""
         self.last_change_time = None
         self.last_drm_time    = -1e9
@@ -312,13 +312,13 @@ class WiiMoteDevice(object):
         time.sleep(1)
 
     def parser_ir(self, payload : bytes) -> None:
-        # C14: ausente si Y (10 bits) == 0x3FF
+        # ausente si Y (10 bits) == 0x3FF
         self.ir_raw = parse_ir_basic_raw(payload)
         for i, raw in enumerate(self.ir_raw):
             self.core_ir_dot[i] = list(normalize(raw))
 
     def set_ir_sensitivity(self, level : str) -> None:
-        """C15 en caliente: si cambia, se vuelve a configurar la camara IR."""
+        """IR sensitivity en caliente: si cambia, se vuelve a configurar la camara IR."""
         if level not in IR_SENSITIVITY or level == self.ir_sensitivity:
             return
         log.info("wiimote %s: IR sensitivity %s -> %s", self.player, self.ir_sensitivity, level)
@@ -405,7 +405,7 @@ class WiiMoteDevice(object):
             if kind == "leds":
                 self.set_leds(action[1])
             elif kind == "restore_leds":
-                # E12: al terminar la calibracion vuelven los LEDs del jugador
+                # al terminar la calibracion vuelven los LEDs del jugador
                 self.set_leds(player_leds(self.player))
             elif kind == "rumble":
                 self.rumble.start(action[1], now)
@@ -421,7 +421,7 @@ class WiiMoteDevice(object):
 
         self._led_animation(now)
 
-        # C12: el rumble se apaga por timestamp, sin sleep
+        # el rumble se apaga por timestamp, sin sleep
         state = self.rumble.update(now)
         if state is not None:
             self.set_rumble(state)
@@ -429,7 +429,7 @@ class WiiMoteDevice(object):
     def idle(self) -> None:
         """
         Sin report nuevo (modo de un solo proceso): lo mismo que el timeout de
-        read(): deteccion de desconexion (E6) y acciones pendientes (rumble).
+        read(): deteccion de desconexion y acciones pendientes (rumble).
         """
         now = self.clock()
         self._check_alive_reports(None, now)
@@ -479,7 +479,7 @@ class WiiMoteDevice(object):
             return None
 
     def _disconnected(self, now : float) -> None:
-        """E6: sin reports nuevos: se vuelve a configurar el Wiimote."""
+        """sin reports nuevos: se vuelve a configurar el Wiimote."""
         log.info("wiimote %s: no new reports for %.0f s, reconnecting", self.player, NO_REPORT_TIMEOUT)
         self.is_pair = False
         self.last_change_time = now
@@ -503,8 +503,8 @@ class WiiMoteDevice(object):
     #        NunchuckButtons, NunchuckJoy]:
     def read(self, timeout=READ_TIMEOUT):
         """
-        Lee y procesa un report. Con `timeout` (E6) espera con select y, si no
-        llega nada, devuelve el estado actual (el bucle sigue atendiendo P1).
+        Lee y procesa un report. Con `timeout` espera con select y, si no
+        llega nada, devuelve el estado actual (el bucle sigue atendiendo los comandos).
         """
         if not self.is_pair:
             self.reset()
@@ -520,7 +520,7 @@ class WiiMoteDevice(object):
 
         n = self.io.readinto(self.buf)
         now = self.clock()
-        # E7: lecturas vacias o cortas no se procesan
+        # lecturas vacias o cortas no se procesan
         if not n:
             self._check_alive_reports(None, now)
             return self._state()
@@ -530,7 +530,7 @@ class WiiMoteDevice(object):
             return self._state()
         self._check_alive_reports(bytes(self.buf[:n]), now)
 
-        # E6: un report de datos que no es el modo pedido: reenviar el DRM
+        # un report de datos que no es el modo pedido: reenviar el DRM
         mode = self.REPORT_MODE[0]
         if 0x30 <= report_id <= 0x3f and report_id != mode and \
                 now - self.last_drm_time >= DRM_RESEND_INTERVAL:
@@ -610,7 +610,7 @@ class WiiMoteDevice(object):
                     self._run_actions(now)
                     return self._state()
                 log.debug("wiimote %s: IR camera reported off again, waiting", self.player)
-            # E8: un status report cambia el report mode; basta con reenviar el DRM
+            # un status report cambia el report mode; basta con reenviar el DRM
             try:
                 self.write(bytearray(b"\x12\x00") + bytearray(self.REPORT_MODE))
                 self.last_drm_time = now

@@ -17,7 +17,7 @@ rp_module_repo="git https://github.com/lowlevel-1989/dbar4gun master"
 rp_module_section="driver"
 
 function depends_dbar4gun() {
-    getDepends python3 python3-dev python3-setuptools python3-virtualenv python3-pygame
+    getDepends python3 python3-dev python3-setuptools python3-venv python3-pygame
 }
 
 function sources_dbar4gun() {
@@ -25,8 +25,8 @@ function sources_dbar4gun() {
 }
 
 function install_dbar4gun() {
-    # --system-site-packages: el calibrador usa el python3-pygame de apt
-    virtualenv --system-site-packages -p python3 "$md_inst"
+    # --system-site-packages: the calibrator uses python3-pygame from apt
+    python3 -m venv --system-site-packages "$md_inst"
     source "$md_inst/bin/activate"
     pip3 install .
     deactivate
@@ -63,8 +63,8 @@ function _params_dbar4gun() {
     echo "$dbar4gun_params"
 }
 
-# comando del calibrator; db_calibrator_size "native" o "ANCHOxALTO",
-# db_calibrator_lang "en" o "es"
+# calibrator command; db_calibrator_size "native" or "WIDTHxHEIGHT",
+# db_calibrator_lang "en" or "es"
 function _calibrator_cmd_dbar4gun() {
     local cmd="$md_inst/bin/dbar4gun gui --port $db_port"
     if [[ "$db_calibrator_size" =~ ^([0-9]+)x([0-9]+)$ ]]; then
@@ -76,13 +76,13 @@ function _calibrator_cmd_dbar4gun() {
     echo "$cmd"
 }
 
-# D7: el calibrator en Ports, como el "Desktop" de raspbiantools. addPort crea
-# "$romdir/ports/dbar4gun calibrator.sh", que lo lanza con runcommand como el
-# usuario (sin sudo: tambien funciona si el usuario necesita contrasena para
-# sudo, donde el menu de RetroPie no puede lanzar nada), y guarda el comando en
+# The calibrator goes to Ports, like the "Desktop" entry of raspbiantools.
+# addPort creates "$romdir/ports/dbar4gun calibrator.sh", which runs it with
+# runcommand as the user (no sudo, so it also works when sudo needs a password,
+# where the RetroPie menu cannot launch anything), and stores the command in
 # $configdir/ports/dbar4gun/emulators.cfg
 function _calibrator_entry_dbar4gun() {
-    # la entrada de versiones anteriores en el menu de RetroPie
+    # the entry of older versions in the RetroPie menu
     rm -f "$datadir/retropiemenu/dbar4gun-calibrator.sh"
     setConfigRoot "ports"
     if [[ "$1" == "install" ]]; then
@@ -93,7 +93,7 @@ function _calibrator_entry_dbar4gun() {
     fi
 }
 
-# P2: hooks de runcommand (perfil de area por system/emulator)
+# runcommand hooks (area profile per system/emulator)
 function _hooks_dbar4gun() {
     if [[ "$1" == "install" ]]; then
         "$md_inst/bin/dbar4gun" hooks install --configs-dir "$configdir/all" --bin "$md_inst/bin/dbar4gun"
@@ -152,8 +152,8 @@ function remove_dbar4gun() {
     systemctl daemon-reload
 }
 
-# valida con dbar4gun antes de guardar: un valor invalido en ExecStart haria
-# que el servicio no arrancase
+# validated with dbar4gun before saving: an invalid value in ExecStart would
+# stop the service from starting
 function _set_area_dbar4gun() {
     local error
     if error=$("$md_inst/bin/dbar4gun" check --area "$1" 2>&1); then
@@ -286,7 +286,7 @@ function _menu_start_dbar4gun() {
                 7)
                     local cmd_in=(dialog --backtitle "$__backtitle" --inputbox "Default area profile: full, 4:3 or custom:x0,y0,w,h (per game profiles: $configdir/all/dbar4gun/profiles.cfg)" 12 70 "$db_area")
                     local value
-                    # Cancel: se queda el valor anterior
+                    # Cancel: keep the previous value
                     value=$("${cmd_in[@]}" 2>&1 >/dev/tty) && _set_area_dbar4gun "$value"
                     ;;
                 8)

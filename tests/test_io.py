@@ -43,7 +43,7 @@ def test_rumble_bit_is_kept_in_other_reports(monkeypatch):
 
 
 def test_leds_restored_after_calibration(monkeypatch):
-    """E12: al terminar la calibracion vuelven los LEDs del jugador."""
+    """al terminar la calibracion vuelven los LEDs del jugador."""
     drv = NewDriver(monkeypatch)
     drv.wm.update_index(1)
     drv.calibrate(Scene())
@@ -52,7 +52,7 @@ def test_leds_restored_after_calibration(monkeypatch):
 
 
 def test_status_report_only_resends_drm(monkeypatch):
-    """E8: un status report no reinicia el IR, solo reenvia el DRM, y da la bateria."""
+    """un status report no reinicia el IR, solo reenvia el DRM, y da la bateria."""
     wm, io = make_wiimote(monkeypatch)
     io.reports.append(bytes([0x20, 0, 0, 0x0A, 0, 0, 0x64]) + bytes(15))
     wm.read()
@@ -78,7 +78,7 @@ def test_calibration_error_reported(monkeypatch):
     assert drv.wm.status()["last_calibration_error"] == "no_ir"
 
 
-# ---------------------------------------------------------------- store (C11)
+# ---------------------------------------------------------------- store
 UEVENT_BT = """DRIVER=wiimote
 HID_ID=0005:0000057E:00000306
 HID_NAME=Nintendo RVL-CNT-01
@@ -171,7 +171,7 @@ def test_store_concurrent_writers(tmp_path):
         assert store.load("k{}".format(i)).affine.tx == i / 10.0
 
 
-# ---------------------------------------------------------------- control (P1)
+# ---------------------------------------------------------------- control
 def test_control_roundtrip(tmp_path):
     path = str(tmp_path / "ctl.sock")
     seen = []
@@ -197,7 +197,7 @@ def test_parse_command():
     assert parse_command("  ") == ("", [])
 
 
-# ---------------------------------------------------------------- D9 (experimental)
+# ---------------------------------------------------------------- (experimental)
 def test_extended_ir_report(monkeypatch):
     from dbar4gun.core.parser import parse_ir_extended_raw
 
@@ -230,7 +230,7 @@ def test_irmode_needs_flag(tmp_path):
         d.sock.close()
 
 
-# ---------------------------------------------------------------- C15
+# ----------------------------------------------------------------
 def test_default_ir_sensitivity_is_the_old_block(monkeypatch):
     """El bloque por defecto es byte a byte el que enviaba la v0.18.2."""
     wm, io = make_wiimote(monkeypatch)
@@ -252,7 +252,7 @@ def test_ir_sensitivity_levels(monkeypatch, level, b1, b2):
     assert bytes(b"\x16\x04\xb0\x00\x1a\x02") + b2 + bytes(14) in io.written
 
 
-# ---------------------------------------------------------------- E6 / E7
+# ----------------------------------------------------------------
 class Clock(object):
     def __init__(self):
         self.t = 100.0
@@ -361,7 +361,7 @@ def test_nunchuk_connected_before_pairing(monkeypatch):
         drv.feed(scene.report(0.5, 0.5))
     assert len([w for w in drv.io.written if w == status_req]) == n
 
-    # reconexion (E6): se vuelve a preguntar
+    # reconexion: se vuelve a preguntar
     drv.wm.is_pair = False
     drv.wm.update_index(1)
     for _ in range(5):
@@ -374,7 +374,7 @@ def test_status_retries_are_bounded(monkeypatch):
     monkeypatch.setattr(W, "STATUS_RETRIES", 3)
     drv = NewDriver(monkeypatch)
     scene = Scene()
-    # 9 s (reports identicos: a los 10 s E6 volveria a emparejar y a preguntar)
+    # 9 s (reports identicos: a los 10 s se volveria a emparejar y a preguntar)
     for _ in range(900):
         drv.feed(scene.report(0.5, 0.5))
     reqs = [w for w in drv.io.written if w == bytes([0x15, 0x00])]
@@ -408,7 +408,7 @@ def test_status_polled_after_pairing(monkeypatch):
     """Tras el primer status, se vuelve a pedir cada IR_CHECK_INTERVAL s."""
     from dbar4gun.wiimote import IR_CHECK_INTERVAL
     drv = NewDriver(monkeypatch)
-    scene = Scene(noise_px=0.3)   # reports distintos: E6 no reconecta
+    scene = Scene(noise_px=0.3)   # reports distintos: no se reconecta
     drv.feed(scene.report(0.5, 0.5))
     drv.io.reports.append(bytes([0x20, 0, 0, 0x08, 0, 0, 0x64]) + bytes(15))
     drv.wm.read()
@@ -549,7 +549,7 @@ def test_connection_signal_rumble_and_led_sweep(monkeypatch):
     rumble = [w for w in drv.io.written if w[:1] == b"\x10"]
     assert rumble[0][1] & 1 and not rumble[-1][1] & 1     # vibra y se apaga
 
-    # reconexion (E6): otra vez la senal
+    # reconexion: otra vez la senal
     drv.io.written.clear()
     drv.wm.is_pair = False
     for _ in range(80):

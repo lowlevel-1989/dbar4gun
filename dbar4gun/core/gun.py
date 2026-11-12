@@ -35,7 +35,7 @@ LED_4 = 0x80
 # durante la calibracion solo pasan estos botones al juego (como antes)
 CALIBRATION_BUTTONS_MASK = BUTTON_MINUS | BUTTON_PLUS | BUTTON_HOME
 
-# C18: sin dots se mantiene el cursor este tiempo antes de llevarlo al borde
+# sin dots se mantiene el cursor este tiempo antes de llevarlo al borde
 # (un parpadeo del IR no debe disparar fuera de pantalla)
 LOST_HOLD = 0.05
 # velocidad minima (salida/s) para usar la direccion del movimiento
@@ -58,7 +58,7 @@ class GunOptions(object):
         self.bar_on_top = bar_on_top
         # targets de la calibracion de 3 puntos en espacio de salida (TL, TR, BC)
         self.targets = targets
-        # C13: One Euro (None = sin filter)
+        # One Euro (None = sin filter)
         self.filter = params_for_level(smoothing_level)
         # FOV, signo del acelerometro y ancho de barra (hardware.json)
         self.hardware = hardware or HardwareConfig()
@@ -129,7 +129,7 @@ class GunPipeline(object):
         return params
 
     def set_filter(self, fc_min, beta, d_cutoff=None):
-        """D13: parametros por Wiimote; se guardan con la calibracion."""
+        """parametros por Wiimote; se guardan con la calibracion."""
         params = {"fc_min": float(fc_min), "beta": float(beta)}
         if d_cutoff is not None:
             params["d_cutoff"] = float(d_cutoff)
@@ -165,7 +165,7 @@ class GunPipeline(object):
                 return [(0.1, 0.1), (0.9, 0.1)]
             return [(0.1, uz), (0.9, uz)]
         if kind == "4pt":
-            # C16: esquinas TL, TR, BR, BL
+            # esquinas TL, TR, BR, BL
             return [(0.1, 0.1), (0.9, 0.1), (0.9, uz), (0.1, uz)]
         return self.options.targets or [(0.1, 0.1), (0.9, 0.1), (0.5, uz)]
 
@@ -187,7 +187,7 @@ class GunPipeline(object):
         if mode == MODE_2PT:
             return "2pt"
         full = "4pt" if mode == MODE_4PT else "3pt"
-        # C19: con calibracion guardada, A+plus hace la recalibracion rapida
+        # con calibracion guardada, A+plus hace la recalibracion rapida
         if self.calibration.calibrated and self.calibration.mode in (MODE_3PT, MODE_4PT):
             return "quick"
         return full
@@ -340,7 +340,7 @@ class GunPipeline(object):
         self.last_t = now
         if (self.track is not None and self.track.lost and self.last_valid_t is not None
                 and now - self.last_valid_t >= LOST_HOLD):
-            # C18: sin dots, el cursor sale por el borde por el que se fue
+            # sin dots, el cursor sale por el borde por el que se fue
             if self.filter is not None:
                 self.filter.reset()
             edge = edge_point(self.cursor, self.velocity)
@@ -390,7 +390,7 @@ class GunPipeline(object):
 def map_scale_ratio(m, c=(0.0, 0.0), eps=1e-3):
     """
     (d sy / d cy) / (d sx / d cx) del mapa en c (jacobiano numerico). Con una
-    calibracion buena se parece al aspecto de la TV (D12).
+    calibracion buena se parece al aspecto de la TV.
     """
     x0, y0 = m.apply(c[0], c[1])
     x1, _ = m.apply(c[0] + eps, c[1])

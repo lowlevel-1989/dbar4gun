@@ -87,7 +87,7 @@ def test_calibration_with_sensor_noise(monkeypatch, noise):
 
 
 def test_mode_4pt_homography(monkeypatch):
-    """C16: el modo 3 (4 puntos) mejora el maximo y la calibracion fuera del centro."""
+    """el modo 3 (4 puntos) mejora el maximo y la calibracion fuera del centro."""
     from dbar4gun.core.gun import GunOptions
     from tests.sim.metrics import measure_grid
 

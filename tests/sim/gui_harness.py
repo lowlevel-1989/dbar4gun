@@ -43,7 +43,7 @@ class SimSource(object):
 
 
 class SimControl(object):
-    """P1 ejecutado directamente sobre los pipelines simulados."""
+    """Comandos de control ejecutados directamente sobre los pipelines simulados."""
 
     def __init__(self, guns, store_dir=None):
         self.guns = {g.vg: g for g in guns}

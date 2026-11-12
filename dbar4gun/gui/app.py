@@ -1,8 +1,8 @@
 """
 Calibrator (pygame, pantalla completa, se maneja solo con el Wiimote).
 
-D1/D2 bucle a 60 fps que vacia el socket; D3/D4 paneles de camara y pantalla;
-D9 diagnostico IR; D10 instalacion; D11 alcance; D12 wizard.
+Bucle a 60 fps que vacia el socket; paneles de camara y pantalla;
+diagnostico IR; instalacion; alcance; wizard.
 """
 
 import json
@@ -63,7 +63,7 @@ GUN_COLORS = [(228, 116, 89), (96, 205, 131), (96, 198, 205), (197, 96, 205)]
 
 
 class Control(object):
-    """Cliente P1 (inyectable en los tests)."""
+    """Cliente del socket de control (inyectable en los tests)."""
 
     def __init__(self, path=SOCKET_PATH):
         self.path = path
@@ -173,7 +173,7 @@ class GunScreen(Screen):
 
 
 class DiagnosticsScreen(GunScreen):
-    """D9: dots en bruto, TL/TR, fuentes IR extra, bateria y Hz."""
+    """dots en bruto, TL/TR, fuentes IR extra, bateria y Hz."""
 
     def __init__(self, app, virtualgun):
         super(DiagnosticsScreen, self).__init__(app, virtualgun)
@@ -183,7 +183,7 @@ class DiagnosticsScreen(GunScreen):
     def update(self, now):
         g = self.gun
         if g is not None and g.was_pressed(L.BTN_ONE):
-            # tamano de los dots: modo IR extendido por P1 (experimental)
+            # tamano de los dots: modo IR extendido por el socket de control (experimental)
             mode = "basic" if self.extended else "extended"
             reply = self.app.control.send("irmode {}".format(mode))
             if reply.get("ok"):
@@ -213,7 +213,7 @@ class DiagnosticsScreen(GunScreen):
 
 
 class InstallScreen(GunScreen):
-    """D10: distancia, barra nivelada y barra centrada."""
+    """distancia, barra nivelada y barra centrada."""
 
     def __init__(self, app, virtualgun):
         super(InstallScreen, self).__init__(app, virtualgun)
@@ -280,7 +280,7 @@ class InstallScreen(GunScreen):
 
 
 class ReachScreen(GunScreen):
-    """D11: rastro verde/amarillo/rojo y distancia recomendada."""
+    """rastro verde/amarillo/rojo y distancia recomendada."""
 
     def __init__(self, app, virtualgun):
         super(ReachScreen, self).__init__(app, virtualgun)
@@ -360,7 +360,7 @@ class ReachScreen(GunScreen):
 
 
 class WizardScreen(GunScreen):
-    """D12: wizard de calibracion."""
+    """wizard de calibracion."""
 
     def __init__(self, app, virtualgun):
         super(WizardScreen, self).__init__(app, virtualgun)
@@ -525,7 +525,7 @@ class WizardScreen(GunScreen):
 
 class GalleryScreen(GunScreen):
     """
-    D5: shooting gallery con mapa de errores; el resultado va al history.
+    shooting gallery con mapa de errores; el resultado va al history.
     Antes de empezar se elige que simular: el area profile del servicio, un
     juego a pantalla completa o uno 4:3 con su resolucion (o un juego de la
     lista), para ver el error en los pixeles de ese juego.
@@ -829,7 +829,7 @@ class GalleryScreen(GunScreen):
 
 
 class TuneScreen(GunScreen):
-    """D13: auto-tune del One Euro (3 s quieto -> fc_min, 3 s moviendo -> beta)."""
+    """auto-tune del One Euro (3 s quieto -> fc_min, 3 s moviendo -> beta)."""
 
     DURATION = 3.0
     MIN_MOTION_GAME = 300.0
@@ -901,7 +901,7 @@ class TuneScreen(GunScreen):
 
 
 class PlayersScreen(GunScreen):
-    """D14: mapa de jugadores y prueba de botones (teclas y combos emitidos)."""
+    """mapa de jugadores y prueba de botones (teclas y combos emitidos)."""
 
     HOLD = 1.0
 
@@ -950,7 +950,7 @@ class PlayersScreen(GunScreen):
 
 
 class ProfilesScreen(GunScreen):
-    """D15: previsualizar el area, editar un area custom y la useful zone."""
+    """previsualizar el area, editar un area custom y la useful zone."""
 
     PRESETS = ["full", "4:3", "custom"]
     FIELDS = ["preset", "x0", "y0", "w", "h", "useful_zone"]
@@ -1052,7 +1052,7 @@ class ProfilesScreen(GunScreen):
 
 
 class HistoryScreen(GunScreen):
-    """D16: history de calibraciones con fecha y precision; restaurar."""
+    """history de calibraciones con fecha y precision; restaurar."""
 
     def __init__(self, app, virtualgun):
         super(HistoryScreen, self).__init__(app, virtualgun)
@@ -1115,7 +1115,7 @@ class HardwareScreen(GunScreen):
     """
     Autodiagnostico del hardware, paso a paso. Cada paso mide algo,
     da un veredicto (verde/amarillo/rojo) y, si hace falta, ofrece aplicar el
-    valor medido (`hw` por P1). Al final guarda el informe (`hwreport`).
+    valor medido (`hw` por el socket de control). Al final guarda el informe (`hwreport`).
     """
 
     STEPS = ["link", "ir", "acc", "fov", "bar", "disconnect", "summary"]
@@ -1162,7 +1162,7 @@ class HardwareScreen(GunScreen):
         return self.app.refresh_status().get(self.vg, {})
 
     def gun_hardware(self):
-        """Valores que usa ahora el pipeline de este Wiimote (status por P1)."""
+        """Valores que usa ahora el pipeline de este Wiimote (status por el socket de control)."""
         st = self.gun_status()
         if st.get("hardware"):
             return HardwareConfig.from_dict(st["hardware"])
@@ -1295,7 +1295,7 @@ class HardwareScreen(GunScreen):
             if self.apply("hw fov {:.2f} bar_width {:.3f}".format(r["fov_h_deg"], self.bar_width)):
                 r["applied"] = True
         elif step == "ir" and r.get("suggest") and g.was_pressed(L.BTN_TWO):
-            # C15: probar el nivel siguiente y volver a medir
+            # probar el nivel siguiente y volver a medir
             if self.apply("hw ir_sensitivity {}".format(r["suggest"])):
                 self.ir_tried.append(r["suggest"])
                 self.start_run(now, settle=IR_SETTLE)
@@ -1586,7 +1586,7 @@ class App(object):
         pygame.draw.line(surf, color, (x, y - 2 * r), (x, y + 2 * r), 2)
 
     def draw_screen_overlay(self, surf, p):
-        """D4: area del perfil y useful zone."""
+        """area del perfil y useful zone."""
         if p is None:
             return
         w, h = surf.get_size()
@@ -1602,7 +1602,7 @@ class App(object):
             pygame.draw.line(surf, GREY, (x, yy), (x + 12, yy), 1)
 
     def draw_camera(self, surf, rect, p, big=False):
-        """D3: vista de la camara 4:3 (dots en bruto, TL/TR, reconstruidos, extra)."""
+        """vista de la camara 4:3 (dots en bruto, TL/TR, reconstruidos, extra)."""
         pygame.draw.rect(surf, DARK, rect)
         pygame.draw.rect(surf, GREY, rect, 1)
         if p is None:

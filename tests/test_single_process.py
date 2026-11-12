@@ -1,4 +1,4 @@
-"""E13 (experimental): un solo proceso con select sobre todos los hidraw."""
+"""experimental: un solo proceso con select sobre todos los hidraw."""
 
 import io
 import os
@@ -117,7 +117,7 @@ def test_single_process_two_guns(monkeypatch, tmp_path):
         assert g1.cursor is not None and g2.cursor is not None
         assert g1.cursor[0] < 0.5 < g2.cursor[0]
 
-        # P1 con el mismo codigo que los workers
+        # comandos de control con el mismo codigo que los workers
         st = d.handle_command("status")
         assert [w["virtualgun"] for w in st["wiimotes"]] == [1, 2]
         assert st["wiimotes"][0]["key"] == "k:/dev/hidraw1"
@@ -155,7 +155,7 @@ def test_single_process_empty_slot_and_idle(monkeypatch, tmp_path):
     """
     Un slot vacio responde a status (paired: false) sin acumular peticiones, y
     un Wiimote que deja de enviar reports apaga el rumble y se da por
-    desconectado (E6), como en el modo normal.
+    desconectado, como en el modo normal.
     """
     monkeypatch.setattr(W.time, "sleep", lambda s: None)
     devices = {"/dev/hidraw1": PipeDevice(), "/dev/hidraw2": EmptySlotPipe()}
@@ -195,7 +195,7 @@ def test_single_process_empty_slot_and_idle(monkeypatch, tmp_path):
         wait(0.2)
         assert wm.rumble_bit == 0
         assert bytes([0x10, 0x00]) in devices["/dev/hidraw1"].written
-        # y a los 10 s sin reports se da por desconectado (E6)
+        # y a los 10 s sin reports se da por desconectado
         wm.last_change_time = clock[0]
         clock[0] += W.NO_REPORT_TIMEOUT + 1
         wait(0.2)

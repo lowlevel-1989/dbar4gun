@@ -1,5 +1,5 @@
 """
-C11: calibraciones guardadas en JSON, con escritura atomica (tmp + rename) y
+Calibraciones guardadas en JSON, con escritura atomica (tmp + rename) y
 un lock entre procesos (cada Wiimote corre en su propio proceso).
 
 Clave por Wiimote:
@@ -18,7 +18,7 @@ from dbar4gun.core.hardware import HardwareConfig
 RETROPIE_CONFIGS = "/opt/retropie/configs/all"
 FALLBACK_CONFIG_DIR = "/var/lib/dbar4gun"
 
-# P4: directorio de configuracion por plataforma (el primero que exista)
+# directorio de configuracion por plataforma (el primero que exista)
 PLATFORM_CONFIGS = [
     ("retropie", RETROPIE_CONFIGS, "dbar4gun"),
 ]
@@ -27,7 +27,7 @@ CALIBRATION_FILE = "calibration.json"
 HARDWARE_FILE = "hardware.json"
 HARDWARE_REPORT = "hardware_report.json"
 DEFAULT_KEY = "default"
-# D16: calibraciones anteriores guardadas por Wiimote
+# calibraciones anteriores guardadas por Wiimote
 HISTORY_MAX = 20
 
 BUS_BLUETOOTH = 0x0005
@@ -155,7 +155,7 @@ class CalibrationStore(object):
     def save(self, key, data, add_history=True):
         """
         Guarda la calibracion actual de `key` (y la entrada default). Con
-        add_history, ademas la anade al history (D16).
+        add_history, ademas la anade al history.
         """
         d = data.to_dict()
 

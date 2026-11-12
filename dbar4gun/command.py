@@ -5,7 +5,7 @@ import argparse
 import logging
 
 PATH_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# E9: al final, para no tapar los paquetes del venv con los del sistema
+# al final, para no tapar los paquetes del venv con los del sistema
 sys.path.append("/usr/lib/python3/dist-packages")
 sys.path.append(PATH_ROOT)
 
@@ -79,7 +79,7 @@ class Command(object):
         parser.add_argument("--smoothing-level", type=int, default=3,
                             help="One Euro filter: 0 = off, 3 = default, higher = smoother")
         parser.add_argument("--no-distance-compensation", action="store_true",
-                            help="disable distance compensation (C9)")
+                            help="disable distance compensation")
         parser.add_argument("--area",            type=str, default="full",
                             help="gun area profile: full (default), 4:3, custom:x0,y0,w,h")
         parser.add_argument("--useful-zone",     type=float, default=DEFAULT_USEFUL_ZONE,
@@ -116,7 +116,7 @@ class Command(object):
         command_version = subparsers.add_parser("version")
         command_gui     = subparsers.add_parser("gui")
 
-        # P1: comandos al daemon por el socket de control
+        # comandos al daemon por el socket de control
         command_area      = subparsers.add_parser("area",      help="set the gun area profile")
         command_status    = subparsers.add_parser("status",    help="print the daemon status (JSON)")
         command_calibrate = subparsers.add_parser("calibrate", help="start a calibration")
@@ -129,7 +129,7 @@ class Command(object):
         command_hw.add_argument("values", nargs="*",
                                 help="fov <deg> | acc_x_sign <1|-1> | bar_width <m> (pairs)")
 
-        # P2: runcommand de RetroPie
+        # runcommand de RetroPie
         command_profile = subparsers.add_parser("profile", help="apply the area profile of a game (runcommand)")
         command_profile.add_argument("event", choices=["start", "end"])
         command_profile.add_argument("system",   nargs="?", default="")
@@ -207,7 +207,7 @@ class Command(object):
 
             exit(0)
 
-        # E10: logging con niveles (journald recoge stderr)
+        # logging con niveles (journald recoge stderr)
         logging.basicConfig(level=getattr(logging, config.log_level.upper(), logging.INFO),
                             format="%(levelname)s %(name)s: %(message)s")
 
@@ -215,7 +215,7 @@ class Command(object):
             print("user root is required")
             exit(1)
 
-        # 0 desactiva el filter (C13)
+        # 0 desactiva el filter
         if config.smoothing_level < 0:
             config.smoothing_level = 0
 
