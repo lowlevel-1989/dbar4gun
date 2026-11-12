@@ -3,6 +3,47 @@ import pyudev
 # udevadm info --query=all --name=/dev/hidraw0
 # udevadm info -a -n /dev/hidraw0
 
+WIIMOTE_MODEL  = "Wii Remote Controller RVL-003"
+WIIMOTE_DRIVER = "wiimote"
+
+
+def is_wiimote(device):
+    if device.get("ID_MODEL_FROM_DATABASE") == WIIMOTE_MODEL:
+        return True
+
+    try:
+        parent = device.parent
+    except Exception:
+        parent = None
+
+    # sin parent no podemos descartarlo (comportamiento historico)
+    if not parent:
+        return True
+
+    return parent.driver == WIIMOTE_DRIVER
+
+
+def classify_event(action, device):
+    """
+    Devuelve ["add", hidraw_path], ["remove", hidraw_path] o None.
+
+    - solo se atienden add/remove (change/move/bind/... se ignoran).
+    - remove se reenvia siempre que tenga DEVNAME: al desconectarse
+      el parent puede no existir ya; el daemon ignora rutas desconocidas.
+    """
+    if action not in ("add", "remove"):
+        return None
+
+    hidraw_path = device.get("DEVNAME")
+    if not hidraw_path:
+        return None
+
+    if action == "add" and not is_wiimote(device):
+        return None
+
+    return [action, hidraw_path]
+
+
 class Monitor(object):
     def __init__(self, queue):
         self.queue = queue
@@ -13,33 +54,19 @@ class Monitor(object):
     def __first_scan(self):
         devices = self.__context.list_devices(subsystem="hidraw")
         for device in devices:
-            if device.get("ID_MODEL_FROM_DATABASE") != "Wii Remote Controller RVL-003" \
-                    and device.parent and device.parent.driver != "wiimote":
-                continue
-
-            hidraw_path = device.get("DEVNAME")
-            if hidraw_path:
-                self.queue.put(["add", hidraw_path])
+            event = classify_event("add", device)
+            if event:
+                self.queue.put(event)
 
     def run(self):
+        # escuchar antes del first scan para no perder eventos en ese hueco;
+        # un add duplicado (scan + evento) lo descarta el daemon.
+        self.__monitor.filter_by(subsystem="hidraw")
+        self.__monitor.start()
+
         self.__first_scan()
 
-        self.__monitor.filter_by(subsystem="hidraw")
-        for action, device in self.__monitor:
-            if device.get("ID_MODEL_FROM_DATABASE") != "Wii Remote Controller RVL-003" \
-                    and device.parent and device.parent.driver != "wiimote":
-                continue
-
-            hidraw_path = device.get("DEVNAME")
-            if not hidraw_path:
-                continue
-
-            """
-            - add:    A device has been added (e.g. a USB device was plugged in)
-            - remove: A device has been removed (e.g. a USB device was unplugged)
-            - change: Something about the device changed (e.g. a device property)
-            - move:   The device was renamed, moved, or re-parented
-            """
-
-            self.queue.put([action, hidraw_path])
-
+        for device in iter(self.__monitor.poll, None):
+            event = classify_event(device.action, device)
+            if event:
+                self.queue.put(event)

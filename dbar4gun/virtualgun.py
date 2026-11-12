@@ -1,6 +1,10 @@
 import re
 import os
+import time
+
 import evdev
+
+from dbar4gun import mouseindex
 
 VIRTUALGUN_BUTTON_TWO_MASK   = 1 << 0x0
 VIRTUALGUN_BUTTON_ONE_MASK   = 1 << 0x1
@@ -82,6 +86,7 @@ class VirtualGunDevice(object):
         self.nunchuck_buttons = 0xff
         self.index            = port
         self.index_map        = 0
+        self.mouse_index      = port + 1
         self.width            = width
         self.height           = height
 
@@ -112,42 +117,61 @@ class VirtualGunDevice(object):
 
         return gun_cap
 
-    def get_real_mouse(self) -> int:
-        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+    # espera a que udev clasifique la VirtualGun recien creada (ID_INPUT_MOUSE)
+    INDEX_WAIT = 1.0
 
-        dev_c = 0
-        for dev in devices:
-            # solo cantamos los que no sean virtualgun
-            if "virtualgun" in dev.name.lower():
-                continue
+    def event_name(self):
+        """eventN de la VirtualGun, o None."""
+        try:
+            return os.path.basename(self.virtualgun.device.path)
+        except AttributeError:
+            return None
 
-            event = os.path.basename(dev.path)
-            for entry in os.listdir(f"/sys/class/input/{event}/device/"):
-                if "mouse" in entry:
-                    dev_c = dev_c + 1
-                    break
+    def set_index(self, index):
+        """
+        Mouse index (1 = el primero): las teclas son las del jugador de ese
+        indice, igual que el LED. Antes las teclas iban por puerto y el LED por
+        "ratones reales + puerto", y podian no coincidir.
+        """
+        self.mouse_index = index
+        l = len(_MAP) // _MAP_INDEX_MAX
+        index_map = ((max(1, index) - 1) % l) * _MAP_INDEX_MAX
+        uinput = getattr(self, "virtualgun", None)
+        if index_map != self.index_map and uinput is not None:
+            # soltar las teclas del jugador anterior (si no, se quedarian pulsadas)
+            for code in _MAP[self.index_map:self.index_map + _MAP_INDEX_MAX]:
+                uinput.write(evdev.ecodes.EV_KEY, code, 0)
+            uinput.syn()
+        self.index_map = index_map
 
-        return dev_c
-
+    def refresh_index(self):
+        """Mouse index actual (como lo numera RetroArch) o el anterior si udev no lo da."""
+        event = self.event_name()
+        index = mouseindex.mouse_index(event) if event else None
+        return index or self.mouse_index
 
     def create_virtual_device(self) -> int:
         gunname = "VirtualGun {:02}".format(self.index + 1)
         self.virtualgun = evdev.UInput(self.__get_capabilities(),
                                     name=gunname)
         print(gunname)
-        # print(self.virtualgun.capabilities(verbose=True))
 
-        l   = len(_MAP) // _MAP_INDEX_MAX
-        off = ( ( self.index ) % l ) * _MAP_INDEX_MAX
-
-        self.index_map = off
-
-        # inportante debajo del off, para no tener en cuenta
-        # el index para los botones.
-        # agregamos los mouse reales a los indices
-        index = self.get_real_mouse() + self.index
-
-        return index + 1
+        # mouse index real: udev tarda un poco en clasificarla como raton
+        index = None
+        deadline = time.monotonic() + self.INDEX_WAIT
+        while index is None and time.monotonic() < deadline:
+            event = self.event_name()
+            index = mouseindex.mouse_index(event) if event else None
+            if index is None:
+                time.sleep(0.05)
+        if index is None:
+            # sin udev: la ultima de la lista
+            try:
+                index = len(mouseindex.pointer_order()) + 1
+            except Exception:
+                index = self.index + 1
+        self.set_index(index)
+        return index
 
     def set_buttons(self, buttons, nunchuck_buttons, nunchuck_joy):
         self.buttons          = buttons
@@ -243,3 +267,59 @@ class VirtualGunDevice(object):
 
         self.virtualgun.syn()
 
+
+
+def describe_outputs(buttons, port, nunchuck_buttons=0, nunchuck_joy=(0.5, 0.5)):
+    """
+    D14: nombres de las teclas/botones que VirtualGunDevice.sync() deja
+    pulsados para un estado de botones (misma logica que sync()).
+    """
+    tol = VirtualGunDevice.NUNCHUK_JOY_TOLERANCE
+    neutral = VirtualGunDevice.NUNCHUK_JOY_NEUTRAL
+    x, y = nunchuck_joy
+    joy = [x < neutral - tol, x > neutral + tol, y > neutral + tol, y < neutral - tol]
+
+    l = len(_MAP) // _MAP_INDEX_MAX
+    off = (port % l) * _MAP_INDEX_MAX
+    name = lambda code: evdev.ecodes.KEY.get(code) or evdev.ecodes.BTN.get(code) or str(code)
+    def _n(code):
+        n = name(code)
+        return n[0] if isinstance(n, list) else n
+
+    out = []
+    pressed = lambda mask: bool(buttons & mask)
+    for idx, mask, j in ((_MAP_INDEX_LEFT, VIRTUALGUN_BUTTON_LEFT_MASK, joy[0]),
+                         (_MAP_INDEX_RIGHT, VIRTUALGUN_BUTTON_RIGHT_MASK, joy[1]),
+                         (_MAP_INDEX_UP, VIRTUALGUN_BUTTON_UP_MASK, joy[2]),
+                         (_MAP_INDEX_DOWN, VIRTUALGUN_BUTTON_DOWN_MASK, joy[3])):
+        if pressed(mask) or j:
+            out.append(_n(_MAP[off + idx]))
+    if nunchuck_buttons & VIRTUALGUN_BUTTON_C_MASK:
+        out.append(_n(_MAP[off + _MAP_INDEX_C]))
+    if nunchuck_buttons & VIRTUALGUN_BUTTON_Z_MASK:
+        out.append(_n(_MAP[off + _MAP_INDEX_Z]))
+
+    a = pressed(VIRTUALGUN_BUTTON_A_MASK)
+    b = pressed(VIRTUALGUN_BUTTON_B_MASK)
+    home = pressed(VIRTUALGUN_BUTTON_HOME_MASK)
+    one = pressed(VIRTUALGUN_BUTTON_ONE_MASK)
+    two = pressed(VIRTUALGUN_BUTTON_TWO_MASK)
+    plus = pressed(VIRTUALGUN_BUTTON_PLUS_MASK)
+    minus = pressed(VIRTUALGUN_BUTTON_MINUS_MASK)
+
+    for cond, code in ((a and home, evdev.ecodes.KEY_F1), (b and minus, evdev.ecodes.KEY_ESC),
+                       (b and home, evdev.ecodes.KEY_TAB), (b and one, evdev.ecodes.KEY_SPACE),
+                       (b and two, evdev.ecodes.KEY_2)):
+        if cond:
+            out.append(_n(code))
+
+    if (b and (home or plus or minus or one or two)) or (a and (home or plus or minus)):
+        return out
+
+    for cond, code in ((home, evdev.ecodes.KEY_ENTER), (b, evdev.ecodes.BTN_LEFT),
+                       (one, evdev.ecodes.BTN_MIDDLE), (two, evdev.ecodes.BTN_RIGHT),
+                       (a, _MAP[off + _MAP_INDEX_A]), (plus, _MAP[off + _MAP_INDEX_PLUS]),
+                       (minus, _MAP[off + _MAP_INDEX_MINUS])):
+        if cond:
+            out.append(_n(code))
+    return out

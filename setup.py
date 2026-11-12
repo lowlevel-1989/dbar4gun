@@ -19,12 +19,17 @@ setup(name=dbar4gun.__title__,
           "dbar4gun",
           "dbar4gun.irsetup",
           "dbar4gun.calibration",
+          "dbar4gun.core",
           "dbar4gun.gui"
       ],
       install_requires=[
           "evdev>=0.3.0",
           "pyudev>=0.16",
       ],
+      extras_require={
+          # calibrador visual (dbar4gun gui)
+          "gui": ["pygame"],
+      },
       classifiers=[
         "Environment :: Console",
         "License :: OSI Approved :: MIT License",

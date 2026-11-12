@@ -1,4 +1,6 @@
-# dbar4gun 0.18.2
+# dbar4gun 1.0.0rc1
+
+English | [Español](README.es.md)
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support, specifically designed to function as 4 light guns.
 
@@ -22,13 +24,17 @@ It is important to remember to disconnect the Wiimote using the power button at 
 - multiplayer
 - nunchuck
 - tilt correction
-- calibration two points
-- calibration three points
+- distance compensation
+- calibration two, three (default) and four points
+- calibration saved per Wiimote
+- area profiles (full, 4:3, custom) per game
+- visual calibrator (pygame) with hardware check
+- control socket and CLI commands
 - Standard configuration for Wii sensor
 - wiimote led -> index mouse
 - auto key
 - systemd
-- Smoothed cursor
+- Smoothed cursor (One Euro)
 - setup ir as Component
 - calibration as Component
 - Generic wiimote
@@ -58,8 +64,8 @@ It is important to remember to disconnect the Wiimote using the power button at 
 | combo    | b + 1     | key space     | same                 | true          | fast forward                      |
 | combo    | b + 2     | key 2         | same                 | true          | start (P2)                        |
 | combo    | a + home  | key f1        | same                 | true          | menu (retroarch)                  |
-| combo    | a + plus  |               | same                 | false         | start calibration                 |
-| combo    | a + minus |               | same                 | false         | reset calibration                 |
+| combo    | a + plus  |               | same                 | false         | calibration (quick 2-point recalibration if already calibrated) |
+| combo    | a + minus |               | same                 | false         | reset calibration (back to the uncalibrated map) |
 
 
 
@@ -68,67 +74,110 @@ It is important to remember to disconnect the Wiimote using the power button at 
 ### 1. Failure of IR LEDs on the DolphinBar
 
 **Issue:** The DolphinBar has infrared LEDs that can burn out easily, making it impossible to aim correctly.  
-**Solution:** Replace the damaged LEDs or swap the bar for a new one.
+**Solution:** Replace the damaged LEDs or swap the bar for a new one. The calibrator's *IR diagnostics* shows each dot; with `--experimental-ir-extended` it also shows the dot size (a weak LED looks smaller).
 
 ### 2. I can move the pointer, but I can't shoot
 
 **Issue:** If you can move the pointer but can't shoot, the driver may be detecting a keyboard or mouse as a second light gun.  
-**Solution:** Change the "mouse index" in the emulator settings to match the light gun's index and avoid conflicts.
+**Solution:** Change the "mouse index" in the emulator settings to match the light gun's index and avoid conflicts. The calibrator's *Players and buttons* screen shows the LED → VirtualGun → mouse index map and the keys each button emits.
 
 ~~~
-wiimote led 4  -> mouse index 0 or VirtualGun 01
-wiimote led 3  -> mouse index 1 or VirtualGun 02
-wiimote led 2  -> mouse index 2 or VirtualGun 03
-wiimote led 1  -> mouse index 3 or VirtualGun 04
+wiimote led 1  -> mouse index 0 (and 4, 8...)
+wiimote led 2  -> mouse index 1
+wiimote led 3  -> mouse index 2
+wiimote led 4  -> mouse index 3
 ~~~
+
+The LED shows the mouse index the way RetroArch numbers mice (udev): every
+mouse in the system counts, in libudev's order. The keys of each gun are the
+ones of the player with that mouse index, so in RetroArch the gun works for
+that player without changing anything. The index is checked every 3 seconds:
+if a mouse is plugged in or removed, the LED and the keys follow it. A
+Wiimote connected by Bluetooth keeps its VirtualGun (and its place in the
+list) when it disconnects and comes back.
+
+When the driver takes a Wiimote (and every time it reconnects), the Wiimote
+rumbles briefly and its LEDs sweep 1-2-3-4-all before showing its own LED. The
+DolphinBar only lights a fixed LED, so the sweep tells you the driver has it.
 
 ### 3. The pointer becomes unstable for no apparent reason
 
 **Issue:** The pointer moves erratically for no apparent reason.  
-**Possible Cause:** Sunlight entering the room interferes with the infrared sensor.  
-**Solution:** Confirm the issue by entering the "Debug" option in the driver settings within RetroPie Setup.
+**Possible Cause:** Sunlight, a lamp or a reflection interferes with the infrared sensor.  
+**Solution:** Check it with *IR diagnostics* in the calibrator (extra IR sources are drawn in red). Reflections and other sources are usually ignored now; if not, try another `--ir-sensitivity` level.
 
 ### 4. Calibration issues
 
 **Issue:** Difficulties in calibrating the Wiimote properly.  
-**Possible Causes:**
-- You are too close to the TV.
-- If using DolphinBar, one of the IR LEDs may be damaged.  
-  **Solution:** You can check the behavior of the calibration points using the "Debug" option in RetroPie Setup.
+**Possible Causes and solutions:**
+- Two short rumbles: the capture was rejected (unsteady aim, or the bar was not visible). Hold still and shoot again.
+- You are too close to the TV: the bottom of the screen is out of the camera's reach. Run the *Reach test* in the calibrator; it tells you how far to move back.
+- If using DolphinBar, one of the IR LEDs may be damaged (see 1).
 
-## Calibration wherever
+### 5. The crosshair does not reach the edges of the game
 
-### mode 2 (default)
-- **Initiate Calibration:** Press the **A + plus** buttons simultaneously. When LED 1 light up, calibration has begun.
-- **Step 1:** Shoot at the **top-left** corner of the screen. LED 4 will light up.
-- **Step 2:** Shoot at the **top-right** corner of the screen. LEDs 2 adn 3 light up.
-- **Step 3:** Shoot at the **bottom-center** of the screen.
+**Issue:** In 4:3 games on a 16:9 TV the gun range covers the whole TV.  
+**Solution:** With RetroArch (`lr-*` cores) use the `full` profile: RetroArch maps the gun to the game image itself. With a standalone emulator that stretches the gun range over the image, use the `4:3` area profile (`dbar4gun area 4:3`, the `--area` option or per game in `profiles.cfg`).
 
-### mode 1
-- **Initiate Calibration:** Press the **A + plus** buttons simultaneously. When LED 2 and 3 light up, calibration has begun.
-- **Step 1:** Shoot at the **center** of the screen. LEDs 1 and 4 will light up.
-- **Step 2:** Shoot at the **top-left** corner of the screen.
+## Calibration
 
-Once you've completed these steps, your Light Gun will be calibrated and ready to us  
+Calibrate from where you play. The calibration is saved per Wiimote (Bluetooth
+MAC or DolphinBar slot) in `calibration.json` and loaded every time the driver
+starts. During the calibration the in-game crosshair shows the target, a short
+rumble confirms each capture and two short rumbles mean it was rejected (repeat
+that point).
+
+The easiest way is the visual calibrator (*Ports → dbar4gun calibrator*
+or `dbar4gun gui`): it adapts the targets to your reach, shows the steadiness of
+your aim, checks the result and lets you calibrate every player in a row.
+
+From the game:
+
+### mode 2 (default): 3 points
+- **A + plus** (LED 1): shoot at the **top-left** target.
+- LED 4: shoot at the **top-right** target.
+- LEDs 2 and 3: shoot at the **bottom-center** target (at the useful zone height).
+
+Once calibrated, **A + plus** does a quick 2-point recalibration (top-left and
+top-right; bottom corners if the bar is below the TV). It is useful if the bar
+moved. **A + minus** goes back to the uncalibrated map; the next **A + plus**
+does the full calibration.
+
+### mode 1: 2 points
+- **A + plus** (LEDs 2 and 3): shoot at the **center**.
+- LED 1: shoot at the **top-left** target.
+
+### mode 3: 4 points (homography)
+- **A + plus**: shoot at the top-left (LED 1), top-right (LED 4),
+  bottom-right (LEDs 3+4) and bottom-left (LEDs 1+2) targets. More precise at the
+  corners and when you do not sit in front of the TV.
+
+### mode 0: disabled
+
 ## Light Gun Configuration Manual for Specific Core Ga   
 Refer to the [specific README for light gun configuration](retroarch) to ln how to configure games in RetroArch.
   
 ## List of No-Crosshair Games: Perfect Performance with wiimote (tested)   
     
-| game                     | system     | ir setup       | smoothing level | note                           |
-|--------------------------|------------|----------------|-----------------|--------------------------------|
-| Operation Wolf           | Mame       | Standard       |  0              |                                |
-| Point Blank              | Mame       | Standard       |  0              |                                |
-| Point Blank 2            | Mame       | Standard       |  0              |                                |
-| Point Blank 3            | Mame       | Standard       |  0              |                                |
-| Ghoul Panic              | Mame       | Standard       |  0              |                                |
-| Time Crisis              | Mame       | Standard       |  0              |                                |
-| Golly! Ghost!            | Mame       | Standard       |  0              |                                |
-| VS. Hogan's Alley        | Mame       | Standard       |  0              | low precision in the bonus     |
-| Lucky & Wild             | Mame 2015  | Standard       |  0              |                                |
-| Area 51                  | Mame 2003+ | Standard       |  0              |                                |
-| House of the Dead 2      | Dreamcast  | Standard       |  0              |                                |
-| Virtua Cop 2             | Dreamcast  | Standard       |  0              |                                |
+| game                     | ROM / disc                     | emulator (RetroPie)  | resolution | smoothing level | note                       |
+|--------------------------|--------------------------------|----------------------|------------|-----------------|----------------------------|
+| Operation Wolf           | `opwolf`                       | lr-mame              | 320x240    |  0              |                            |
+| Point Blank              | `ptblank`                      | lr-mame              | 288x224    |  0              |                            |
+| Point Blank 2            | `ptblank2`                     | lr-mame              | 320x240    |  0              |                            |
+| Point Blank 3            | `ptblank3`                     | lr-mame              | 320x240    |  0              |                            |
+| Ghoul Panic              | `ghlpanic`                     | lr-mame              | 512x480    |  0              |                            |
+| Time Crisis              | `timecris`                     | lr-mame              | 640x480    |  0              |                            |
+| Golly! Ghost!            | `gollygho`                     | lr-mame              | 288x224    |  0              |                            |
+| VS. Hogan's Alley        | `hogalley`                     | lr-mame              | 256x240    |  0              | low precision in the bonus |
+| Lucky & Wild             | `luckywld`                     | lr-mame2015          | 288x224    |  0              |                            |
+| Area 51                  | `area51`                       | lr-mame2003-plus     | 320x240    |  0              |                            |
+| House of the Dead 2      | `House of the Dead 2, The (USA).gdi` | flycast (standalone) | 640x480    |  0              |                            |
+| Virtua Cop 2             | `Virtua Cop 2 (Japan).gdi`     | lr-flycast           | 640x480    |  0              |                            |
+
+How they were tested: RetroPie on a Raspberry Pi 5 (Debian 12), RetroArch 1.19.1,
+dbar4gun 0.18.2 with `--smoothing-level 0`, each game with the emulator above.
+Gun options of the cores: `mame_current_xy_type = "lightgun"` (lr-mame),
+`mame2003-plus_xy_device = "lightgun"`, `mame2015_mouse_mode = "lightgun"`.
 
 ## Memory Consumption of the dbar4gun
 
@@ -151,14 +200,60 @@ If the address of your wiimote(s) is already known (e.g. `/dev/hidraw0`), it can
 |---------------------------------------|--------------------|
 | dbar4gun attach                       | ~24 MB             |
 
+## Area profiles
+
+With RetroArch (every `lr-*` core) keep `full`: RetroArch already turns the gun
+position into the game image (also a 4:3 game on a 16:9 TV), and aiming outside
+the image is "offscreen", to reload. A standalone emulator that stretches the
+gun range over the game image needs the game's aspect (`4:3`).
+
+- Default profile: `--area full|4:3|custom:x0,y0,w,h` (RetroPie-Setup → dbar4gun →
+  *default area profile*).
+- Per game: `profiles.cfg` in the config dir (`/opt/retropie/configs/all/dbar4gun/`
+  on RetroPie). Priority: `rom:<name>` > `system/emulator` > `emulator` > `system`
+  > `default`. RetroPie's runcommand hooks apply it when a game starts and go back
+  to the default when it ends.
+- Live: `dbar4gun area 4:3`, or the *Area profile* screen of the calibrator.
+- **Useful zone** (`--useful-zone 0.85`): the part of the screen height with
+  targets (the bottom is usually HUD). The calibration and the reach test use it.
+
+## Control commands
+
+They talk to the running service through `/run/dbar4gun.sock` and do not need root.
+
+```
+dbar4gun status                 # Wiimotes, battery, Hz, calibration, distance (JSON)
+dbar4gun area 4:3               # area profile now
+dbar4gun calibrate [2] [--quick]
+dbar4gun cancel
+dbar4gun reload                 # reload the saved calibrations and hardware.json
+dbar4gun hw [fov 38.5] [acc_x_sign -1] [bar_width 0.20] [ir_sensitivity 4|default]   # measured hardware values
+dbar4gun check --area 4:3 --useful-zone 0.85   # validate option values (no daemon needed)
+dbar4gun profile start <system> <emulator> [rom]   # used by the runcommand hooks
+dbar4gun hooks install|uninstall
+```
+
+The protocol (also the UDP packet for the calibrator) is in [docs/PROTOCOL.md](docs/PROTOCOL.md).
+Desktop Linux: [docs/PLATFORMS.md](docs/PLATFORMS.md).
+
+## Development
+
+`tests/` runs without a Wiimote: `tests/sim/` simulates the IR camera (TV, sensor
+bar, player position and aim) and measures the error on a 7x7 grid.
+
+```
+pip install .[gui] pytest
+SDL_VIDEODRIVER=dummy python -m pytest -s
+```
+
+Things that need real hardware are listed in [docs/HARDWARE_CHECKS.md](docs/HARDWARE_CHECKS.md).
+The old hardware test scripts are in `tools/`.
+
 ## To Do
 
-1. Calibration ( high priority always )
-2. Class Log System
-3. diamond ir setup
-4. square ir setup
-5. calibration gui with training target
-6. unit test
+1. diamond ir setup
+2. square ir setup
+3. verify on hardware everything in docs/HARDWARE_CHECKS.md
 
 ## Install with RetroPie-Setup
 
@@ -166,7 +261,7 @@ If the address of your wiimote(s) is already known (e.g. `/dev/hidraw0`), it can
 
 ```
 cd ~/RetroPie-Setup/scriptmodules/supplementary
-curl -LO https://raw.githubusercontent.com/lowlevel-1989/dbar4gun/master/retropie/dbar4gun.sh
+curl -LO https://raw.githubusercontent.com/lowlevel-1989/dbar4gun/1.0.0rc/retropie/dbar4gun.sh
 ```
 
 ### Open RetroPie-Setup
@@ -209,6 +304,7 @@ You have a Raspberry Pi 3 or for Raspberry Pi 2 and below, you need a Bluetooth 
 
 - evdev>=0.3.0
 - pyudev>=0.16
+- pygame (only for the calibrator, `pip install .[gui]`)
 
 ### Steps with root
 
@@ -225,35 +321,28 @@ pip install $(pwd)
 
 #### help service
 ```
-usage: dbar4gun [-h] [--calibration {0,1,2}] [--setup {1}] [--width WIDTH] [--height HEIGHT] [--only_cursor] [--disable-tilt-correction] [--port PORT]
-                [--smoothing-level SMOOTHING_LEVEL]
-                {start,attach,stop,version,gui} ...
-
-dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support,
-specifically designed to be small and function as 4 light guns.
-
-positional arguments:
-  {start,attach,stop,version,gui}
-
-options:
-  -h, --help            show this help message and exit
-  --calibration {0,1,2}
-                        
-                        mode
-                        0: disabled
-                        1: Center,  TopLeft
-                        2: TopLeft, TopRight, BottomCenter (default)
-  --setup {1}           
-                        mode
-                        1: Standard (sensorbar, dolphinbar)
-  --width WIDTH         1920
-  --height HEIGHT       1080
-  --only_cursor
-  --disable-tilt-correction
-  --port PORT           35460
-  --smoothing-level SMOOTHING_LEVEL
-                        3 (default)
+dbar4gun start --help
 ```
+
+| option | default | |
+|---|---|---|
+| `--calibration {0,1,2,3}` | 2 | 0 disabled, 1 center + top-left, 2 three points, 3 four points (homography) |
+| `--setup {1}` | 1 | IR setup: standard sensor bar / DolphinBar |
+| `--width`, `--height` | 1920, 1080 | screen size (gun ABS range) |
+| `--disable-tilt-correction` | | |
+| `--no-distance-compensation` | | the precision then depends on keeping the calibration distance |
+| `--smoothing-level N` | 3 | One Euro filter: 0 off, higher is smoother |
+| `--area` | full | `full`, `4:3`, `custom:x0,y0,w,h` |
+| `--useful-zone` | 0.85 | fraction of the screen height with targets |
+| `--bar {top,bottom}` | top | sensor bar position |
+| `--calibration-targets x1,y1,x2,y2,x3,y3` | | 3-point targets in gun space |
+| `--ir-sensitivity {1..5,marcan,cliff}` | marcan | IR camera sensitivity (wiibrew levels) |
+| `--config-dir` | per platform | calibrations and `profiles.cfg` |
+| `--socket` | /run/dbar4gun.sock | control socket |
+| `--port` | 35460 | UDP port for the calibrator |
+| `--log-level` | info | |
+| `--single-process` | | experimental: one process for every Wiimote |
+| `--experimental-ir-extended` | | allow the extended IR mode (dot size) |
 
 #### run service with root
 ```
@@ -272,9 +361,10 @@ dbar4gun start --width 1920 --height 1080
 dbar4gun version
 ```
 
-####  debug calibration gui
+#### visual calibrator (needs pygame: `pip install .[gui]`)
 ```
-dbar4gun gui
+dbar4gun gui              # full screen, Wiimote only (Home to exit)
+dbar4gun gui --windowed --width 1280 --height 720
 ```
 
 #### stop service with root
@@ -291,18 +381,32 @@ dbar4gun attach /dev/hidraw0
 
 ### Bluetooth
 
-Pair the wiimote with this command, replace the XX data with your MAC address
+Press the red SYNC button of the Wiimote (under the battery cover) and run right
+away:
 
 ~~~
-hcitool scan
-sudo hcitool cc XX:XX:XX:XX:XX:XX
-sudo python bluez/simple-agent -c "DisplayYesNo" hci0 "XX:XX:XX:XX:XX:XX"
+bluez/pair-wiimote.sh
 ~~~
 
-If you are having trouble re-pairing the Wiimote via Bluetooth, all you need to do is execute the following command and repeat the previous steps.
+It finds the Wiimote in SYNC mode by itself (no need to know its MAC address),
+pairs it with `bluez/simple-agent` (if it asks for a PIN code, just press Enter)
+and marks it as trusted, so from then on it reconnects when you press any button.
+Pair each Wiimote the same way, one at a time.
+
+The same steps by hand (`hcitool` is no longer shipped by most distributions),
+with the MAC address that the scan shows for `Nintendo RVL-CNT-01`:
 
 ~~~
-sudo bluetoothctl remove XX:XX:XX:XX:XX:XX
+sudo -v
+bluetoothctl --timeout 20 scan on & sleep 6; sudo python3 bluez/simple-agent -c DisplayYesNo hci0 XX:XX:XX:XX:XX:XX
+bluetoothctl trust XX:XX:XX:XX:XX:XX
+~~~
+
+If you are having trouble re-pairing the Wiimote via Bluetooth, remove it and
+repeat the previous steps:
+
+~~~
+bluetoothctl remove XX:XX:XX:XX:XX:XX
 ~~~
 
 ## References

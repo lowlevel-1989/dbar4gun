@@ -10,8 +10,6 @@ import pygame
 import dbar4gun
 
 from dbar4gun import wiimote as wmote
-from dbar4gun import irsetup
-from dbar4gun.calibration import CalibrationTopLeftTopRightBottomCenterPoint
 
 
 def SignalHandler(SignalNumber, Frame):
@@ -59,7 +57,7 @@ def test_wiimote():
 
         pygame.display.flip()
 
-        wiimote = wmote.WiiMoteDevice(hidraw_io, CalibrationTopLeftTopRightBottomCenterPoint, irsetup.IRSetupStandard)
+        wiimote = wmote.WiiMoteDevice(hidraw_io)
 
         is_exit = False
         while not is_exit:
