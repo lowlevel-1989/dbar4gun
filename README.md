@@ -4,7 +4,9 @@ English | [Español](README.es.md)
 
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support, specifically designed to function as 4 light guns.
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/lowlevel.1989)
+[!["Buy Me A Coffee"](docs/coffee.png)](https://ko-fi.com/lowlevel1989)
+
+If you'd like to see updates and active support for this driver continue as quickly as possible, consider supporting the project — you can buy me a coffee ☕ to help keep things running!
 
 ## Recommendation
 
