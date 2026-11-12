@@ -1,4 +1,4 @@
-1.0.0rc1
+1.0.0
 - precision: nuevo pipeline (parser C14, tracker con continuidad y reconstruccion,
   roll del acelerometro, camera point con distance compensation angular,
   calibracion afin exacta), simulador: 143 -> 9 px de error medio
@@ -38,6 +38,9 @@
   VirtualGun N
 - changed: en el calibrator, cada opcion la usa el Wiimote que la elige en el
   menu (calibrar a otro jugador: entrar desde el menu con su Wiimote)
+- docs: Raspberry Pi 5 y lr-mame (velocidad de Point Blank 3 por version) y
+  guia para compilar lr-mame 0.276 con Namco System 10/12 para la Pi 5
+  (docs/lr-mame-pi5.md); cambiar el emulador de un juego con el Wiimote
 - added: IR sensitivity en caliente (hw ir_sensitivity, hardware.json); el hardware
   check la prueba y vuelve a medir
 - fixed: al reconectar se configuraba la camara IR dos veces (1.6 s bloqueado)

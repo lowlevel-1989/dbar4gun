@@ -13,7 +13,7 @@ rp_module_id="dbar4gun"
 rp_module_desc="dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support."
 rp_module_help="https://github.com/lowlevel-1989/dbar4gun"
 rp_module_licence="MIT https://raw.githubusercontent.com/lowlevel-1989/dbar4gun/master/LICENSE"
-rp_module_repo="git https://github.com/lowlevel-1989/dbar4gun 1.0.0rc"
+rp_module_repo="git https://github.com/lowlevel-1989/dbar4gun master"
 rp_module_section="driver"
 
 function depends_dbar4gun() {

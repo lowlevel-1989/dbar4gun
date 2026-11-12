@@ -1,4 +1,4 @@
-# dbar4gun 1.0.0rc1
+# dbar4gun 1.0.0
 
 [English](README.md) | Español
 
@@ -196,29 +196,32 @@ Para salir del juego: **b + minus** (`key esc`).
 Velocidad de emulación de Point Blank 3 (`ptblank3`) en una Raspberry Pi 5 con
 lr-mame, medida sin salida de vídeo ni de sonido. El juego necesita 60 fps.
 
-| core de lr-mame                                 | medidas (fps)                           | media | siempre por encima de 60 |
-|-------------------------------------------------|-----------------------------------------|-------|--------------------------|
-| 0.289, completo (arcade, como lo instala RetroPie) | 56.0, 57.3, 57.7                     | 57.0  | no                       |
-| 0.289, solo Namco System 10/12                  | 60.6, 61.6, 60.5, 60.1, 57.2            | 60.0  | no                       |
-| 0.278, solo Namco System 10/12                  | 61.8, 58.5, 64.8, 58.9                  | 61.0  | no                       |
-| 0.276, solo Namco System 10/12                  | 62.3, 62.5, 67.2, 61.3, 61.6, 62.0      | 62.8  | sí                       |
+| core de lr-mame                                                | medidas (fps)                           | media | siempre por encima de 60 |
+|----------------------------------------------------------------|-----------------------------------------|-------|--------------------------|
+| 0.289, completo (arcade, como lo instala RetroPie)             | 56.0, 57.3, 57.7                        | 57.0  | no                       |
+| 0.289, 54 drivers de pistola                                   | 56.8, 57.0, 57.0                        | 56.9  | no                       |
+| 0.289, solo Namco System 10/12                                 | 60.6, 61.6, 60.5, 60.1, 57.2            | 60.0  | no                       |
+| 0.278, solo Namco System 10/12                                 | 61.8, 58.5, 64.8, 58.9                  | 61.0  | no                       |
+| 0.276, los 8 drivers de los juegos de lr-mame de esta lista    | 62.0, 58.9, 61.5                        | 60.8  | no                       |
+| 0.276, solo Namco System 10/12                                 | 62.3, 62.5, 67.2, 61.3, 61.6, 62.0      | 62.8  | sí                       |
+| 0.276, solo Namco System 10/12, compilado para la Pi 5         | 66.4, 63.5, 67.5                        | 65.8  | sí                       |
 
 Conclusión:
 
 - El core completo de lr-mame (0.289) nunca llega a la velocidad completa con
   Point Blank 3 en una Pi 5.
-- Un core compilado solo con los drivers que necesita el juego va unos 3 fps
-  más rápido.
-- Desde lr-mame 0.278 el juego va más lento y menos estable. lr-mame 0.276,
-  compilado solo con los drivers necesarios, es el único que siempre se mantiene
-  por encima de 60 fps.
+- Un core compilado solo con los drivers que necesita el juego va más rápido.
+  Con muchos drivers (54) esa ventaja se pierde.
+- Desde lr-mame 0.278 el juego va más lento y menos estable.
+- El mejor es lr-mame 0.276 compilado solo con Namco System 10/12 y para la CPU
+  de la Pi 5 (`OPTIMIZE=3 ARCHOPTS=-mcpu=cortex-a76`): siempre por encima de
+  60 fps, con margen, y jugando va a velocidad completa. Cómo compilarlo: [docs/lr-mame-pi5.es.md](docs/lr-mame-pi5.es.md).
 
-Point Blank 2 y Ghoul Panic usan Namco System 12, así que el mismo core sirve
-para ellos.
+Point Blank 2, Ghoul Panic y Golgo 13 usan Namco System 12, así que el mismo
+core sirve para ellos.
 
 Equipo de prueba: Raspberry Pi 5 (4 GB) con RetroPie y RetroArch 1.19.1, con
-overclock en `/boot/firmware/config.txt` (necesita buena refrigeración,
-disipador y ventilador):
+overclock en `/boot/firmware/config.txt`:
 
 ```
 arm_freq=2600
@@ -308,7 +311,7 @@ Los scripts de prueba de hardware antiguos están en `tools/`.
 
 ```
 cd ~/RetroPie-Setup/scriptmodules/supplementary
-curl -LO https://raw.githubusercontent.com/lowlevel-1989/dbar4gun/1.0.0rc/retropie/dbar4gun.sh
+curl -LO https://raw.githubusercontent.com/lowlevel-1989/dbar4gun/master/retropie/dbar4gun.sh
 ```
 
 ### Abrir RetroPie-Setup
