@@ -383,3 +383,14 @@ def test_gallery_stop_rule():
     for _ in range(100):
         x, y = L.jitter_target((0.5, 0.5), area, rng)
         assert abs(x - 0.5) <= L.TARGET_JITTER * 0.75 + 1e-9 and abs(y - 0.5) <= L.TARGET_JITTER + 1e-9
+
+
+def test_target_level_judges_calibration_not_aim():
+    # pulso perfecto: umbrales fijos
+    assert L.target_level(1.5, 0.0) == "good"
+    assert L.target_level(4.0, None) == "ok"
+    assert L.target_level(8.0, 0.0) == "bad"
+    # pulso de ~10 px en 3 vueltas (margen ~6): 11 px lo explica el pulso
+    assert L.target_level(11.4, 6.0) == "good"
+    assert L.target_level(17.4, 6.0) == "ok"
+    assert L.target_level(26.0, 6.0) == "bad"

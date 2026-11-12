@@ -12,6 +12,7 @@ import time
 import pygame
 
 from dbar4gun.control import send_command, SOCKET_PATH
+from dbar4gun.core.calibration import CALIBRATION_SHOTS
 from dbar4gun.core.hardware import HardwareConfig, next_ir_sensitivity
 from dbar4gun.gui import logic as L
 from dbar4gun.gui.i18n import t
@@ -488,6 +489,13 @@ class WizardScreen(GunScreen):
             radius = int(max(12, min(h // 4, p.spread * h * 0.6))) if p.spread >= 0 else 12
             pygame.draw.circle(surf, color, (tx, ty), radius, 4)
             app.text(surf, t("wiz.point", i=p.step + 1, n=p.total), (cx, h // 2), app.font_big, WHITE, center=True)
+            # vueltas a los targets (el daemon manda los disparos validos de la sesion)
+            if CALIBRATION_SHOTS > 1:
+                n = p.total * CALIBRATION_SHOTS
+                app.text(surf, t("wiz.shot", i=min(p.captured + 1, n), n=n,
+                                 r=min(p.captured // max(1, p.total) + 1, CALIBRATION_SHOTS),
+                                 m=CALIBRATION_SHOTS),
+                         (cx, h // 2 + app.font_big.get_height() + 6), app.font, GREY, center=True)
         elif self.state == "geometry":
             r, e = self.ratio
             app.text(surf, t("wiz.geometry_bad", r=r or 0, e=e), (cx, y), app.font, RED, center=True)
@@ -717,11 +725,14 @@ class GalleryScreen(GunScreen):
             self.draw_details(surf)
             return
         # mapa de errores: target, impacto y color segun el error en px de juego
+        # frente a lo que explica la punteria (L.target_level)
+        margin = (self.analysis or {}).get("margin")
+        colors = {"good": GREEN, "ok": YELLOW, "bad": RED}
         for (tx, ty), e in zip(self.targets, self.errors):
             if e is None:
                 continue
             tv, game, d = e
-            color = GREEN if game <= 2 else YELLOW if game <= 5 else RED
+            color = colors[L.target_level(game, margin)]
             a = (int(tx * w), int(ty * h))
             b = (int((tx + d[0]) * w), int((ty + d[1]) * h))
             pygame.draw.circle(surf, GREY, a, 10, 1)
@@ -731,8 +742,22 @@ class GalleryScreen(GunScreen):
         # una linea arriba, en el margen (los targets empiezan al 10 % del alto)
         app.text(surf, t("gallery.map_line", mg=s["mean_game"], xg=s["max_game"]), (w // 2, 6),
                  app.font_small, WHITE, center=True)
+        self.draw_legend(surf, h - 2 * app.font_small.get_height() - 12)
         app.text(surf, t("gallery.map_hint"), (w // 2, h - app.font_small.get_height() - 6),
                  app.font_small, GREY, center=True)
+
+    def draw_legend(self, surf, y):
+        """Leyenda del mapa en una linea: que es cada marca y cada color."""
+        app = self.app
+        font = app.font_small
+        parts = [(t("gallery.legend.marks"), GREY), (t("gallery.legend.good"), GREEN),
+                 (t("gallery.legend.ok"), YELLOW), (t("gallery.legend.bad"), RED)]
+        gap = font.size("   ")[0]
+        total = sum(font.size(s)[0] for s, _ in parts) + gap * (len(parts) - 1)
+        x = (surf.get_width() - total) // 2
+        for s, color in parts:
+            app.text(surf, s, (x, y), font, color)
+            x += font.size(s)[0] + gap
 
     def draw_details(self, surf):
         app = self.app

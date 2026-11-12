@@ -63,7 +63,7 @@ def shoot_gallery(rig, gun, screen):
         rig.press(gun, L.BTN_B)
 
 
-def capture_all(rig, gun, max_points=6):
+def capture_all(rig, gun, max_points=12):
     """El jugador apunta al target que muestra la GUI y dispara."""
     for _ in range(max_points):
         screen = rig.app.screen

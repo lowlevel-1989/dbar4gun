@@ -52,6 +52,7 @@ def test_packet_during_calibration_and_reconstruction(monkeypatch):
     drv.feed(scene.report(0.1, 0.1, drop=(1,), buttons=BUTTON_B))
     p = Packet.unpack(build_packet(drv.wm, 1, 1).pack())
     assert p.has(FLAG_CALIBRATING) and p.total == 3
+    # primera vuelta: pasa al segundo target con un disparo hecho
     assert p.step == 1 and p.captured == 1
     assert p.buttons & BUTTON_B        # botones sin mascara
     assert p.dots[0][2] == DOT_VALID | DOT_RECONSTRUCTED

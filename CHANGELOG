@@ -28,6 +28,11 @@
   apuntar se empiezan con el gatillo y dan 3 s para apuntar antes de medir
 - fixed: signo por defecto del eje X del acelerometro (acc_x_sign 1), medido con
   hardware real en el hardware check
+- added: calibracion en 2 vueltas a los targets (TL, TR, BC, TL, TR, BC) y media
+  de los disparos de cada target; si dos salen muy separados se repiten. La
+  recalibracion rapida sigue con una vuelta
+- added: mapa de la shooting gallery con leyenda y colores segun la calibracion
+  (lo que no explica la punteria), no segun un umbral fijo
 - added: IR sensitivity en caliente (hw ir_sensitivity, hardware.json); el hardware
   check la prueba y vuelve a medir
 - fixed: al reconectar se configuraba la camara IR dos veces (1.6 s bloqueado)

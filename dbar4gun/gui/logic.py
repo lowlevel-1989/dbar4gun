@@ -422,6 +422,23 @@ def jitter_target(base, area, rng):
             base[1] + rng.uniform(-TARGET_JITTER, TARGET_JITTER) * area[3])
 
 
+# color de cada target del mapa: juzga la calibracion, no el pulso. Un target
+# esta bien si su error cabe en lo que explica la punteria (2 veces el margen
+# de su media) y mal si pasa de 3 veces; con pulso perfecto, 2 y 5 px de juego
+TARGET_GOOD_PX = 2.0
+TARGET_OK_PX = 5.0
+
+
+def target_level(error_game, margin):
+    """'good', 'ok' o 'bad' para el error medio de un target (px de juego)."""
+    m = margin or 0.0
+    if error_game <= max(TARGET_GOOD_PX, 2.0 * m):
+        return "good"
+    if error_game <= max(TARGET_OK_PX, 3.0 * m):
+        return "ok"
+    return "bad"
+
+
 def gallery_margin(aim, rounds):
     """Margen (px de juego) de la media de cada target tras `rounds` vueltas."""
     if aim is None or rounds <= 0:

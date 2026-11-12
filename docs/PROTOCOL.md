@@ -20,11 +20,11 @@ con el primer byte distinto de 2 se descarta.
 | 9 | `ff` | cursor | salida del gun (área aplicada, 0..1) |
 | 10 | `ff` | screen | cursor en la TV completa, sin área ni clamp |
 | 11 | `b` | step | paso de calibración, −1 si no se está calibrando |
-| 12 | `B` | captured | puntos capturados |
+| 12 | `B` | captured | disparos válidos de la calibración (todas las vueltas) |
 | 13 | `B` | total | pasos de la calibración en curso |
 | 14 | `ff` | target | target actual (TV completa) |
 | 15 | `f` | spread | dispersión de las últimas muestras en separaciones de barra, −1 = n/d |
-| 16 | `B` | error | último error de captura: 0 ninguno, 1 `no_ir`, 2 `unstable`, 3 `bad_geometry` |
+| 16 | `B` | error | último error de captura: 0 ninguno, 1 `no_ir`, 2 `unstable`, 3 `bad_geometry`, 4 `inconsistent` (un disparo lejos del otro al mismo target) |
 | 17 | `f` | roll | roll del acelerómetro en grados (NaN = n/d) |
 | 18 | `f` | angle | ángulo de TL→TR en grados |
 | 19 | `f` | separation | separación angular de los dots (rad) |

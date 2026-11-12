@@ -22,7 +22,7 @@ FLAG_CP_VALID = 0x20
 FLAG_CALIBRATING = 0x40
 
 # codigos de error de captura
-ERRORS = {None: 0, "no_ir": 1, "unstable": 2, "bad_geometry": 3}
+ERRORS = {None: 0, "no_ir": 1, "unstable": 2, "bad_geometry": 3, "inconsistent": 4}
 ERROR_NAMES = {v: k for k, v in ERRORS.items()}
 
 BATTERY_UNKNOWN = 0xFF
@@ -211,7 +211,7 @@ def build_packet(wiimote, index, virtualgun):
     if session is not None:
         flags |= FLAG_CALIBRATING
         p.step = session.step
-        p.captured = len(session.captures)
+        p.captured = session.shots_taken
         p.total = len(session.targets)
         p.target = session.targets[min(session.step, len(session.targets) - 1)]
         spread = session.buffer.spread()

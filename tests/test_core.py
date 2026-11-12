@@ -232,6 +232,56 @@ def test_session_uses_frames_before_b_edge():
         assert data.affine.apply(*c) == pytest.approx(t)
 
 
+def _shoot(s, c):
+    for _ in range(8):
+        s.feed(cp(*c), False)
+    ev = s.feed(cp(*c), True)
+    s.feed(cp(*c), False)
+    return ev
+
+
+def test_session_rounds_are_averaged():
+    """
+    Dos vueltas (TL, TR, BC, TL, TR, BC): la captura de cada target es la media
+    de sus dos disparos, asi un disparo desviado pesa la mitad.
+    """
+    from dbar4gun.core.calibration import MAX_SHOT_DIFF_SEP
+    targets = [(0.1, 0.1), (0.9, 0.1), (0.5, 0.85)]
+    cams = [(-2.0, 1.0), (2.0, 1.0), (0.0, 4.0)]
+    s = CalibrationSession("3pt", targets, shots=2)
+    off = 0.2 * 1.7                     # 0.2 separaciones: dentro de MAX_SHOT_DIFF_SEP
+    assert 0.2 < MAX_SHOT_DIFF_SEP
+    order = []
+    for c in cams:                                          # primera vuelta
+        order.append(s.step)
+        assert _shoot(s, c)[0] == "captured"
+    ev = None
+    for c in cams:                                          # segunda, algo desviada
+        order.append(s.step)
+        ev = _shoot(s, (c[0] + off, c[1]))
+    assert order == [0, 1, 2, 0, 1, 2]
+    assert ev[0] == "done"
+    for c, t in zip(cams, targets):
+        assert ev[1].affine.apply(c[0] + off / 2, c[1]) == pytest.approx(t)
+
+
+def test_session_inconsistent_shots_are_repeated():
+    from dbar4gun.core.calibration import ERR_INCONSISTENT
+    targets = [(0.1, 0.1), (0.9, 0.1), (0.5, 0.85)]
+    cams = [(-2.0, 1.0), (2.0, 1.0), (0.0, 4.0)]
+    s = CalibrationSession("3pt", targets, shots=2)
+    for c in cams:
+        _shoot(s, c)
+    assert s.step == 0 and s.shots_taken == 3
+    assert _shoot(s, (-2.0, 2.0)) == ("error", ERR_INCONSISTENT)   # 1/1.7 = 0.59 sep
+    # los dos del target se repiten, seguidos
+    assert s.step == 0 and s.shots_taken == 2
+    assert _shoot(s, cams[0]) == ("shot", 0)
+    assert _shoot(s, cams[0]) == ("captured", 1)
+    _shoot(s, cams[1])
+    assert _shoot(s, cams[2])[0] == "done"
+
+
 def test_session_bad_geometry_restarts():
     s = CalibrationSession("3pt", [(0.1, 0.1), (0.9, 0.1), (0.5, 0.85)])
     events = []

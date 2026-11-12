@@ -13,7 +13,8 @@ import math
 
 from dbar4gun.core.area import AreaProfile, clamp01
 from dbar4gun.core.calibration import (
-    CalibrationData, CalibrationSession, MODE_DISABLED, MODE_2PT, MODE_3PT, MODE_4PT,
+    CalibrationData, CalibrationSession, CALIBRATION_SHOTS, MODE_DISABLED, MODE_2PT,
+    MODE_3PT, MODE_4PT,
 )
 from dbar4gun.core.filters import OneEuro2D, params_for_level, DEFAULT_LEVEL
 from dbar4gun.core.hardware import HardwareConfig
@@ -218,9 +219,11 @@ class GunPipeline(object):
             targets_out = self.calibration_targets(kind)
             targets = [self.options.area.to_screen(x, y) for x, y in targets_out]
         self.last_error = None
+        # la recalibracion rapida (en partida) sigue con un disparo por target
         self.session = CalibrationSession(
             kind, targets, self.options.distance_compensation,
-            base=self.calibration, bar_on_top=self.options.bar_on_top)
+            base=self.calibration, bar_on_top=self.options.bar_on_top,
+            shots=1 if kind == "quick" else CALIBRATION_SHOTS)
         self.session.targets_out = targets_out
         self.actions.append(("leds", self._target_leds(kind, 0)))
         return True
@@ -244,7 +247,11 @@ class GunPipeline(object):
         if event is None:
             return
         kind, value = event
-        if kind == "captured":
+        if kind == "shot":
+            # otro disparo al mismo target: el LED no cambia
+            self.last_error = None
+            self.actions.append(("rumble", "ok"))
+        elif kind == "captured":
             self.last_error = None
             self.actions.append(("rumble", "ok"))
             self.actions.append(("leds", self._target_leds(session.kind, value)))

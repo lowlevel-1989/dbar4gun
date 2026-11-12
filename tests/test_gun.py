@@ -1,6 +1,7 @@
 import pytest
 
-from dbar4gun.core.calibration import CalibrationData, MODE_2PT, MODE_DISABLED, MODE_3PT, AffineMap
+from dbar4gun.core.calibration import (CalibrationData, CALIBRATION_SHOTS, MODE_2PT, MODE_DISABLED,
+                                       MODE_3PT, AffineMap)
 from dbar4gun.core.gun import (
     GunOptions, GunPipeline, BUTTON_A, BUTTON_B, BUTTON_PLUS, BUTTON_MINUS, BUTTON_HOME,
     LED_1, LED_2, LED_3, LED_4, edge_point, LOST_HOLD, parse_targets,
@@ -52,7 +53,7 @@ def test_a_plus_runs_3pt_and_saves():
     kinds = [a[0] for a in actions]
     assert ("leds", LED_1) in actions and ("leds", LED_4) in actions
     assert ("leds", LED_2 | LED_3) in actions
-    assert kinds.count("rumble") == 3
+    assert kinds.count("rumble") == 3 * CALIBRATION_SHOTS     # un aviso por disparo
     assert kinds[-3:] == ["rumble", "restore_leds", "save"]
     data = actions[-1][1]
     assert data.calibrated and data.mode == MODE_3PT and data.sep_ref > 0
