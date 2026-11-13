@@ -59,6 +59,12 @@ function _params_dbar4gun() {
         dbar4gun_params="$dbar4gun_params --no-distance-compensation"
     fi
 
+    # Bluetooth: by default dbar4gun grabs the Wiimote/Nunchuk gamepads of the
+    # kernel so their buttons do not arrive twice
+    if [[ "$db_input_grab" -eq 0 ]]; then
+        dbar4gun_params="$dbar4gun_params --no-input-grab"
+    fi
+
     echo "$dbar4gun_params"
 }
 
@@ -196,6 +202,7 @@ function _loadconfig_dbar4gun() {
         'db_area=full' \
         'db_useful_zone=0.85' \
         'db_distance_compensation=1' \
+        'db_input_grab=1' \
         'db_calibrator_entry=1' \
         'db_calibrator_size=native' \
         'db_calibrator_lang=en' \
@@ -241,6 +248,12 @@ function _menu_start_dbar4gun() {
 
         options+=(12 "calibrator resolution: $db_calibrator_size")
         options+=(13 "calibrator language: $db_calibrator_lang")
+
+        if [[ "$db_input_grab" -eq 1 ]]; then
+            options+=(14 "Bluetooth: allow the double input (Wiimote also as gamepad)")
+        else
+            options+=(14 "Bluetooth: block the double input (Wiimote only as light gun)")
+        fi
 
         if [[ "$db_runcommand_hooks" -eq 1 ]]; then
             options+=(11 "disable area profiles per game (runcommand)")
@@ -316,6 +329,10 @@ function _menu_start_dbar4gun() {
                         db_calibrator_lang="es"
                     fi
                     iniSet "db_calibrator_lang" "$db_calibrator_lang"
+                    ;;
+                14)
+                    db_input_grab="$((db_input_grab ^ 1))"
+                    iniSet "db_input_grab" "$db_input_grab"
                     ;;
             esac
         else

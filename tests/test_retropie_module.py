@@ -184,3 +184,11 @@ _menu_calibration_mode
     r = subprocess.run(["bash", "-c", script], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                        universal_newlines=True, timeout=60)
     assert "SET db_calibration={}".format(saved) in r.stdout, r.stdout
+
+
+
+def test_input_grab_is_on_by_default_and_can_be_turned_off(tmp_path):
+    out = run_bash(tmp_path, '    _params_dbar4gun').stdout
+    assert "--no-input-grab" not in out
+    out = run_bash(tmp_path, '    db_input_grab=0; _params_dbar4gun').stdout
+    assert "--no-input-grab" in out

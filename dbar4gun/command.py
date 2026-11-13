@@ -63,6 +63,9 @@ class Command(object):
         parser.add_argument("--port",            type=int, default=35460, help="35460")
         parser.add_argument("--smoothing-level", type=int, default=3,
                             help="One Euro filter: 0 = off, 3 = default, higher = smoother")
+        parser.add_argument("--no-input-grab",  action="store_true",
+                            help="Bluetooth: do not grab the Wiimote buttons input device of the kernel "
+                                 "(by default only dbar4gun gets them, no double input)")
         parser.add_argument("--no-distance-compensation", action="store_true",
                             help="disable distance compensation")
         parser.add_argument("--area",            type=str, default="full",

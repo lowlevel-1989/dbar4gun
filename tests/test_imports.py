@@ -22,6 +22,7 @@ MODULES = [
     "dbar4gun.core.pointer",
     "dbar4gun.core.tracker",
     "dbar4gun.wiimote",
+    "dbar4gun.inputgrab",
 ]
 
 

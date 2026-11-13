@@ -24,6 +24,7 @@ from dbar4gun.core.calibration import MODE_3PT
 from dbar4gun.core.gun import GunOptions, GunPipeline, DEFAULT_USEFUL_ZONE, parse_targets
 from dbar4gun.core.hardware import HardwareConfig
 from dbar4gun.store import HardwareStore, device_key
+from dbar4gun.inputgrab import InputGrab
 from dbar4gun.protocol import build_packet
 from dbar4gun.wiimote import READ_TIMEOUT
 
@@ -205,6 +206,14 @@ class Dbar4Gun(object):
     def _cfg(self, name, default):
         value = getattr(self.config, name, default)
         return default if value is None else value
+
+    def input_grab(self, key, hidraw_path):
+        """
+        Bloqueo del mando de botones del kernel (solo Bluetooth: por la
+        DolphinBar no hay); --no-input-grab lo desactiva.
+        """
+        enabled = (key or "").startswith("bt:") and not self._cfg("no_input_grab", False)
+        return InputGrab(hidraw_path, enabled=enabled)
 
     def screen_aspect(self):
         w = self._cfg("width", 1920)
@@ -634,10 +643,13 @@ class Dbar4Gun(object):
         except Exception:
             pass
 
+        grab = self.input_grab(key, hidraw_path)
+
         try:
 
             while 1:
                 try:
+                    grab.update(time.monotonic(), hidraw_path)
                     index = self._refresh_index(wiimote, virtualgun, index)
                     self._gun_step(wiimote, virtualgun, index, port, WORKER_POLL)
                 except (OSError, IOError) as e:
@@ -647,7 +659,9 @@ class Dbar4Gun(object):
                     if conn is None or not keeps_virtualgun(key):
                         raise
                     log.info("VirtualGun %02d: %s disconnected (%s), waiting for it", port + 1, key, e)
+                    grab.release()
                     hidraw_io, hidraw_path = self._wait_attach(conn, wiimote, port, key, hidraw_path, store)
+                    grab.next_check = 0.0
                     wiimote.io = hidraw_io
                     wiimote.is_pair = False
                     wiimote.next_reset = -1e9
@@ -660,6 +674,7 @@ class Dbar4Gun(object):
         except Exception as e:
             log.warning("VirtualGun %02d: %s", port + 1, e)
         finally:
+            grab.release()
             log.info("bye VirtualGun %02d", port + 1)
 
     def _wait_attach(self, conn, wiimote, port, key, hidraw_path, store):
@@ -778,6 +793,7 @@ class Dbar4Gun(object):
                         # respondiendo a los comandos con paired: false
                         self._single_connect(g)
                     elif g["fd"] in ready:
+                        g["grab"].update(time.monotonic(), g["path"])
                         g["index"] = self._refresh_index(g["wiimote"], g["virtualgun"], g["index"])
                         self._gun_step(g["wiimote"], g["virtualgun"], g["index"], g["port"], None)
                     else:
@@ -852,6 +868,7 @@ class Dbar4Gun(object):
         self.guns[hidraw_path] = {
             "path": hidraw_path, "fd": fd, "io": hidraw_io, "port": port, "key": key,
             "store": store, "wiimote": wiimote, "conn": child, "index": 0, "retry": 0.0,
+            "grab": self.input_grab(key, hidraw_path),
             "virtualgun": self.class_virtualgundevice(self.config.width, self.config.height, port),
         }
         self.files[hidraw_path] = [fd, hidraw_io, port]
@@ -872,6 +889,8 @@ class Dbar4Gun(object):
                 log.debug("close %s: %s", hidraw_path, e)
             g["fd"] = g["io"] = None
             g["wiimote"].is_pair = False
+            g["grab"].release()
+            g["grab"].next_check = 0.0
             slot = DETACHED + g["key"]
             self.guns[slot] = g
             with self.lock:
@@ -885,6 +904,7 @@ class Dbar4Gun(object):
         files = self.files.pop(hidraw_path, None)
         if g is None:
             return
+        g["grab"].release()
         try:
             vg = g["virtualgun"].virtualgun
             vg.close()

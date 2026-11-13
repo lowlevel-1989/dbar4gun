@@ -1,4 +1,4 @@
-# dbar4gun 1.0.5
+# dbar4gun 1.1.0
 
 [English](README.md) | Español
 
@@ -367,6 +367,13 @@ Si tienes una Raspberry Pi 2 o anterior, necesitas un dongle Bluetooth (a veces 
 
 [adding-a-bluetooth-controller-to-retropie](https://retropie.org.uk/docs/Bluetooth-Controller/#adding-a-bluetooth-controller-to-retropie)
 
+Por Bluetooth, el kernel crea además un mando para el Wiimote (y otro para el
+Nunchuk), así que EmulationStation y RetroArch recibirían cada botón dos veces:
+de ese mando y como tecla de dbar4gun. dbar4gun bloquea esos dos mandos
+mientras usa el Wiimote, y los botones llegan una sola vez. Para mantener las
+dos entradas: RetroPie-Setup → dbar4gun → *Bluetooth: allow the double input*
+(o la opción `--no-input-grab`). Con la DolphinBar no existe ese mando.
+
 ## Instalar a mano
 
 ### Dependencias del sistema
@@ -405,6 +412,7 @@ dbar4gun start --help
 | `--width`, `--height` | 1920, 1080 | tamaño de la pantalla (rango ABS de la pistola) |
 | `--disable-tilt-correction` | | |
 | `--no-distance-compensation` | | entonces la precisión depende de mantener la distancia de la calibración |
+| `--no-input-grab` | | Bluetooth: no bloquear los mandos del kernel del Wiimote y del Nunchuk (sus botones llegan dos veces) |
 | `--smoothing-level N` | 3 | filtro One Euro: 0 desactivado, más alto = más suave |
 | `--area` | full | `full`, `4:3`, `custom:x0,y0,w,h` |
 | `--useful-zone` | 0.85 | fracción de la altura de la pantalla con targets |
