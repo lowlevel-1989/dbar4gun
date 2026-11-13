@@ -1,5 +1,7 @@
 ## The House of the Dead 2
 
+English | [Español](README.es.md)
+
 | device   | button    | action            |
 |----------|-----------|-------------------|
 | wiimote  | ir        | cursor            |
@@ -11,6 +13,6 @@
 | nunchuck | stick     | d-pad             |
 | combo    | b + home  | retroarch menu    |
 | combo    | b + minus | key esc           |
-| combo    | b + plus  | key enter         |
+| wiimote  | home      | key enter         |
 | combo    | a + plus  | start calibration |
 | combo    | a + minus | reset calibration |

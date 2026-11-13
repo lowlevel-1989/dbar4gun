@@ -49,3 +49,21 @@ def test_check_is_alive_reuses_original_index(monkeypatch):
     wm.is_alive_time_last = 0
     wm.check_is_alive()
     assert io.written[-1] == bytes([0x11, WIIMOTE_LED_4])
+
+
+def test_index_change_during_calibration_shows_new_player_after(monkeypatch):
+    """
+    Dos Wiimotes con LED 1: el mouse index cambiaba mientras uno calibraba
+    y al terminar volvia el LED del jugador anterior.
+    """
+    wm, io = make_wiimote(monkeypatch)
+    wm.update_index(1)
+    wm.pipeline.session = object()                 # calibrando
+    n = len(io.written)
+    assert wm.update_index(2) is True
+    assert io.written[n:] == []                    # los LEDs siguen mostrando el target
+    assert wm.player == 2
+    wm.pipeline.session = None                     # fin de la calibracion
+    wm.pipeline.actions.append(("restore_leds",))
+    wm._run_actions(0.0)
+    assert io.written[-1] == bytes([0x11, WIIMOTE_LED_2])

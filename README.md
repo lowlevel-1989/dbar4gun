@@ -1,4 +1,4 @@
-# dbar4gun 1.1.1
+# dbar4gun 1.1.2
 
 English | [Español](README.es.md)
 
@@ -15,6 +15,24 @@ We recommend using DolphinBar as the main controller because, in mode 4, the bar
 It is important to remember to disconnect the Wiimote using the power button at the end of playing to increase the lifespan of the infrared LEDs.
 
 ***for more precision, place the sensor bar over the screen***
+
+## Before playing: RetroArch
+
+dbar4gun sends the MAME default keys, and some of them are also RetroArch hotkeys
+(`f` is fullscreen, `l` is fast forward...): with 2 or more guns they would clash.
+Turn them off only for the light gun games by adding these lines to
+`/opt/retropie/configs/lightgun/retroarch.cfg`, above the `#include` line:
+
+```
+input_toggle_fullscreen = "nul"
+input_hold_fast_forward = "nul"
+input_frame_advance = "nul"
+input_netplay_game_watch = "nul"
+```
+
+If your light gun emulators load another file (`--config ...` in
+`/opt/retropie/configs/lightgun/emulators.cfg`), put the lines in that file.
+Details: [docs/mapping.md](docs/mapping.md).
 
 ## Feature support
 
@@ -34,7 +52,7 @@ It is important to remember to disconnect the Wiimote using the power button at 
 - control socket and CLI commands
 - Standard configuration for Wii sensor
 - wiimote led -> index mouse
-- auto key
+- auto key: each gun sends the MAME default keys of its player, so games are comfortable to play without mapping the buttons ([button map](docs/mapping.md)); the exceptions are in [retroarch](retroarch)
 - systemd
 - Smoothed cursor (One Euro)
 - Generic wiimote
@@ -56,7 +74,7 @@ It is important to remember to disconnect the Wiimote using the power button at 
 | wiimote  | minus     | auto key      | key prev (Bluetooth) | false / true  | 1 coin                            |
 | wiimote  | d-pad     | auto key      | arrows   (Bluetooth) | false / true  | direction                         |
 | nunchuck | stick     | wiimote d-pad | abs hat  (Bluetooth) | false         | direction                         |
-| nunchuck | z         | auto key      | btn z    (Bluetooth) | false         |                                   |
+| nunchuck | z         | auto key      | btn z    (Bluetooth) | false         | MAME: assign `key b` to button 2 ([or copy default.cfg](retroarch/mame)) |
 | nunchuck | c         | auto key      | btn c    (Bluetooth) | false         |                                   |
 | combo    | b + home  | key tab       | same                 | true          | menu (mame,flycast)               |
 | combo    | b + plus  |               | same                 | false         | disable/enable ir (useful in gui) |
@@ -66,6 +84,9 @@ It is important to remember to disconnect the Wiimote using the power button at 
 | combo    | a + home  | key f1        | same                 | true          | menu (retroarch)                  |
 | combo    | a + plus  |               | same                 | false         | calibration (quick 2-point recalibration if already calibrated) |
 | combo    | a + minus |               | same                 | false         | reset calibration (back to the uncalibrated map) |
+
+Full map with the key of each gun, what it does in MAME and in RetroArch, and the
+clashes with RetroArch: [docs/mapping.md](docs/mapping.md).
 
 
 
@@ -154,8 +175,8 @@ does the full calibration.
 
 ### mode 0: disabled
 
-## Light Gun Configuration Manual for Specific Core Ga   
-Refer to the [specific README for light gun configuration](retroarch) to ln how to configure games in RetroArch.
+## Light Gun Configuration Manual for Specific Core Games
+Refer to the [specific README for light gun configuration](retroarch) to learn how to configure games in RetroArch.
   
 ## List of No-Crosshair Games: Perfect Performance with wiimote (tested)   
     
@@ -176,7 +197,7 @@ Refer to the [specific README for light gun configuration](retroarch) to ln how 
 | Virtua Cop 2             | `Virtua Cop 2 (Japan).gdi`     | lr-flycast           | 640x480    |  0              |                            |
 
 How they were tested: RetroPie on a Raspberry Pi 5 (Debian 12), RetroArch 1.19.1,
-dbar4gun 0.18.2 with `--smoothing-level 0`, each game with the emulator above.
+dbar4gun with `--smoothing-level 0`, each game with the emulator above.
 Gun options of the cores: `mame_current_xy_type = "lightgun"` (lr-mame),
 `mame2003-plus_xy_device = "lightgun"`, `mame2015_mouse_mode = "lightgun"`.
 
@@ -435,6 +456,7 @@ dbar4gun start --width 1920 --height 1080
 
 ```
 dbar4gun version
+dbar4gun --version
 ```
 
 #### visual calibrator (needs pygame: `pip install .[gui]`)

@@ -1,5 +1,7 @@
 ## Light Gun Configuration Manual for Specific Core Games
 
+English | [Español](README.es.md)
+
 To assign the light gun configuration to the desired game, you need to copy the configuration file to the following location:
 
 ```
@@ -9,6 +11,10 @@ roms/SYSTEMNAME/ROMNAME.cfg
 **Note:** The **ROMNAME** includes the original file extension before the `.cfg`. For example, for a ROM file named `House of the Dead 2, The (USA).gdi`, the configuration file should be named `House of the Dead 2, The (USA).gdi.cfg`.
 
 These configurations will be used when starting this specific ROM.
+
+The MAME cores use their own controller configuration instead (`.cfg` files in the
+`cfg` folder of the core, inside the RetroArch save directory): each one says where
+to copy it.
 
 ### For some cores, it is necessary to inform RetroArch that the devices are light guns. Follow these steps:
 
@@ -20,8 +26,14 @@ These configurations will be used when starting this specific ROM.
 
 **Note:** To navigate back, use the Minus button.
 
+Button map of every gun in MAME and RetroArch: [docs/mapping.md](../docs/mapping.md).
+
 ### Available Configurations:
 
+#### Mame
+- [Nunchuk Z as button 2 in every game (default.cfg)](mame)
+- [Operation Wolf](mame/Operation%20Wolf)
+- [Time Crisis](mame/Time%20Crisis)
 #### Mame 2015
 - [Lucky & Wild](mame2015/Lucky%20%26%20Wild)
 #### Dreamcast

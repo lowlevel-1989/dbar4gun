@@ -17,7 +17,9 @@ pyudev usa la misma libudev, asi que el orden es el mismo. No se abre ningun
 dispositivo (abrir y cerrar los evdev de hid-wiimote apaga la camara IR).
 """
 
+import glob
 import logging
+import os
 
 log = logging.getLogger("dbar4gun")
 
@@ -39,6 +41,43 @@ def pointer_order(context=None):
             if name.startswith("event") and dev.device_node and name not in out:
                 out.append(name)
     return out
+
+
+def virtualguns(sysfs="/sys"):
+    """
+    {port: (numero de inputN, eventN)} de las VirtualGun que existen. El
+    numero de inputN solo crece: dice cual se creo antes.
+    """
+    out = {}
+    for name_file in glob.glob(os.path.join(sysfs, "class", "input", "input*", "name")):
+        try:
+            with open(name_file) as f:
+                name = f.read().strip()
+        except (OSError, IOError):
+            continue
+        if not name.startswith("VirtualGun "):
+            continue
+        try:
+            port = int(name.split()[1]) - 1
+        except (IndexError, ValueError):
+            continue
+        folder = os.path.dirname(name_file)
+        events = glob.glob(os.path.join(folder, "event*"))
+        if not events:
+            continue
+        number = int(os.path.basename(folder)[len("input"):])
+        out[port] = (number, os.path.basename(events[0]))
+    return out
+
+
+def in_order(ports, guns, order):
+    """
+    True si RetroArch (`order`, de pointer_order) numera las VirtualGun de
+    `ports` en ese mismo orden. RetroArch ordena por la ruta en /sys como
+    texto: input100 va antes que input99.
+    """
+    pos = [order.index(guns[p][1]) for p in ports if p in guns and guns[p][1] in order]
+    return pos == sorted(pos)
 
 
 def mouse_index(event, context=None):

@@ -95,6 +95,8 @@ class Command(object):
                     prog=info.__title__,
                     formatter_class=argparse.RawTextHelpFormatter,
                     description=DBAR4GUN_DESC)
+        parser.add_argument("--version", action="version",
+                            version="{} v{}".format(info.__title__, info.__version__))
 
         subparsers = parser.add_subparsers(dest="command")
 

@@ -1,4 +1,4 @@
-# dbar4gun 1.1.1
+# dbar4gun 1.1.2
 
 [English](README.md) | Español
 
@@ -15,6 +15,24 @@ Recomendamos usar la DolphinBar como mando principal: en el modo 4, la barra se 
 Es importante apagar el Wiimote con el botón de encendido al terminar de jugar, para alargar la vida de los LEDs infrarrojos.
 
 ***para más precisión, pon la sensor bar encima de la pantalla***
+
+## Antes de jugar: RetroArch
+
+dbar4gun envía las teclas por defecto de MAME, y algunas son también atajos de
+RetroArch (`f` es pantalla completa, `l` es avance rápido...): con 2 o más pistolas
+chocarían. Desactívalos solo en los juegos de pistola añadiendo estas líneas a
+`/opt/retropie/configs/lightgun/retroarch.cfg`, encima de la línea `#include`:
+
+```
+input_toggle_fullscreen = "nul"
+input_hold_fast_forward = "nul"
+input_frame_advance = "nul"
+input_netplay_game_watch = "nul"
+```
+
+Si tus emuladores de pistola cargan otro archivo (`--config ...` en
+`/opt/retropie/configs/lightgun/emulators.cfg`), pon las líneas en ese archivo.
+Detalles: [docs/mapping.es.md](docs/mapping.es.md).
 
 ## Funciones
 
@@ -34,7 +52,7 @@ Es importante apagar el Wiimote con el botón de encendido al terminar de jugar,
 - socket de control y comandos de CLI
 - configuración estándar de la sensor bar de Wii
 - LED del Wiimote -> mouse index
-- teclas automáticas
+- teclas automáticas (auto key): cada gun envía las teclas por defecto de MAME de su jugador, así los juegos se juegan de manera cómoda sin necesidad de mapear los botones ([mapa de botones](docs/mapping.es.md)); las excepciones se encuentran en [retroarch](retroarch/README.es.md)
 - systemd
 - cursor suavizado (One Euro)
 - Wiimote genérico
@@ -56,7 +74,7 @@ Es importante apagar el Wiimote con el botón de encendido al terminar de jugar,
 | wiimote     | minus     | tecla automática| key prev (Bluetooth) | false / true | 1 moneda                          |
 | wiimote     | d-pad     | tecla automática| flechas  (Bluetooth) | false / true | dirección                         |
 | nunchuk     | stick     | d-pad del wiimote | abs hat (Bluetooth) | false       | dirección                         |
-| nunchuk     | z         | tecla automática| btn z    (Bluetooth) | false        |                                   |
+| nunchuk     | z         | tecla automática| btn z    (Bluetooth) | false        | MAME: asigna `key b` al botón 2 ([o copia default.cfg](retroarch/mame/README.es.md)) |
 | nunchuk     | c         | tecla automática| btn c    (Bluetooth) | false        |                                   |
 | combo       | b + home  | tecla tab       | igual                | true         | menú (mame, flycast)              |
 | combo       | b + plus  |                 | igual                | false        | desactivar/activar IR (útil en la GUI) |
@@ -66,6 +84,9 @@ Es importante apagar el Wiimote con el botón de encendido al terminar de jugar,
 | combo       | a + home  | tecla f1        | igual                | true         | menú (retroarch)                  |
 | combo       | a + plus  |                 | igual                | false        | calibración (recalibración rápida de 2 puntos si ya está calibrado) |
 | combo       | a + minus |                 | igual                | false        | borrar la calibración (vuelve al mapa sin calibrar) |
+
+Mapa completo con la tecla de cada gun, qué hace en MAME y en RetroArch, y los
+choques con RetroArch: [docs/mapping.es.md](docs/mapping.es.md).
 
 
 
@@ -156,7 +177,7 @@ mapa sin calibrar; el siguiente **A + plus** hace la calibración completa.
 ### modo 0: desactivada
 
 ## Manual de configuración de light guns para cores concretos
-Consulta el [README específico de configuración de light guns](retroarch) para ver cómo configurar los juegos en RetroArch.
+Consulta el [README específico de configuración de light guns](retroarch/README.es.md) para ver cómo configurar los juegos en RetroArch.
 
 ## Juegos sin crosshair que funcionan perfectamente con el Wiimote (probados)
 
@@ -177,7 +198,7 @@ Consulta el [README específico de configuración de light guns](retroarch) para
 | Virtua Cop 2             | `Virtua Cop 2 (Japan).gdi`     | lr-flycast           | 640x480    |  0              |                            |
 
 Cómo se probaron: RetroPie en una Raspberry Pi 5 (Debian 12), RetroArch 1.19.1,
-dbar4gun 0.18.2 con `--smoothing-level 0`, cada juego con el emulador de la
+dbar4gun con `--smoothing-level 0`, cada juego con el emulador de la
 tabla. Opciones de pistola de los cores: `mame_current_xy_type = "lightgun"` (lr-mame),
 `mame2003-plus_xy_device = "lightgun"`, `mame2015_mouse_mode = "lightgun"`.
 
@@ -441,6 +462,7 @@ dbar4gun start --width 1920 --height 1080
 
 ```
 dbar4gun version
+dbar4gun --version
 ```
 
 #### calibrator visual (necesita pygame: `pip install .[gui]`)

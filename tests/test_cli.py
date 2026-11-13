@@ -18,6 +18,9 @@ def run(*args):
 
 def test_version_and_help_keep_old_flags():
     assert run("version").returncode == 0
+    out = run("--version")
+    assert out.returncode == 0
+    assert out.stdout.strip() == run("version").stdout.strip()
     out = run("start", "--help").stdout
     for flag in ("--calibration", "--width", "--height", "--disable-tilt-correction",
                  "--port", "--smoothing-level", "--no-distance-compensation", "--area",

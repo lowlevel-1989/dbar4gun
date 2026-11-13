@@ -445,8 +445,6 @@ class WiiMoteDevice(object):
                 dots[i] = [p[0], p[1] / SQUARE_Y, 0.5 if rec else 1.0]
         return dots
 
-    # unsupport python < version 3.12
-    # def get_cursor(self) -> Cursor:
     def get_cursor(self) -> Tuple[float, float]:
         return self.cursor
 
@@ -458,10 +456,6 @@ class WiiMoteDevice(object):
             self.hz_count = 0
             self.hz_t0 = now
 
-    # unsupport python < version 3.12
-    # def read(self) -> tuple[
-    #        CoreButtons, CoreIRCollection, CoreIRSortCollection, CoreAccelerometer,
-    #        NunchuckButtons, NunchuckJoy]:
     def _state(self):
         return [
             self.core_button,
@@ -497,10 +491,6 @@ class WiiMoteDevice(object):
         elif self.is_pair and now - self.last_change_time >= NO_REPORT_TIMEOUT:
             self._disconnected(now)
 
-    # unsupport python < version 3.12
-    # def read(self) -> tuple[
-    #        CoreButtons, CoreIRCollection, CoreIRSortCollection, CoreAccelerometer,
-    #        NunchuckButtons, NunchuckJoy]:
     def read(self, timeout=READ_TIMEOUT):
         """
         Lee y procesa un report. Con `timeout` espera con select y, si no
@@ -675,6 +665,9 @@ class WiiMoteDevice(object):
 
     def update_index(self, player : int =0) -> bool:
         if self.calibration_on > 0:
+            # los LEDs muestran el target; el jugador nuevo se guarda y
+            # restore_leds lo enciende al terminar la calibracion
+            self.player = player
             return True
         try:
             if not self.is_pair:

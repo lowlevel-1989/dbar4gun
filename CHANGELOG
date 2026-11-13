@@ -1,3 +1,26 @@
+1.1.2
+- fixed: LED del Wiimote: si el numero de jugador cambiaba mientras se calibraba,
+  al terminar volvia el LED del jugador anterior (dos Wiimotes con LED 1)
+- fixed: un Wiimote encendido despues podia quitarle el jugador 1 al que ya
+  estaba jugando: RetroArch ordena las pistolas por su ruta en /sys como texto
+  (input100 antes que input99). dbar4gun comprueba el orden y, si no es el de
+  encendido, vuelve a crear las VirtualGun en ese orden
+- added: opcion --version (igual que dbar4gun version)
+- docs: manual de retroarch/ en espanol y explicacion de los dos tipos de
+  configuracion (RetroArch por ROM y controles de MAME)
+- docs: configuracion de Operation Wolf y Time Crisis (lr-mame) en retroarch/mame:
+  la Z del Nunchuk tambien como boton 2 (granada, pedal)
+- docs: nota de la Z del Nunchuk del gun 1 (key b): asignarla al boton 2 de MAME
+  o copiar el default.cfg de retroarch/mame
+- docs: arreglado el titulo cortado del manual de configuracion en el README
+- docs: docs/mapping.md: mapa de botones de cada gun (dbar4gun, MAME y RetroArch)
+  y los atajos de RetroArch que chocan con los guns 2 y 3 (f, l, k, i)
+- docs: README: apartado "Antes de jugar: RetroArch" con las lineas para quitar
+  esos atajos solo en el sistema de pistolas
+- docs: en las tablas de retroarch/, enter es home (no b + plus)
+- cleanup: anotaciones de tipos comentadas en wiimote.py; el README ya no dice
+  que los juegos se probaron con la 0.18.2
+
 1.1.1
 - fixed: calibracion de 4 puntos: el recuadro de la camara tapaba el target de
   abajo a la derecha; ahora se mueve a la otra esquina mientras toca ese target
