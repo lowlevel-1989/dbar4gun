@@ -149,3 +149,19 @@ def test_menu_values_are_validated(tmp_path, func, value, ok):
     else:
         assert "rc=1" in out and "SET " not in out and "MSG Invalid" in out, out
         assert "area=full zone=0.85" in out
+
+
+def test_calibration_menu_offers_4_points():
+    """El menu de RetroPie ofrece el modo 3 (4 puntos, mejor jugando de lado)."""
+    src = open(MODULE).read()
+    menu = src[src.index("function _menu_calibration_mode"):src.index("function _menu_set_resolution")]
+    assert 'iniSet "db_calibration" "3"' in menu
+    assert "BottomRight, BottomLeft" in menu
+    # desactivar la calibracion es la ultima opcion
+    assert menu.index('4 "disabled"') > menu.index("BottomRight, BottomLeft")
+    assert menu.index('iniSet "db_calibration" "0"') > menu.index('iniSet "db_calibration" "3"')
+
+
+def test_params_calibration_mode_3(tmp_path):
+    r = run_bash(tmp_path, '    db_calibration=3; _params_dbar4gun')
+    assert "--calibration 3" in r.stdout

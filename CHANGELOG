@@ -1,3 +1,7 @@
+1.0.2
+- added: menu de RetroPie: calibracion de 4 puntos (modo 3), mejor jugando de
+  lado a la TV
+
 1.0.1
 - fixed: instalador de RetroPie: python3 -m venv (como en RetroPie-Setup) y
   dependencia python3-venv; comentarios en ingles
