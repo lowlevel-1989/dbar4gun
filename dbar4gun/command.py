@@ -10,8 +10,6 @@ sys.path.append("/usr/lib/python3/dist-packages")
 sys.path.append(PATH_ROOT)
 
 from dbar4gun import info
-from dbar4gun import calibration
-from dbar4gun import irsetup
 
 from dbar4gun.dbar4gun   import Dbar4Gun
 from dbar4gun.wiimote    import WiiMoteDevice
@@ -25,22 +23,6 @@ DBAR4GUN_DESC = """
 dbar4gun is a Linux userspace driver for the wiimote with DolphinBar support,
 specifically designed to be small and function as 4 light guns.
 """
-
-# --setup N usa IR_SETUP_LIST[N - 1]
-IR_SETUP_LIST = [
-    irsetup.IRSetupStandard,
-]
-
-IR_SETUP_HELP = """
-mode
-1: Standard (sensorbar, dolphinbar)
-"""
-
-CALIBRATION_LIST = [
-    calibration.CalibrationDummy,
-    calibration.CalibrationCenterTopLeftPoint,
-    calibration.CalibrationTopLeftTopRightBottomCenterPoint,
-]
 
 CALIBRATION_HELP = """
 mode
@@ -71,7 +53,10 @@ class Command(object):
 
     def add_start_arguments(self, parser):
         parser.add_argument('--calibration',     type=int, default=2,  choices=range(4), help=CALIBRATION_HELP)
-        parser.add_argument('--setup',           type=int, default=1,  choices=range(1, len(IR_SETUP_LIST) + 1), help=IR_SETUP_HELP)
+        # sin efecto: solo hay una configuracion de la barra. Se acepta con
+        # cualquier valor y se ignora, porque los servicios ya instalados
+        # (RetroPie) arrancan con --setup 1
+        parser.add_argument('--setup',           default=None, help=argparse.SUPPRESS)
         parser.add_argument("--width",           type=int, default=1920, help="1920")
         parser.add_argument("--height",          type=int, default=1080, help="1080")
         parser.add_argument("--disable-tilt-correction", action='store_true')
@@ -228,19 +213,11 @@ class Command(object):
             print(e)
             exit(2)
 
-        Calibration = calibration.CalibrationDummy
-        if config.calibration < len(CALIBRATION_LIST):
-            Calibration = CALIBRATION_LIST[config.calibration]
-
-        IRSetup = IR_SETUP_LIST[config.setup - 1]
-
         self.dbar4gun = Dbar4Gun(
                             config,
                             Monitor,
                             WiiMoteDevice,
-                            VirtualGunDevice,
-                            Calibration,
-                            IRSetup)
+                            VirtualGunDevice)
 
         if command == "stop":
             if self.dbar4gun.kill() <= 0:

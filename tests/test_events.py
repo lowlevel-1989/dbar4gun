@@ -60,7 +60,7 @@ def daemon(monkeypatch):
     monkeypatch.setattr(dbar4gun_module, "os", fake_os)
 
     config = types.SimpleNamespace(width=1920, height=1080, port=35460)
-    d = Dbar4Gun(config, None, None, None, None, None)
+    d = Dbar4Gun(config, None, None, None)
     d.closed_fds = closed_fds
     yield d
     d.sock.close()

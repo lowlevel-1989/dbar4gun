@@ -1,3 +1,9 @@
+1.0.4
+- removed: los componentes IR setup y calibration (dbar4gun/irsetup y
+  dbar4gun/calibration), sin uso desde la 1.0.0. --setup se sigue aceptando con
+  cualquier valor y se ignora, porque los servicios instalados arrancan con
+  --setup 1; el menu de RetroPie ya no tiene el paso IR setup
+
 1.0.3
 - fixed: menu de RetroPie: el texto de la calibracion de 4 puntos se cortaba
 - changed: hardware check, FOV: distancia por defecto 2 m y el texto explica que

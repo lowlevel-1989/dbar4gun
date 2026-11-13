@@ -9,7 +9,6 @@ from tests.sim.camera import CameraPose, FOCAL_PX
 from tests.sim.metrics import measure_grid, grid_43, GAME_PX
 from tests.sim.payload import ir_basic_payload, DOT_ABSENT
 from tests.sim.scene import Scene, TV, trajectory
-from tests.sim.legacy import LegacyDriver
 from tests.sim.scenarios import run_all, format_table
 
 
@@ -84,25 +83,3 @@ def test_grid():
     assert len(g) == 49
     assert all(0.125 <= x <= 0.875 for x, _ in g)
     assert abs(GAME_PX - 4.5) < 1e-9
-
-
-def test_baseline_legacy_3pt_at_3m(monkeypatch, capsys):
-    """
-    Baseline del codigo actual: calibracion de 3 puntos, TV 45", 3 m, barra arriba.
-    En la revision se midio ~143 px de media y ~280 px de maximo.
-    """
-    scene = Scene(tv=TV(45), player=(0.0, 0.0, 3.0))
-    drv = LegacyDriver(monkeypatch)
-    drv.calibrate(scene)
-    summary = measure_grid(scene, drv.feed)
-    with capsys.disabled():
-        print("\n[baseline legacy 3pt, 45\", 3 m] {}".format(summary))
-    assert 125 <= summary.mean_tv <= 160
-    assert 240 <= summary.max_tv <= 310
-
-
-def test_baseline_legacy_scenarios(monkeypatch, capsys):
-    """Cifras de "antes" para los escenarios de aceptacion de precision (sin assert)."""
-    rows = run_all(lambda: LegacyDriver(monkeypatch))
-    with capsys.disabled():
-        print(format_table("[baseline legacy 3pt, escenarios de precision]", rows))

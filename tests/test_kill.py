@@ -12,7 +12,7 @@ from dbar4gun.dbar4gun import Dbar4Gun, is_dbar4gun_process
 @pytest.fixture
 def daemon(tmp_path):
     config = types.SimpleNamespace(width=1920, height=1080, port=35460)
-    d = Dbar4Gun(config, None, None, None, None, None)
+    d = Dbar4Gun(config, None, None, None)
     d.pid_file = str(tmp_path / "dbar4gun.pid")
     yield d
     d.sock.close()

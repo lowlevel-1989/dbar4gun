@@ -17,8 +17,6 @@ setup(name=dbar4gun.__title__,
       },
       packages=[
           "dbar4gun",
-          "dbar4gun.irsetup",
-          "dbar4gun.calibration",
           "dbar4gun.core",
           "dbar4gun.gui"
       ],

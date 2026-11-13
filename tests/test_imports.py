@@ -22,14 +22,6 @@ MODULES = [
     "dbar4gun.core.pointer",
     "dbar4gun.core.tracker",
     "dbar4gun.wiimote",
-    "dbar4gun.irsetup",
-    "dbar4gun.irsetup.base",
-    "dbar4gun.irsetup.standard",
-    "dbar4gun.calibration",
-    "dbar4gun.calibration.base",
-    "dbar4gun.calibration.dummy",
-    "dbar4gun.calibration.twopoint_center_topleft",
-    "dbar4gun.calibration.threepoint_topleft_topright_bottomcenter",
 ]
 
 

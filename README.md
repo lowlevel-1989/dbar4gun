@@ -1,4 +1,4 @@
-# dbar4gun 1.0.3
+# dbar4gun 1.0.4
 
 English | [Español](README.es.md)
 
@@ -37,8 +37,6 @@ It is important to remember to disconnect the Wiimote using the power button at 
 - auto key
 - systemd
 - Smoothed cursor (One Euro)
-- setup ir as Component
-- calibration as Component
 - Generic wiimote
 - works on linux
 - works on retropie
@@ -326,11 +324,6 @@ SDL_VIDEODRIVER=dummy python -m pytest -s
 
 The old hardware test scripts are in `tools/`.
 
-## To Do
-
-1. diamond ir setup
-2. square ir setup
-
 ## Install with RetroPie-Setup
 
 ### Download dbar4gun installer
@@ -403,7 +396,6 @@ dbar4gun start --help
 | option | default | |
 |---|---|---|
 | `--calibration {0,1,2,3}` | 2 | 0 disabled, 1 center + top-left, 2 three points, 3 four points (homography) |
-| `--setup {1}` | 1 | IR setup: standard sensor bar / DolphinBar |
 | `--width`, `--height` | 1920, 1080 | screen size (gun ABS range) |
 | `--disable-tilt-correction` | | |
 | `--no-distance-compensation` | | the precision then depends on keeping the calibration distance |

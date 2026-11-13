@@ -169,13 +169,9 @@ class Dbar4Gun(object):
                  config,
                  Monitor,
                  WiiMoteDevice,
-                 VirtualGunDevice,
-                 Calibration=None,
-                 IRSetup=None):
+                 VirtualGunDevice):
 
         self.config                 = config
-        self.class_calibration      = Calibration
-        self.class_irsetup          = IRSetup
         self.class_wiimotedevice    = WiiMoteDevice
         self.class_virtualgundevice = VirtualGunDevice
         self.class_monitor          = Monitor

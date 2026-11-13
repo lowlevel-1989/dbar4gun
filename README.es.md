@@ -1,4 +1,4 @@
-# dbar4gun 1.0.3
+# dbar4gun 1.0.4
 
 [English](README.md) | Español
 
@@ -37,8 +37,6 @@ Es importante apagar el Wiimote con el botón de encendido al terminar de jugar,
 - teclas automáticas
 - systemd
 - cursor suavizado (One Euro)
-- configuración IR como componente
-- calibración como componente
 - Wiimote genérico
 - funciona en Linux
 - funciona en RetroPie
@@ -332,11 +330,6 @@ SDL_VIDEODRIVER=dummy python -m pytest -s
 
 Los scripts de prueba de hardware antiguos están en `tools/`.
 
-## Pendiente
-
-1. ir setup en diamante
-2. ir setup en cuadrado
-
 ## Instalar con RetroPie-Setup
 
 ### Descargar el instalador de dbar4gun
@@ -409,7 +402,6 @@ dbar4gun start --help
 | opción | por defecto | |
 |---|---|---|
 | `--calibration {0,1,2,3}` | 2 | 0 desactivada, 1 centro + arriba a la izquierda, 2 tres puntos, 3 cuatro puntos (homography) |
-| `--setup {1}` | 1 | IR setup: sensor bar estándar / DolphinBar |
 | `--width`, `--height` | 1920, 1080 | tamaño de la pantalla (rango ABS de la pistola) |
 | `--disable-tilt-correction` | | |
 | `--no-distance-compensation` | | entonces la precisión depende de mantener la distancia de la calibración |

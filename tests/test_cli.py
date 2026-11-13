@@ -19,11 +19,21 @@ def run(*args):
 def test_version_and_help_keep_old_flags():
     assert run("version").returncode == 0
     out = run("start", "--help").stdout
-    for flag in ("--calibration", "--setup", "--width", "--height", "--disable-tilt-correction",
+    for flag in ("--calibration", "--width", "--height", "--disable-tilt-correction",
                  "--port", "--smoothing-level", "--no-distance-compensation", "--area",
                  "--useful-zone", "--bar", "--calibration-targets", "--config-dir", "--socket"):
         assert flag in out, flag
 
+
+
+def test_setup_option_still_accepted():
+    """
+    --setup ya no hace nada (una sola configuracion de la barra), pero los
+    servicios instalados (RetroPie) arrancan con --setup 1: debe seguir valiendo.
+    """
+    for value in ("1", "2", "0", "standard"):
+        assert run("--setup", value, "version").returncode == 0, value
+    assert "--setup" not in run("start", "--help").stdout
 
 @pytest.fixture
 def server(tmp_path):
