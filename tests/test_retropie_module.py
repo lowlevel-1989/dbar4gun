@@ -165,3 +165,22 @@ def test_calibration_menu_offers_4_points():
 def test_params_calibration_mode_3(tmp_path):
     r = run_bash(tmp_path, '    db_calibration=3; _params_dbar4gun')
     assert "--calibration 3" in r.stdout
+
+
+@pytest.mark.parametrize("choice,saved", [("1", "2"), ("2", "1"), ("3", "3"), ("4", "0")])
+def test_calibration_menu_choice_saves_the_right_mode(tmp_path, choice, saved):
+    """Cada opcion del menu guarda el modo que corresponde (4 = desactivada)."""
+    src = open(MODULE).read().replace(">/dev/tty", ">/dev/null")
+    module = tmp_path / "module.sh"
+    module.write_text(src)
+    script = STUBS + '''
+iniSet() {{ echo "SET $1=$2"; }}
+source '{module}'
+_menu_start_dbar4gun() {{ :; }}
+dialog() {{ echo "{choice}" >&2; }}
+configdir="{cfg}"
+_menu_calibration_mode
+'''.format(module=module, choice=choice, cfg=tmp_path)
+    r = subprocess.run(["bash", "-c", script], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                       universal_newlines=True, timeout=60)
+    assert "SET db_calibration={}".format(saved) in r.stdout, r.stdout

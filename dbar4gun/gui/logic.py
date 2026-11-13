@@ -328,6 +328,7 @@ GALLERY_GAMES = [
     ("hogalley", "4:3", 256, 240, "VS. Hogan's Alley"),     # nintendo/vsnes.cpp
     ("luckywld", "4:3", 288, 224, "Lucky & Wild"),          # namco/namcos2.cpp (y MAME 2015)
     ("area51", "4:3", 320, 240, "Area 51 (MAME 2003+)"),    # drivers/cojag.c de mame2003-plus
+    ("carnevil", "4:3", 512, 400, "CarnEvil (MAME 2003+)"),  # medido (lr-mame2003-plus, 54 fps)
     ("ptblank2", "4:3", 320, 240, "Point Blank 2"),         # medido (lr-mame, demo)
     ("ptblank3", "4:3", 320, 240, "Point Blank 3"),         # medido (lr-mame, demo)
     ("ghlpanic", "4:3", 512, 480, "Ghoul Panic"),           # medido (lr-mame, demo)

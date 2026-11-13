@@ -410,8 +410,11 @@ def test_hardware_check_full_flow(monkeypatch):
         assert pipe.tracker.acc_x_sign == 1.0, (hs.stage, hs.message, rig.control.lines[-3:])
         assert hs.results["acc"]["applied"]
 
-        rig.press(gun, L.BTN_A)                       # 4: FOV a 3.0 m
+        rig.press(gun, L.BTN_A)                       # 4: FOV (el jugador esta a 3.0 m)
         assert hs.step == "fov"
+        assert hs.distance == 2.0                     # por defecto, 2 m
+        for _ in range(10):                           # arriba: +0.1 m
+            rig.press(gun, L.BTN_UP)
         rig.press(gun, L.BTN_UP)
         rig.press(gun, L.BTN_DOWN)
         assert hs.distance == 3.0 and hs.bar_width == 0.20

@@ -32,16 +32,19 @@ DEFAULT_PROFILES = """# dbar4gun: perfil de area del gun por juego, system o emu
 # tambien un 4:3 dentro de una TV 16:9, y fuera de la imagen es "offscreen"
 # (recargar). Con ellos va "full": un 4:3 aqui lo corregiria dos veces.
 #
+# flycast standalone tambien hace esa conversion (core/input/mouse.cpp,
+# screenToNative: descuenta las bandas de la imagen 4:3): "full".
+# flycast = full
+#
 # Los emuladores standalone que estiran el rango del gun sobre la imagen del
 # juego necesitan el aspecto del juego. Sin verificar con cada uno:
 # mame = 4:3
 # advmame = 4:3
-# flycast = full
 
 # default = full
 
 # ejemplo por juego:
-# rom:luckywld = custom:0.125,0,0.75,1
+# rom:mygame = custom:0.125,0,0.75,1
 """
 
 

@@ -1,4 +1,4 @@
-# dbar4gun 1.0.2
+# dbar4gun 1.0.3
 
 [English](README.md) | Español
 
@@ -174,6 +174,7 @@ Consulta el [README específico de configuración de light guns](retroarch) para
 | VS. Hogan's Alley        | `hogalley`                     | lr-mame              | 256x240    |  0              | poca precisión en el bonus |
 | Lucky & Wild             | `luckywld`                     | lr-mame2015          | 288x224    |  0              |                            |
 | Area 51                  | `area51`                       | lr-mame2003-plus     | 320x240    |  0              |                            |
+| CarnEvil                 | `carnevil`                     | lr-mame2003-plus     | 512x400    |  0              | va a sus 54 fps originales |
 | House of the Dead 2      | `House of the Dead 2, The (USA).gdi` | flycast (standalone) | 640x480    |  0              |                            |
 | Virtua Cop 2             | `Virtua Cop 2 (Japan).gdi`     | lr-flycast           | 640x480    |  0              |                            |
 
@@ -251,11 +252,36 @@ Si ya conoces la dirección de tu(s) Wiimote(s) (por ejemplo `/dev/hidraw0`), pu
 
 ## Area profiles
 
-Con RetroArch (todos los cores `lr-*`) deja `full`: RetroArch ya lleva la
-posición de la pistola a la imagen del juego (también un juego 4:3 en una TV
-16:9), y apuntar fuera de la imagen es "offscreen", para recargar. Un emulador
-standalone que estira el rango de la pistola sobre la imagen del juego necesita
-el aspecto del juego (`4:3`).
+Un area profile le dice a dbar4gun qué parte de la pantalla cubre la pistola.
+
+**La mayoría de montajes no lo necesitan: deja `full` (el de por defecto).** Los
+emuladores que llevan ellos mismos la posición de la pistola a la imagen del juego
+ya resuelven un juego 4:3 en una TV 16:9, y apuntar fuera de la imagen es
+"offscreen", para recargar:
+
+- RetroArch: todos los cores `lr-*` (lr-mame, lr-mame2003-plus, lr-mame2016, lr-flycast...).
+- flycast standalone.
+
+Con ellos, un perfil `4:3` corregiría la imagen dos veces y la mira se desviaría
+hacia los lados.
+
+**Cuándo hace falta:** con un emulador que estira todo el rango de la pistola sobre
+la imagen del juego. Con `full`, un juego 4:3 en una TV 16:9 llega a su borde
+cuando apuntas al borde de la TV, y cuanto más lejos del centro, más error.
+Casos reales:
+
+| Caso | Perfil |
+|------|--------|
+| MAME standalone (el programa `mame`, sin RetroArch): el MAME por defecto de Batocera y Recalbox, y en un PC de escritorio | `4:3` |
+| AdvanceMAME | `4:3` |
+| Un juego en una ventana del escritorio, o una imagen que no ocupa toda la TV (marco o decorado fijo) | `custom:x0,y0,w,h` |
+| Mezclar emuladores: MAME standalone para un juego y RetroArch para el resto | por juego en `profiles.cfg` |
+
+`custom:x0,y0,w,h` es el rectángulo del juego como fracción de la TV: borde
+izquierdo, borde superior, ancho y alto (`0.125,0,0.75,1` es una imagen 4:3
+centrada en una TV 16:9).
+
+Cómo ponerlo:
 
 - Perfil por defecto: `--area full|4:3|custom:x0,y0,w,h` (RetroPie-Setup →
   dbar4gun → *default area profile*).
@@ -263,7 +289,13 @@ el aspecto del juego (`4:3`).
   (`/opt/retropie/configs/all/dbar4gun/` en RetroPie). Prioridad: `rom:<nombre>`
   > `system/emulator` > `emulator` > `system` > `default`. Los hooks de
   runcommand de RetroPie lo aplican al empezar un juego y vuelven al de por
-  defecto al terminar.
+  defecto al terminar. Por ejemplo:
+
+  ```
+  mame = 4:3
+  rom:mygame = custom:0.125,0,0.75,1
+  ```
+
 - En vivo: `dbar4gun area 4:3`, o la pantalla *Area profile* del calibrator.
 - **Useful zone** (`--useful-zone 0.85`): la parte de la altura de la pantalla
   con targets (la parte de abajo suele ser el HUD). La usan la calibración y el

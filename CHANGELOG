@@ -1,3 +1,14 @@
+1.0.3
+- fixed: menu de RetroPie: el texto de la calibracion de 4 puntos se cortaba
+- changed: hardware check, FOV: distancia por defecto 2 m y el texto explica que
+  el ancho es la separacion entre los grupos de LEDs (20 cm en la barra de la
+  Wii y la DolphinBar)
+- docs: profiles.cfg: flycast standalone verificado en su codigo (full)
+- docs: CarnEvil (lr-mame2003-plus, 512x400, 54 fps originales) en la lista de
+  juegos y en la shooting gallery
+- docs: area profiles: cuando no hacen falta (RetroArch, flycast) y casos reales
+  en los que si (MAME standalone, AdvanceMAME, ventana o marco fijo)
+
 1.0.2
 - added: menu de RetroPie: calibracion de 4 puntos (modo 3), mejor jugando de
   lado a la TV

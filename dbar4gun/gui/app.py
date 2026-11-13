@@ -1129,7 +1129,8 @@ class HardwareScreen(GunScreen):
         self.report_path = None
         self.status = {}
         self.fov_runs = []
-        self.distance = 3.0
+        # a 2 m se juega en un salon normal; se ajusta con arriba/abajo
+        self.distance = 2.0
         self.bar_width = app.hardware.bar_width_m
         # niveles de IR sensitivity probados en el paso de calidad IR
         self.ir_tried = []
