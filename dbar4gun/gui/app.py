@@ -87,6 +87,24 @@ class Screen(object):
         pass
 
 
+# marcas del mapa de la shooting gallery (y de su leyenda)
+MARK_R = 9
+
+
+def draw_aim_mark(surf, pos, color):
+    """El objetivo: la misma mira (circulo con cruz) a la que se dispara."""
+    x, y = pos
+    pygame.draw.circle(surf, color, pos, MARK_R, 2)
+    pygame.draw.line(surf, color, (x - int(MARK_R * 1.6), y), (x + int(MARK_R * 1.6), y), 1)
+    pygame.draw.line(surf, color, (x, y - int(MARK_R * 1.6)), (x, y + int(MARK_R * 1.6)), 1)
+
+
+def draw_hit_mark(surf, pos, color):
+    """Donde cayo el disparo (media): punto relleno con borde blanco."""
+    pygame.draw.circle(surf, color, pos, MARK_R - 2)
+    pygame.draw.circle(surf, WHITE, pos, MARK_R - 2, 1)
+
+
 class MenuScreen(Screen):
     # primero el hardware check: antes de calibrar, que la barra, el IR y el
     # FOV esten bien
@@ -736,10 +754,10 @@ class GalleryScreen(GunScreen):
             color = colors[L.target_level(game, margin)]
             a = (int(tx * w), int(ty * h))
             b = (int((tx + d[0]) * w), int((ty + d[1]) * h))
-            pygame.draw.circle(surf, GREY, a, 10, 1)
             pygame.draw.line(surf, color, a, b, 2)
-            pygame.draw.circle(surf, color, b, 6)
-            app.text(surf, "{:.1f}".format(game), (a[0], a[1] + 22), app.font_small, color, center=True)
+            draw_aim_mark(surf, a, WHITE)
+            draw_hit_mark(surf, b, color)
+            app.text(surf, "{:.1f}".format(game), (a[0], a[1] + 24), app.font_small, color, center=True)
         # una linea arriba, en el margen (los targets empiezan al 10 % del alto)
         app.text(surf, t("gallery.map_line", mg=s["mean_game"], xg=s["max_game"]), (w // 2, 6),
                  app.font_small, WHITE, center=True)
@@ -748,15 +766,25 @@ class GalleryScreen(GunScreen):
                  app.font_small, GREY, center=True)
 
     def draw_legend(self, surf, y):
-        """Leyenda del mapa en una linea: que es cada marca y cada color."""
+        """Leyenda del mapa en una linea: las dos marcas dibujadas y los colores."""
         app = self.app
         font = app.font_small
-        parts = [(t("gallery.legend.marks"), GREY), (t("gallery.legend.good"), GREEN),
-                 (t("gallery.legend.ok"), YELLOW), (t("gallery.legend.bad"), RED)]
-        gap = font.size("   ")[0]
-        total = sum(font.size(s)[0] for s, _ in parts) + gap * (len(parts) - 1)
+        icon = 2 * int(MARK_R * 1.6) + 10     # la cruz de la mira mas un hueco
+        # (marca o None, texto, color)
+        parts = [(draw_aim_mark, t("gallery.legend.target"), WHITE),
+                 (draw_hit_mark, t("gallery.legend.hit"), WHITE),
+                 (None, t("gallery.legend.number"), GREY),
+                 (None, t("gallery.legend.good"), GREEN),
+                 (None, t("gallery.legend.ok"), YELLOW),
+                 (None, t("gallery.legend.bad"), RED)]
+        gap = font.size("    ")[0]
+        total = sum(font.size(s)[0] + (icon if m else 0) for m, s, _ in parts) + gap * (len(parts) - 1)
         x = (surf.get_width() - total) // 2
-        for s, color in parts:
+        cy = y + font.get_height() // 2
+        for mark, s, color in parts:
+            if mark is not None:
+                mark(surf, (x + int(MARK_R * 1.6) + 2, cy), GREEN if mark is draw_hit_mark else color)
+                x += icon
             app.text(surf, s, (x, y), font, color)
             x += font.size(s)[0] + gap
 

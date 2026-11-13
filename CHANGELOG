@@ -1,3 +1,8 @@
+1.0.5
+- changed: mapa de la shooting gallery: el objetivo se dibuja con la mira a la
+  que se dispara y el disparo con un punto relleno; la leyenda lleva las dos
+  marcas dibujadas
+
 1.0.4
 - removed: los componentes IR setup y calibration (dbar4gun/irsetup y
   dbar4gun/calibration), sin uso desde la 1.0.0. --setup se sigue aceptando con
