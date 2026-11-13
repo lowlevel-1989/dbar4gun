@@ -87,6 +87,9 @@ class Screen(object):
         pass
 
 
+# margen (fraccion del alto) que algunas TV recortan arriba y abajo (overscan)
+SAFE_MARGIN = 0.03
+
 # marcas del mapa de la shooting gallery (y de su leyenda)
 MARK_R = 9
 
@@ -456,6 +459,9 @@ class WizardScreen(GunScreen):
         elif self.state == "verify":
             if g.was_pressed(L.BTN_HOME):
                 self.state = "done"
+            elif g.was_pressed(L.BTN_ONE):
+                # repetir la calibracion (el 1, no el gatillo: no se pulsa sin querer)
+                self.start()
             elif g.was_pressed(L.BTN_B):
                 samples = g.samples_before_last_b()
                 self.error_px = L.verify_error_px(samples, self.center(), self.app.size)
@@ -474,12 +480,22 @@ class WizardScreen(GunScreen):
 
         elif self.state == "done":
             # cada jugador entra en Calibrar desde el menu con su Wiimote
-            if g.was_pressed(L.BTN_HOME) or g.was_pressed(L.BTN_A):
+            if g.was_pressed(L.BTN_ONE):
+                self.start()
+            elif g.was_pressed(L.BTN_HOME) or g.was_pressed(L.BTN_A):
                 self.app.go(MenuScreen(self.app))
                 return
 
     def check_geometry(self):
         status = self.app.refresh_status().get(self.vg, {})
+        if status.get("calibration_mode") == 3:
+            # con 4 puntos el mapa corrige la perspectiva y su proporcion cambia
+            # por la pantalla: medida en un punto da avisos falsos. El driver
+            # ya rechaza las calibraciones imposibles y la comprobacion del
+            # centro mide el error real
+            self.ratio = None
+            self.state = "verify"
+            return
         ok, ratio = L.geometry_check(status.get("scale_ratio"), status.get("screen_aspect", 16.0 / 9.0))
         self.ratio = (ratio, status.get("screen_aspect", 16.0 / 9.0))
         self.state = "verify" if ok else "geometry"
@@ -525,6 +541,8 @@ class WizardScreen(GunScreen):
                 pygame.draw.circle(surf, MAGENTA, (int(p.screen[0] * w), int(p.screen[1] * h)), 10, 3)
             if self.state == "verify":
                 app.text(surf, t("wiz.verify"), (cx, h // 6), app.font_big, WHITE, center=True)
+                app.text(surf, t("wiz.verify_hint"), (cx, h // 6 + app.font_big.get_height() + 6),
+                         app.font, GREY, center=True)
             else:
                 app.text(surf, t("wiz.verify_bad", e=self.error_px or 0, m=L.VERIFY_MAX_PX),
                          (cx, h // 6), app.font, RED, center=True)
@@ -538,7 +556,10 @@ class WizardScreen(GunScreen):
 
         if self.message:
             app.text(surf, self.message[0], (cx, int(h * 0.8)), app.font, self.message[1], center=True)
-        app.draw_camera(surf, app.inset_rect(), p)
+        target = None
+        if self.state == "capture" and p is not None and p.calibrating:
+            target = (int(p.target[0] * w), int(p.target[1] * h))
+        app.draw_camera(surf, app.inset_rect(avoid=target), p)
 
 
 class GalleryScreen(GunScreen):
@@ -759,10 +780,13 @@ class GalleryScreen(GunScreen):
             draw_hit_mark(surf, b, color)
             app.text(surf, "{:.1f}".format(game), (a[0], a[1] + 24), app.font_small, color, center=True)
         # una linea arriba, en el margen (los targets empiezan al 10 % del alto)
-        app.text(surf, t("gallery.map_line", mg=s["mean_game"], xg=s["max_game"]), (w // 2, 6),
+        # textos dentro de la zona segura: hay TV que recortan los bordes (overscan)
+        safe = int(h * SAFE_MARGIN)
+        fs = app.font_small.get_height()
+        app.text(surf, t("gallery.map_line", mg=s["mean_game"], xg=s["max_game"]), (w // 2, safe),
                  app.font_small, WHITE, center=True)
-        self.draw_legend(surf, h - 2 * app.font_small.get_height() - 12)
-        app.text(surf, t("gallery.map_hint"), (w // 2, h - app.font_small.get_height() - 6),
+        self.draw_legend(surf, h - safe - fs - fs // 2 - 6)
+        app.text(surf, t("gallery.map_hint"), (w // 2, h - safe),
                  app.font_small, GREY, center=True)
 
     def draw_legend(self, surf, y):
@@ -1601,11 +1625,21 @@ class App(object):
             out.append(line)
         return out or [""]
 
-    def inset_rect(self):
+    def inset_rect(self, avoid=None):
+        """
+        Recuadro de la camara, abajo a la derecha. `avoid`: punto (px) que no
+        debe tapar (un target de la calibracion en esa esquina): entonces va
+        abajo a la izquierda.
+        """
         w, h = self.size
         ih = h // 4
         iw = ih * 4 // 3
-        return pygame.Rect(w - iw - 16, h - ih - 16, iw, ih)
+        rect = pygame.Rect(w - iw - 16, h - ih - 16, iw, ih)
+        if avoid is not None:
+            r = max(14, h // 40) * 2          # la mira del target, con su cruz
+            if rect.inflate(2 * r, 2 * r).collidepoint(avoid):
+                rect.x = 16
+        return rect
 
     def draw_target(self, surf, pos, color):
         x, y = pos

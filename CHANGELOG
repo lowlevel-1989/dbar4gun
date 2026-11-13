@@ -1,3 +1,15 @@
+1.1.1
+- fixed: calibracion de 4 puntos: el recuadro de la camara tapaba el target de
+  abajo a la derecha; ahora se mueve a la otra esquina mientras toca ese target
+- fixed: calibracion de 4 puntos: el aviso "la geometria parece incorrecta" salia
+  aunque la calibracion estuviera bien (la proporcion del mapa cambia por la
+  pantalla al corregir la perspectiva). Con 4 puntos ya no se usa: lo comprueba
+  la verificacion del centro
+- added: calibrar otra vez con el boton 1 en la comprobacion del centro y al
+  terminar la calibracion
+- fixed: mapa de la shooting gallery: la linea de arriba (y la leyenda y la ayuda
+  de abajo) quedaban pegadas al borde y algunas TV las recortaban (overscan)
+
 1.1.0
 - added: por Bluetooth, dbar4gun bloquea (EVIOCGRAB) los mandos que crea el kernel
   (hid-wiimote) para el Wiimote y el Nunchuk mientras lo usa: sus botones ya no

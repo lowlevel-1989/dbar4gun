@@ -736,3 +736,61 @@ def test_players_screen_only_the_opener_exits(monkeypatch):
         assert isinstance(rig.app.screen, A.MenuScreen)
     finally:
         rig.close()
+
+
+def test_camera_inset_does_not_cover_the_target(rig):
+    """Con 4 puntos el target de abajo a la derecha cae donde va el recuadro de la camara."""
+    w, h = rig.app.size
+    default = rig.app.inset_rect()
+    target = (int(0.9 * w), int(0.85 * h))
+    assert default.collidepoint(target)                  # sin evitarlo, lo tapaba
+    moved = rig.app.inset_rect(avoid=target)
+    assert not moved.inflate(40, 40).collidepoint(target) and moved.x < w // 2
+    assert rig.app.inset_rect(avoid=(w // 2, h // 2)) == default
+
+
+def test_wizard_4_points_skips_the_ratio_check(monkeypatch):
+    """
+    Modo 3: la proporcion del mapa cambia por la pantalla (perspectiva) y daba
+    avisos falsos; se pasa directo a la comprobacion del centro.
+    """
+    from dbar4gun.core.gun import GunOptions
+    from tests.sim.scene import Scene, TV
+    scene = Scene(tv=TV(45), player=(1.0, -0.6, 2.0))     # de lado y mas bajo: proporcion 1.11
+    rig = Rig(monkeypatch, scene=scene, options=GunOptions(calibration_mode=3, smoothing_level=0))
+    try:
+        gun = rig.guns[0]
+        rig.frames(3)
+        go_menu_item(rig, gun, "menu.wizard")
+        wiz = rig.app.screen
+        rig.press(gun, L.BTN_A)
+        capture_all(rig, gun)
+        rig.frames(2)
+        assert gun.drv.saved and gun.drv.saved[-1].mode == 3
+        assert wiz.state == "verify"
+    finally:
+        rig.close()
+
+
+
+def test_wizard_can_calibrate_again(rig):
+    """Con el 1 se repite la calibracion en la comprobacion del centro y al terminar."""
+    gun = rig.guns[0]
+    rig.frames(3)
+    go_menu_item(rig, gun, "menu.wizard")
+    wiz = rig.app.screen
+    rig.press(gun, L.BTN_A)
+    capture_all(rig, gun)
+    rig.frames(2)
+    assert wiz.state == "verify"
+    rig.press(gun, L.BTN_ONE)                     # repetir desde la comprobacion
+    assert wiz.state == "capture"
+    capture_all(rig, gun)
+    rig.frames(2)
+    gun.aim = wiz.center()
+    rig.frames(10)
+    rig.press(gun, L.BTN_B)
+    assert wiz.state == "done"
+    rig.press(gun, L.BTN_ONE)                     # repetir desde el final
+    assert wiz.state == "capture"
+    rig.press(gun, L.BTN_HOME)
