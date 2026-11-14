@@ -115,22 +115,25 @@ def test_saved_calibration_loaded_at_start(daemon):
     assert p.default_kind() == "quick"
 
 
-def test_filter_usefulzone_save_history(daemon, monkeypatch, tmp_path):
+def test_smoothing_usefulzone_save_history(daemon, monkeypatch, tmp_path):
     workers = [Worker(daemon, monkeypatch, 0, "bt:a")]
     from dbar4gun.core.calibration.data import CalibrationData
     from dbar4gun.core.calibration.maps import AffineMap
 
-    # una calibracion hecha (para que el filter se guarde)
+    # una calibracion hecha (para que el smoothing se guarde)
     cal = CalibrationData(affine=AffineMap(0.12, 0, 0, 0.2, 0.5, 0), calibrated=True, timestamp=1.0)
     workers[0].wm.pipeline.set_calibration(cal)
     workers[0].wm.on_save = lambda data, h=True: daemon.store().save("bt:a", data, h)
     daemon.store().save("bt:a", cal)
 
-    r = ask(daemon, workers, "filter 1 0.6 7", monkeypatch)
-    assert r["ok"] and r["filter"]["fc_min"] == 0.6
-    assert not ask(daemon, workers, "filter 1 x", monkeypatch)["ok"]
+    r = ask(daemon, workers, "smoothing 1 5", monkeypatch)
+    assert r["ok"] and r["smoothing_level"] == 5
+    assert not ask(daemon, workers, "smoothing 1 x", monkeypatch)["ok"]
+    assert not ask(daemon, workers, "smoothing 1 -1", monkeypatch)["ok"]
     workers[0].wm._run_actions(0.0)        # el worker procesa el guardado
-    assert daemon.store().load("bt:a").filter["beta"] == 7.0
+    assert daemon.store().load("bt:a").smoothing_level == 5
+    r = ask(daemon, workers, "smoothing 1 default", monkeypatch)
+    assert r["ok"] and r["smoothing_level"] == workers[0].wm.pipeline.options.smoothing_level
 
     assert ask(daemon, workers, "usefulzone 0.8", monkeypatch)["ok"]
     assert workers[0].wm.pipeline.options.useful_zone == 0.8

@@ -57,14 +57,14 @@ una línea y recibe una línea JSON con al menos `ok`.
 
 | Comando | Respuesta |
 |---------|-----------|
-| `status` | `version`, `area`, `useful_zone`, `hardware`, `profiles` (ruta del `profiles.cfg` del daemon, la usa `dbar4gun profile`) y `wiimotes`: lista con `virtualgun`, `player`, `key`, `hidraw`, `paired` (false en un slot vacío de la DolphinBar), `ir_sensitivity`, `report_age` (s desde el último report distinto), `nunchuck`, `hardware`, `battery`, `hz`, `calibrated`, `calibrating`, `calibration_step`, `calibration_mode`, `mode_option`, `affine` (6 valores o 9 si es homografía), `bar_position`, `scale_ratio`, `screen_aspect`, `filter`, `sep_ref`, `distance_m`, `distance_ref_m`, `roll_deg`, `dots`, `last_calibration_error`... |
+| `status` | `version`, `area`, `useful_zone`, `hardware`, `profiles` (ruta del `profiles.cfg` del daemon, la usa `dbar4gun profile`) y `wiimotes`: lista con `virtualgun`, `player`, `key`, `hidraw`, `paired` (false en un slot vacío de la DolphinBar), `ir_sensitivity`, `report_age` (s desde el último report distinto), `nunchuck`, `hardware`, `battery`, `hz`, `calibrated`, `calibrating`, `calibration_step`, `calibration_mode`, `mode_option`, `affine` (6 valores o 9 si es homografía), `bar_position`, `scale_ratio`, `screen_aspect`, `filter`, `smoothing_level` (el que usa), `smoothing_own` (true si tiene uno propio), `smoothing_default`, `sep_ref`, `distance_m`, `distance_ref_m`, `roll_deg`, `dots`, `last_calibration_error`... |
 | `area <perfil>` | `default` (el del servicio o `profiles.cfg`), `full`, `4:3` (cualquier `a:b`) o `custom:x0,y0,w,h` |
 | `usefulzone <0.3..1.0>` | useful zone de todos los Wiimotes |
 | `save` | escribe el área y la useful zone actuales en `profiles.cfg` (`default`, `useful_zone`) |
 | `calibrate [vg] [full\|quick] [targets=x1,y1,...]` | `started`: VirtualGuns que empezaron. `targets` en coordenadas de la TV completa (2, 3 o 4 según el modo) |
 | `cancel` | cancela las calibraciones en curso |
 | `reload` | relee las calibraciones guardadas; `loaded`: VirtualGuns actualizadas |
-| `filter <vg> <fc_min> <beta> [d_cutoff]` | parámetros del One Euro de ese Wiimote (se guardan con la calibración) |
+| `smoothing <vg> <nivel\|default>` | smoothing de ese Wiimote (se guarda con la calibración); `default` vuelve al `--smoothing-level` del servicio |
 | `history <vg>` | history de calibraciones: `index`, `timestamp`, `accuracy`, `mode`, `sep_ref` |
 | `restore <vg> <index>` | vuelve a una calibración del history |
 | `accuracy <vg> <mean_tv> <max_tv> [mean_game max_game]` | anota la precisión medida en la última calibración |

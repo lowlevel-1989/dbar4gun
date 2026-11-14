@@ -2,11 +2,10 @@
 Logica del calibrator sin pygame (dbar4gun/gui/logic) y sus textos.
 """
 
-import math
 
 import pytest
 
-from dbar4gun.gui.logic import calibration, gallery, tune, wiimotes
+from dbar4gun.gui.logic import calibration, gallery, wiimotes
 from dbar4gun.protocol import Packet
 
 from tests.sim.gui_harness import SimGun
@@ -165,7 +164,7 @@ def test_stability_levels():
 # ----------------------------------------------------------------
 def test_gallery_targets_inside_area_and_useful_zone():
     t = gallery.gallery_targets((0.125, 0.0, 0.75, 1.0), 0.8)
-    assert len(t) == 15                     # 5x3: con columna central
+    assert len(t) == 9                      # 3x3: centro, bordes y esquinas
     assert all(0.125 < x < 0.875 for x, _ in t)
     assert min(y for _, y in t) == pytest.approx(0.1) and max(y for _, y in t) == pytest.approx(0.8)
 
@@ -179,31 +178,14 @@ def test_shot_error_units():
 
 
 # ----------------------------------------------------------------
-def record(monkeypatch, path):
-    scene = Scene(tv=TV(45), noise_px=0.5, seed=5)
-    g = SimGun(monkeypatch, scene)
-    g.drv.calibrate(Scene(tv=TV(45)))
-    out = []
-    for aim in path:
-        g.aim = aim
-        out += [p.screen for p in g.packets(1)]
-    return out
-
-
-AREA43 = (0.125, 0.0, 0.75, 1.0)
-
-
-def test_autotune_still_and_moving(monkeypatch):
-    still = record(monkeypatch, [(0.5, 0.5)] * 300)
-    assert tune.jitter_game(still, AREA43) > 2.0
-    fc, jitter = tune.choose_fc_min(still, AREA43)
-    assert jitter <= tune.JITTER_TARGET_GAME and 0.25 <= fc <= 2.0
-
-    path = [(0.5 + 0.3 * math.sin(2 * math.pi * i / 100.0), 0.5) for i in range(300)]
-    moving = record(monkeypatch, path)
-    assert tune.motion_amount(moving, AREA43) > 500
-    beta, lag = tune.choose_beta(moving, fc, AREA43)
-    assert lag <= tune.LAG_TARGET_GAME and beta in tune.BETA_CANDIDATES
+def test_target_radius():
+    """El target de la galeria: 10 px de juego, y como minimo 1/24 del alto."""
+    area43 = (0.125, 0.0, 0.75, 1.0)
+    assert gallery.target_radius(area43, (320, 240), (1920, 1080)) == pytest.approx(45.0)
+    # a pantalla completa (px de la TV) se queda en el minimo
+    assert gallery.target_radius((0.0, 0.0, 1.0, 1.0), (1920, 1080), (1920, 1080)) == pytest.approx(45.0)
+    assert gallery.target_radius(area43, (640, 480), (1920, 1080)) == pytest.approx(45.0)
+    assert gallery.target_radius(area43, (256, 240), (1280, 720)) == pytest.approx(30.0)
 
 
 def test_every_gui_text_exists():
@@ -281,7 +263,7 @@ GAME = (320, 240)
 
 
 def _synthetic(err_fn):
-    """Errores de una rejilla 5x3 con err_fn(ux, uy) -> (dx, dy) en px de juego."""
+    """Errores de una rejilla 3x3 con err_fn(ux, uy) -> (dx, dy) en px de juego."""
     targets = gallery.gallery_targets(AREA43, 0.85)
     cx, cy = 0.5, 0.5
     errors = []
@@ -375,10 +357,8 @@ def test_aggregate_shots_averages_aim_and_measures_it():
 
 
 def test_gallery_stop_rule():
-    assert not gallery.gallery_done(0.5, 1)              # una vuelta nunca basta
-    assert gallery.gallery_done(1.0, 2)                  # buen pulso: 2 vueltas
-    assert not gallery.gallery_done(4.0, 2)              # pulso irregular: otra vuelta
-    assert gallery.gallery_done(9.0, 3)                  # como mucho 3
+    assert not gallery.gallery_done(1)                   # una vuelta nunca basta
+    assert gallery.gallery_done(2)                       # 2 vueltas: 18 disparos
     assert abs(gallery.gallery_margin(3.0, 3) - 3.0 / 3 ** 0.5) < 1e-9
     import random
     rng = random.Random(1)

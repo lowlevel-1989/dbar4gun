@@ -36,6 +36,13 @@ def nominal_map():
     return AffineMap(kx, 0.0, 0.0, ky, 0.5, 0.5 - off)
 
 
+def _level(v):
+    """smoothing_level guardado: entero >= 0 o None."""
+    if v is None:
+        return None
+    return max(0, int(v))
+
+
 class CalibrationData(object):
     """Lo que se guarda por Wiimote."""
 
@@ -43,7 +50,7 @@ class CalibrationData(object):
 
     def __init__(self, mode=MODE_3PT, affine=None, sep_ref=0.0,
                  distance_compensation=True, targets=None,
-                 calibrated=False, timestamp=0.0, filter=None):
+                 calibrated=False, timestamp=0.0, smoothing_level=None):
         self.mode = mode
         self.affine = affine or nominal_map()
         self.sep_ref = sep_ref
@@ -51,8 +58,8 @@ class CalibrationData(object):
         self.targets = targets or []
         self.calibrated = calibrated
         self.timestamp = timestamp
-        # parametros del One Euro de este Wiimote (None = los del servicio)
-        self.filter = dict(filter) if filter else None
+        # smoothing de este Wiimote (None = el --smoothing-level del servicio)
+        self.smoothing_level = smoothing_level
 
     def map_for(self, distance_compensation):
         """
@@ -78,7 +85,7 @@ class CalibrationData(object):
             "targets": [list(t) for t in self.targets],
             "calibrated": self.calibrated,
             "timestamp": self.timestamp,
-            "filter": self.filter,
+            "smoothing_level": self.smoothing_level,
         }
 
     @classmethod
@@ -92,5 +99,5 @@ class CalibrationData(object):
             targets=[tuple(t) for t in d.get("targets", [])],
             calibrated=bool(d.get("calibrated", True)),
             timestamp=float(d.get("timestamp", 0.0)),
-            filter=d.get("filter"),
+            smoothing_level=_level(d.get("smoothing_level")),
         )

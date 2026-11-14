@@ -31,7 +31,7 @@ Desde entonces el servicio arranca con el sistema. Las opciones de ese menú:
 | opción | qué hace |
 |---|---|
 | width / height | tamaño de tu pantalla |
-| smoothing level | suavizado del cursor: 0 desactivado, más alto = más suave |
+| smoothing level | suavizado del cursor: 0 desactivado, más alto = más suave. Es el de todos los Wiimotes por defecto; cada jugador puede elegir el suyo en el calibrator (*Suavizado*) |
 | tilt correction | el cursor no se mueve al inclinar el Wiimote |
 | default area profile | `full` (por defecto), `4:3` o `custom:...`: [area profiles](../docs/area-profiles.es.md) |
 | useful zone | parte de la altura de la pantalla con targets (0.85) |

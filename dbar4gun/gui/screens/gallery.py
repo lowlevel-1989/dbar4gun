@@ -3,13 +3,14 @@ Shooting gallery: disparar a targets y ver el error en un mapa.
 """
 
 import pygame
+import pygame.gfxdraw
 
 from dbar4gun.gui.draw import DARK, GREEN, GREY, RED, WHITE, YELLOW
 from dbar4gun.gui.i18n import t
 from dbar4gun.gui.logic.gallery import (
     aggregate_shots, gallery_analysis, gallery_done, gallery_margin, gallery_order,
     gallery_presets, gallery_targets, jitter_target, MAX_SHOT_SPREAD, preset_area,
-    preset_game_size, RING_NAMES, shot_error, shot_spread, summarize, target_level,
+    preset_game_size, RING_NAMES, shot_error, shot_spread, summarize, target_level, target_radius,
 )
 from dbar4gun.gui.logic.wiimotes import BTN_A, BTN_B, BTN_DOWN, BTN_HOME, BTN_ONE, BTN_UP
 from dbar4gun.gui.screens.base import GunScreen
@@ -30,6 +31,39 @@ def draw_aim_mark(surf, pos, color):
     pygame.draw.line(surf, color, (x, y - int(MARK_R * 1.6)), (x, y + int(MARK_R * 1.6)), 1)
 
 
+TARGET_RED = (214, 62, 62)
+TARGET_WHITE = (240, 240, 240)
+
+
+def _disc(surf, pos, r, color):
+    """Circulo relleno con el borde suavizado (antialiasing)."""
+    x, y = pos
+    pygame.gfxdraw.filled_circle(surf, x, y, r, color)
+    pygame.gfxdraw.aacircle(surf, x, y, r, color)
+
+
+def draw_round_target(surf, pos, r):
+    """El target de la galeria: una diana; cualquier disparo dentro es un acierto."""
+    x, y = pos
+    _disc(surf, (x + 3, y + 4), r, DARK)                      # sombra
+    _disc(surf, pos, r, TARGET_WHITE)                         # borde blanco
+    for i, color in enumerate((TARGET_RED, TARGET_WHITE, TARGET_RED)):
+        _disc(surf, pos, max(2, int(r * (0.86 - 0.29 * i))), color)
+    _disc(surf, pos, max(2, r // 8), TARGET_WHITE)            # centro
+
+
+# cuanto se ve donde cayo el ultimo disparo (s)
+LAST_SHOT_TIME = 1.2
+
+
+def draw_last_shot(surf, pos, hit):
+    """Donde cayo el ultimo disparo, mientras se dispara: grande para verlo en una TV 4K."""
+    r = max(MARK_R, surf.get_height() // 80)
+    _disc(surf, pos, r + 3, DARK)
+    _disc(surf, pos, r + 1, WHITE)
+    _disc(surf, pos, r - 1, GREEN if hit else RED)
+
+
 def draw_hit_mark(surf, pos, color):
     """Donde cayo el disparo (media): punto relleno con borde blanco."""
     pygame.draw.circle(surf, color, pos, MARK_R - 2)
@@ -43,8 +77,8 @@ class GalleryScreen(GunScreen):
     juego a pantalla completa o uno 4:3 con su resolucion (o un juego de la
     lista), para ver el error en los pixeles de ese juego.
 
-    Se dispara por vueltas (todos los targets, en otro orden y un poco movidos)
-    hasta que el resultado es fiable segun la punteria, como mucho MAX_ROUNDS.
+    Se dispara por vueltas (todos los targets, en otro orden y un poco movidos),
+    ROUNDS vueltas.
     Home tras la primera vuelta termina con lo que haya.
     """
 
@@ -62,6 +96,7 @@ class GalleryScreen(GunScreen):
         self.saved = None
         self.details = False        # pagina del analisis (boton 1)
         self.unsteady = False       # el ultimo disparo se repite
+        self.last_shot = None       # (posicion, acierto, hora) del ultimo disparo
 
     def start(self):
         p = self.packet
@@ -79,6 +114,7 @@ class GalleryScreen(GunScreen):
         self.saved = None
         self.details = False
         self.unsteady = False
+        self.last_shot = None
         self.new_round()
 
     def new_round(self):
@@ -171,10 +207,11 @@ class GalleryScreen(GunScreen):
                 if err is None:
                     return
                 self.shots.append((cell, err))
+                hit = err[0] <= target_radius(self.area, self.game, self.app.size)
+                self.last_shot = ((target[0] + err[2][0], target[1] + err[2][1]), hit, now)
                 if len(self.shots) % len(self.targets) == 0:
                     self.rounds += 1
-                    _, aim = self.estimate_aim()
-                    if gallery_done(aim, self.rounds):
+                    if gallery_done(self.rounds):
                         self.finish()
                         return
                     self.new_round()
@@ -219,15 +256,21 @@ class GalleryScreen(GunScreen):
         pygame.draw.rect(surf, DARK, pygame.Rect(int(x0 * w), int(y0 * h), int(aw * w), int(ah * h)), 2)
         if self.summary is None:
             tx, ty = self.current[1]
-            app.draw_target(surf, (int(tx * w), int(ty * h)), YELLOW)
+            draw_round_target(surf, (int(tx * w), int(ty * h)),
+                              int(target_radius(self.area, self.game, (w, h))))
+            if self.last_shot and app.now - self.last_shot[2] < LAST_SHOT_TIME:
+                (sx, sy), hit, _ = self.last_shot
+                draw_last_shot(surf, (int(sx * w), int(sy * h)), hit)
+            # los textos arriba; si el target esta en la fila de arriba, mas abajo
+            top = h // 12 if ty > 0.25 else int(h * 0.25)
             app.text(surf, t("gallery.target", i=len(self.shots) % len(self.targets) + 1,
-                             n=len(self.targets), r=self.rounds + 1), (w // 2, h // 12),
+                             n=len(self.targets), r=self.rounds + 1), (w // 2, top),
                      app.font_big, WHITE, center=True)
-            app.text(surf, self.preset_label(self.preset), (w // 2, h // 12 + app.font_big.get_height()),
+            app.text(surf, self.preset_label(self.preset), (w // 2, top + app.font_big.get_height()),
                      app.font, GREY, center=True)
             if self.unsteady:
                 app.text(surf, t("gallery.unsteady"),
-                         (w // 2, h // 12 + app.font_big.get_height() + app.font.get_height() + 8),
+                         (w // 2, top + app.font_big.get_height() + app.font.get_height() + 8),
                          app.font, YELLOW, center=True)
             app.text(surf, t("gallery.help_stop" if self.rounds >= 1 else "gallery.help"),
                      (w // 2, h - app.font.get_height() * 2), app.font, GREY, center=True)

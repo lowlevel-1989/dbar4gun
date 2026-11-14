@@ -83,7 +83,7 @@ bluetoothctl remove XX:XX:XX:XX:XX:XX
 | escritorio | `/var/lib/dbar4gun`                  | wrapper `platforms/desktop/dbar4gun-run.sh` |
 
 `--config-dir` cambia la carpeta. Contiene `calibration.json` (calibraciones,
-history, filter), `hardware.json` (valores medidos con el hardware check),
+historial, suavizado de cada Wiimote), `hardware.json` (valores medidos con el hardware check),
 `hardware_report.json` y `profiles.cfg` (area profile por juego).
 
 Para cambiar el area profile por juego en un escritorio, lanza el emulador con

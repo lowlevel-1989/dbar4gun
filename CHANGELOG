@@ -1,3 +1,13 @@
+1.3.0
+- added: smoothing por Wiimote: cada jugador elige el suyo en el calibrador
+  (Smoothing). Por defecto todos usan --smoothing-level. Se guarda con la
+  calibracion del Wiimote, sin entrada nueva en el history
+- added: comando smoothing <virtualgun> <level|default> (sustituye a filter)
+- removed: auto-tune del smoothing, sustituido por el smoothing por Wiimote
+- changed: shooting gallery: dianas redondas mas grandes (10 px de juego) y
+  acierto dentro de la diana; 3x3 dianas y 2 rondas (18 disparos, antes 45)
+- changed: el ultimo disparo de la gallery se marca en verde (acierto) o rojo
+
 1.2.0
 - changed: la sensor bar va encima de la TV. --bar ya no se usa (se sigue
   aceptando para que no falle un servicio que lo tenga): la calibracion vale con

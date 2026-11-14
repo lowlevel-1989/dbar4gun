@@ -31,7 +31,7 @@ From then on the service starts with the system. The options of that menu:
 | option | what it does |
 |---|---|
 | width / height | size of your screen |
-| smoothing level | smoothing of the cursor: 0 off, higher is smoother |
+| smoothing level | smoothing of the cursor: 0 off, higher is smoother. Default of every Wiimote; each player can choose their own in the calibrator (*Smoothing*) |
 | tilt correction | the cursor does not move when the Wiimote is tilted |
 | default area profile | `full` (default), `4:3` or `custom:...`: [area profiles](../docs/area-profiles.md) |
 | useful zone | part of the screen height with targets (0.85) |

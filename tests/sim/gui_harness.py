@@ -101,10 +101,10 @@ class SimControl(object):
             return {"ok": True}
         if cmd == "save":
             return {"ok": True, "path": "/tmp/profiles.cfg"}
-        if cmd == "filter":
+        if cmd == "smoothing":
             pipe = self.guns[int(parts[1])].drv.pipeline
-            pipe.set_filter(float(parts[2]), float(parts[3]))
-            return {"ok": True, "filter": pipe.filter_params()}
+            pipe.set_smoothing(None if parts[2] == "default" else int(parts[2]))
+            return {"ok": True, "smoothing_level": pipe.smoothing_level()}
         if cmd == "hw":
             from dbar4gun.core.hardware import HardwareConfig
             hw = self.hardware.copy() if hasattr(self, "hardware") else HardwareConfig()

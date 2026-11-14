@@ -249,48 +249,31 @@ def test_gallery_saves_accuracy(rig_store):
     assert isinstance(rig.app.screen, MenuScreen)
 
 
-def test_tune_applies_filter(monkeypatch):
+def test_smoothing_screen_per_wiimote(monkeypatch):
     from dbar4gun.core.gun import GunOptions
-    rig = Rig(monkeypatch, scene=Scene(tv=TV(45), noise_px=0.5, seed=3),
-              options=GunOptions(smoothing_level=3))
+    rig = Rig(monkeypatch, n_guns=2, options=GunOptions(smoothing_level=3))
     try:
-        gun = rig.guns[0]
+        gun, other = rig.guns[0], rig.guns[1]
         gun.drv.calibrate(Scene(tv=TV(45)))
         rig.frames(3)
-        go_menu_item(rig, gun, "menu.tune")
+        go_menu_item(rig, gun, "menu.smoothing")
         screen = rig.app.screen
-        rig.press(gun, wiimotes.BTN_A)
-        assert screen.state == "still"
-        rig.frames(int(3.2 * 60))
-        assert screen.state == "move_intro" and screen.fc is not None
-        rig.press(gun, wiimotes.BTN_A)
-        i = 0
-        while screen.state == "move":
-            gun.aim = (0.5 + 0.3 * math.sin(i / 10.0), 0.5)
-            rig.frames(1)
-            i += 1
-        assert screen.state == "result", screen.state
-        rig.press(gun, wiimotes.BTN_A)
-        assert screen.state == "applied"
-        f = gun.drv.pipeline.filter_params()
-        assert f["fc_min"] == pytest.approx(screen.fc, abs=1e-3)
-        assert f["beta"] == pytest.approx(screen.beta, abs=1e-2)
-    finally:
-        rig.close()
-
-
-def test_tune_rejects_no_motion(monkeypatch):
-    rig = Rig(monkeypatch)
-    try:
-        gun = rig.guns[0]
-        rig.frames(3)
-        go_menu_item(rig, gun, "menu.tune")
-        screen = rig.app.screen
-        rig.press(gun, wiimotes.BTN_A)
-        rig.frames(200)
-        rig.press(gun, wiimotes.BTN_A)
-        rig.frames(200)
-        assert screen.state == "move_again"
+        assert screen.level == 3 and not screen.own and screen.default == 3
+        rig.press(gun, wiimotes.BTN_DOWN)
+        rig.press(gun, wiimotes.BTN_DOWN)
+        rig.press(gun, wiimotes.BTN_DOWN)
+        assert screen.level == 0 and screen.own
+        assert gun.drv.pipeline.filter is None
+        rig.press(gun, wiimotes.BTN_DOWN)                      # no baja de 0
+        assert screen.level == 0
+        # el otro jugador sigue con el del servicio
+        assert other.drv.pipeline.smoothing_level() == 3
+        rig.press(gun, wiimotes.BTN_UP)
+        assert gun.drv.pipeline.smoothing_level() == 1
+        rig.press(gun, wiimotes.BTN_A)                         # vuelve al del servicio
+        assert screen.level == 3 and not screen.own
+        rig.press(gun, wiimotes.BTN_HOME)
+        assert isinstance(rig.app.screen, MenuScreen)
     finally:
         rig.close()
 
@@ -657,7 +640,7 @@ def test_gallery_diagnoses_scale_without_distance_compensation(monkeypatch, tmp_
 def test_gallery_separates_bad_aim_from_the_calibration(rig_store):
     """
     Una persona con mala punteria (cada disparo desviado al azar) y una buena
-    calibracion: la galeria sigue hasta 3 vueltas, con los targets movidos,
+    calibracion: en 2 vueltas, con los targets movidos,
     mide la punteria y no culpa a la calibracion.
     """
     import random
@@ -680,16 +663,16 @@ def test_gallery_separates_bad_aim_from_the_calibration(rig_store):
         rig.frames(8)
         rig.press(gun, wiimotes.BTN_B)
     a = screen.analysis
-    assert screen.rounds == 3 and len(screen.shots) == 45
-    assert len(positions) > 30                     # los targets no salen en el mismo sitio
+    assert screen.rounds == 2 and len(screen.shots) == 18
+    assert len(positions) > 12                     # los targets no salen en el mismo sitio
     # no culpa a la calibracion: "no se puede saber" (o bien), nunca recalibrar
     assert a["kind"] in ("unknown", "random", "good"), a
     assert 3.0 < a["aim"] < 10.0, a                # la dispersion de la punteria, medida
-    assert a["margin"] == pytest.approx(a["aim"] / 3 ** 0.5, abs=0.01)
+    assert a["margin"] == pytest.approx(a["aim"] / 2 ** 0.5, abs=0.01)
 
 
-def test_gallery_stops_early_with_steady_aim(rig_store):
-    """Con buen pulso bastan 2 vueltas (30 disparos), el minimo para medir la punteria."""
+def test_gallery_two_rounds(rig_store):
+    """2 vueltas de 9 targets (18 disparos), el minimo para medir la punteria."""
     rig = rig_store
     gun = rig.guns[0]
     gun.drv.calibrate(rig.scene)
@@ -698,7 +681,7 @@ def test_gallery_stops_early_with_steady_aim(rig_store):
     screen = rig.app.screen
     rig.press(gun, wiimotes.BTN_A)
     shoot_gallery(rig, gun, screen)
-    assert screen.rounds == 2 and len(screen.shots) == 30
+    assert screen.rounds == 2 and len(screen.shots) == 18
     assert screen.analysis["margin"] is not None and screen.analysis["margin"] < 1.0
 
 
@@ -713,7 +696,7 @@ def test_gallery_home_finishes_after_the_first_round(rig_store):
     screen = rig.app.screen
     rig.press(gun, wiimotes.BTN_A)
     px = 0.75 / 320
-    while screen.rounds < 1 or len(screen.shots) < 20:
+    while screen.rounds < 1 or len(screen.shots) < 12:
         tx, ty = screen.current[1]
         gun.aim = (tx + rng.gauss(0, 8 * px), ty)
         rig.frames(8)
@@ -721,7 +704,7 @@ def test_gallery_home_finishes_after_the_first_round(rig_store):
         assert screen.summary is None
     rig.press(gun, wiimotes.BTN_HOME)                     # cortar en la segunda vuelta
     assert screen.summary is not None and isinstance(rig.app.screen, GalleryScreen)
-    assert len(screen.shots) == 20
+    assert len(screen.shots) == 12
 
 
 def test_players_screen_only_the_opener_exits(monkeypatch):

@@ -71,7 +71,7 @@ def preset_game_size(preset, screen_size):
     return preset[2], preset[3]
 
 
-def gallery_targets(area, useful_zone, cols=5, rows=3, margin=0.1):
+def gallery_targets(area, useful_zone, cols=3, rows=3, margin=0.1):
     """Grid de targets (pantalla completa) dentro del area y de la useful zone."""
     x0, y0, w, h = area
     top, bottom = margin, useful_zone
@@ -117,16 +117,23 @@ def shot_spread(samples):
 # la galeria dispara por vueltas: en cada una salen todos los targets, en otro
 # orden y un poco movidos (que no se note que se repiten). La media de los
 # disparos a cada target reduce el error de punteria y su dispersion lo mide.
-# Despues de cada vuelta se calcula el margen de la estimacion (punteria /
-# raiz de los disparos por target) y se para si ya es pequeno, como mucho tras
-# MAX_ROUNDS vueltas (mas disparos cansan y empeoran la punteria).
-MAX_ROUNDS = 3
-# con una sola vuelta (un disparo por target) la punteria no se puede separar
+# Con una sola vuelta (un disparo por target) la punteria no se puede separar
 # del error no lineal de la calibracion (medido con punteria perfecta: 1.7 px
-# de juego a 320x240, 3.4 a 640x480): como minimo 2 vueltas
-MIN_ROUNDS = 2
-MARGIN_OK = 1.5          # px de juego
+# de juego a 320x240, 3.4 a 640x480), y mas vueltas cansan: 2 vueltas de 9
+# targets, 18 disparos.
+ROUNDS = 2
 TARGET_JITTER = 0.04     # fraccion del area: cuanto se mueve cada target
+
+
+# radio del target (px de juego): un disparo dentro cuenta como acierto. Es solo
+# para quien dispara; el error se mide igual desde el centro
+HIT_RADIUS_GAME = 10.0
+
+
+def target_radius(area, game, screen_size):
+    """Radio del target en px de la TV (minimo 1/24 del alto, para verlo)."""
+    r = HIT_RADIUS_GAME / float(game[1]) * area[3] * screen_size[1]
+    return max(r, screen_size[1] / 24.0)
 
 
 def jitter_target(base, area, rng):
@@ -159,14 +166,9 @@ def gallery_margin(aim, rounds):
     return aim / math.sqrt(rounds)
 
 
-def gallery_done(aim, rounds):
-    """True si con esa punteria y esas vueltas el resultado ya es fiable."""
-    if rounds >= MAX_ROUNDS:
-        return True
-    if rounds < MIN_ROUNDS:
-        return False
-    margin = gallery_margin(aim, rounds)
-    return margin is not None and margin <= MARGIN_OK
+def gallery_done(rounds):
+    """True tras las vueltas de la galeria."""
+    return rounds >= ROUNDS
 
 
 def gallery_order(n, repeats, rng=None):
@@ -231,7 +233,8 @@ RING_NAMES = ("center", "middle", "edge")
 # por debajo de esto (px de juego) el error no merece consejo
 GALLERY_GOOD = 2.0
 # un desplazamiento o una escala cuentan si superan 3 veces su error tipico
-# (con 15 disparos de punteria irregular, ~4 % de falsos patrones; con 2.5, ~9 %)
+# (con 9 targets y punteria irregular, ~8 % de falsos patrones; con 3.5 baja al
+# 4 %, pero ya no se ve un desplazamiento de 6 px con 3 px de punteria)
 SIGNIFICANCE = 3.0
 
 

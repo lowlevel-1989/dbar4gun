@@ -13,7 +13,7 @@ Every option: `dbar4gun start --help`.
 | `--disable-tilt-correction` | | |
 | `--no-distance-compensation` | | the precision then depends on keeping the calibration distance |
 | `--no-input-grab` | | Bluetooth: do not block the kernel gamepads of the Wiimote and the Nunchuk (their buttons then arrive twice) |
-| `--smoothing-level N` | 3 | One Euro filter: 0 off, higher is smoother |
+| `--smoothing-level N` | 3 | One Euro filter: 0 off, higher is smoother. It is the default of every Wiimote; each player can choose their own in the calibrator (*Smoothing*) |
 | `--area` | full | `full`, `4:3`, `custom:x0,y0,w,h` |
 | `--useful-zone` | 0.85 | fraction of the screen height with targets |
 | `--calibration-targets x1,y1,x2,y2,x3,y3` | | 3-point targets in gun space |

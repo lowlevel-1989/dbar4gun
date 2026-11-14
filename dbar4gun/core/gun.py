@@ -57,8 +57,8 @@ class GunOptions(object):
         self.useful_zone = useful_zone
         # targets de la calibracion de 3 puntos en espacio de salida (TL, TR, BC)
         self.targets = targets
-        # One Euro (None = sin filter)
-        self.filter = params_for_level(smoothing_level)
+        # smoothing por defecto (--smoothing-level); cada Wiimote puede tener el suyo
+        self.smoothing_level = max(0, int(smoothing_level))
         # FOV, signo del acelerometro y ancho de barra (hardware.json)
         self.hardware = hardware or HardwareConfig()
 
@@ -117,30 +117,30 @@ class GunPipeline(object):
     def distance(self, theta):
         return self.options.hardware.distance(theta, FOCAL)
 
-    def filter_params(self):
-        """Parametros del One Euro: los del Wiimote (calibracion) o los del servicio."""
-        if self.options.filter is None:
-            return None
-        params = dict(self.options.filter)
-        if self.calibration.filter:
-            params.update(self.calibration.filter)
-        return params
+    def smoothing_level(self):
+        """El smoothing de este Wiimote, o el del servicio si no tiene uno propio."""
+        own = self.calibration.smoothing_level
+        return self.options.smoothing_level if own is None else own
 
-    def set_filter(self, fc_min, beta, d_cutoff=None):
-        """parametros por Wiimote; se guardan con la calibracion."""
-        params = {"fc_min": float(fc_min), "beta": float(beta)}
-        if d_cutoff is not None:
-            params["d_cutoff"] = float(d_cutoff)
+    def filter_params(self):
+        """Parametros del One Euro (None = sin smoothing)."""
+        return params_for_level(self.smoothing_level())
+
+    def set_smoothing(self, level):
+        """
+        Smoothing de este Wiimote (None = volver al del servicio). Se guarda con
+        la calibracion; sin calibrar, vale hasta que se reinicie el servicio.
+        """
         cal = self.calibration
-        cal.filter = dict(cal.filter or {}, **params)
+        cal.smoothing_level = None if level is None else max(0, int(level))
         self._update_map()
         if cal.calibrated:
             self.actions.append(("save", cal, False))
 
     def set_calibration(self, data):
-        # el filter ajustado del Wiimote se conserva al recalibrar
-        if data.filter is None and getattr(self, "calibration", None) is not None:
-            data.filter = self.calibration.filter
+        # el smoothing del Wiimote se conserva al recalibrar
+        if data.smoothing_level is None and getattr(self, "calibration", None) is not None:
+            data.smoothing_level = self.calibration.smoothing_level
         self.calibration = data
         self._update_map()
 
@@ -370,6 +370,9 @@ class GunPipeline(object):
             "area": self.options.area.name,
             "useful_zone": self.options.useful_zone,
             "filter": self.filter_params(),
+            "smoothing_level": self.smoothing_level(),
+            "smoothing_own": self.calibration.smoothing_level is not None,
+            "smoothing_default": self.options.smoothing_level,
             "dots": track.n_dots if track else 0,
             "roll_deg": math.degrees(track.roll) if track and track.roll is not None else None,
         }

@@ -24,7 +24,6 @@ Sin pygame: estos archivos se pueden probar con el simulador (`tests/`).
 | `wiimotes.py`    | lee los paquetes del daemon; estado y botones de cada Wiimote         |
 | `calibration.py` | distancia, inclinación y posición de la barra; reach test; targets del wizard |
 | `gallery.py`     | galería de tiro: targets, error de cada disparo y análisis            |
-| `tune.py`        | ajuste automático del smoothing (One Euro): `fc_min` y `beta`         |
 | `hardware.py`    | comprobación de hardware: enlace, IR, acelerómetro, FOV, barra, desconexión |
 
 ## screens/
@@ -39,7 +38,7 @@ dibuja. Las funciones de dibujo se usan con `self.app`.
 | `hardware.py`    | Comprobación de hardware                                        |
 | `wizard.py`      | Calibrar                                                        |
 | `gallery.py`     | Galería de tiro                                                 |
-| `tune.py`        | Ajuste automático del smoothing                                 |
+| `smoothing.py`   | Suavizado de cada Wiimote (cada jugador elige el suyo)          |
 | `reach.py`       | Prueba de alcance                                               |
 | `install.py`     | Instalación (distancia, nivel, centro)                          |
 | `diagnostics.py` | Diagnóstico IR                                                  |

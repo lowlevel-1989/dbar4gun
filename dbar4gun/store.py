@@ -124,13 +124,19 @@ class CalibrationStore(object):
     def load(self, key):
         """CalibrationData de `key`, o la entrada default, o None."""
         devices = self._read()["devices"]
-        entry = devices.get(key) or devices.get(DEFAULT_KEY)
+        entry = devices.get(key)
+        own = entry is not None
+        entry = entry or devices.get(DEFAULT_KEY)
         if not entry:
             return None
         try:
-            return CalibrationData.from_dict(entry)
+            data = CalibrationData.from_dict(entry)
         except (KeyError, ValueError, TypeError):
             return None
+        if not own:
+            # el smoothing es de cada jugador: un Wiimote nuevo empieza con el del servicio
+            data.smoothing_level = None
+        return data
 
     def _update(self, fn):
         """Lee, modifica con fn(content) y escribe de forma atomica, con lock."""
@@ -167,7 +173,7 @@ class CalibrationStore(object):
                 hist.append({"timestamp": data.timestamp, "calibration": d, "accuracy": None})
                 del hist[:-HISTORY_MAX]
             elif hist:
-                # p. ej. un ajuste del filter: se actualiza la entrada vigente
+                # p. ej. un cambio de smoothing: se actualiza la entrada vigente
                 hist[-1]["calibration"] = d
         self._update(fn)
 

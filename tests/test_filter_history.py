@@ -95,16 +95,29 @@ def test_filter_reset_when_lost(monkeypatch):
     assert drv.pipeline.filter.x is None
 
 
-def test_set_filter_persists_without_history(monkeypatch):
-    drv = drv_with_filter(monkeypatch)
+def test_smoothing_per_wiimote_persists_without_history(monkeypatch):
+    drv = drv_with_filter(monkeypatch, level=3)
     drv.saved.clear()
-    drv.pipeline.set_filter(0.5, 4.0)
+    drv.pipeline.set_smoothing(6)
     drv.feed(Scene(tv=TV(45)).report(0.5, 0.5))
-    assert drv.saved and drv.saved[-1].filter == {"fc_min": 0.5, "beta": 4.0}
-    assert drv.pipeline.filter.fc_min == 0.5 and drv.pipeline.filter.beta == 4.0
-    # recalibrar conserva el filter ajustado
+    assert drv.saved and drv.saved[-1].smoothing_level == 6
+    assert drv.pipeline.filter.fc_min == params_for_level(6)["fc_min"]
+    # recalibrar conserva el smoothing del Wiimote
     drv.pipeline.reset_calibration()
-    assert drv.pipeline.filter.fc_min == 0.5
+    assert drv.pipeline.smoothing_level() == 6
+    # default: vuelve al del servicio
+    drv.pipeline.set_smoothing(None)
+    assert drv.pipeline.smoothing_level() == 3
+
+
+def test_own_smoothing_with_service_level_0(monkeypatch):
+    """Con --smoothing-level 0, un jugador puede tener su propio smoothing."""
+    drv = drv_with_filter(monkeypatch, level=0)
+    assert drv.pipeline.filter is None
+    drv.pipeline.set_smoothing(4)
+    assert drv.pipeline.filter.fc_min == params_for_level(4)["fc_min"]
+    st = drv.pipeline.status()
+    assert st["smoothing_level"] == 4 and st["smoothing_own"] and st["smoothing_default"] == 0
 
 
 # ---------------------------------------------------------------- history
@@ -122,12 +135,16 @@ def test_history_and_restore(tmp_path):
     assert store.history("bt:a")[-1]["accuracy"]["mean_tv"] == 9.0
     assert not store.set_accuracy("bt:none", {})
 
-    # ajuste de filter: actualiza la entrada vigente, no anade otra
+    # cambio de smoothing: actualiza la entrada vigente, no anade otra
     c = cal(0.2, 200.0)
-    c.filter = {"fc_min": 0.7, "beta": 8.0}
+    c.smoothing_level = 5
     store.save("bt:a", c, add_history=False)
     hist = store.history("bt:a")
-    assert len(hist) == 2 and hist[-1]["calibration"]["filter"]["fc_min"] == 0.7
+    assert len(hist) == 2 and hist[-1]["calibration"]["smoothing_level"] == 5
+    # un Wiimote nuevo usa la entrada default, pero no el smoothing de otro jugador
+    assert store.load("bt:a").smoothing_level == 5
+    new = store.load("bt:new")
+    assert new.calibrated and new.smoothing_level is None
     assert hist[-1]["accuracy"]["mean_tv"] == 9.0
 
     restored = store.restore("bt:a", 0)

@@ -14,19 +14,19 @@ from dbar4gun.gui.screens.install import InstallScreen
 from dbar4gun.gui.screens.players import PlayersScreen
 from dbar4gun.gui.screens.profiles import ProfilesScreen
 from dbar4gun.gui.screens.reach import ReachScreen
-from dbar4gun.gui.screens.tune import TuneScreen
+from dbar4gun.gui.screens.smoothing import SmoothingScreen
 from dbar4gun.gui.screens.wizard import WizardScreen
 
 
 class MenuScreen(Screen):
     # primero el hardware check: antes de calibrar, que la barra, el IR y el
     # FOV esten bien
-    ITEMS = ["menu.hardware", "menu.wizard", "menu.gallery", "menu.tune", "menu.reach",
+    ITEMS = ["menu.hardware", "menu.wizard", "menu.gallery", "menu.smoothing", "menu.reach",
              "menu.install", "menu.diag", "menu.players", "menu.profiles", "menu.history",
              "menu.exit"]
     # la pantalla que abre cada opcion (Exit cierra el calibrator)
     SCREENS = {"menu.hardware": HardwareScreen, "menu.wizard": WizardScreen,
-               "menu.gallery": GalleryScreen, "menu.tune": TuneScreen,
+               "menu.gallery": GalleryScreen, "menu.smoothing": SmoothingScreen,
                "menu.reach": ReachScreen, "menu.install": InstallScreen,
                "menu.diag": DiagnosticsScreen, "menu.players": PlayersScreen,
                "menu.profiles": ProfilesScreen, "menu.history": HistoryScreen}

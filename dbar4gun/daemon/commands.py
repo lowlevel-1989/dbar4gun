@@ -238,19 +238,20 @@ class Commands(object):
             self.default_area = self.area
             return {"ok": True, "path": path, "default": self.area, "useful_zone": self.useful_zone}
 
-        if cmd == "filter":
-            usage = "usage: filter <virtualgun> <fc_min> <beta> [d_cutoff]"
+        if cmd == "smoothing":
+            usage = "usage: smoothing <virtualgun> <level|default>"
             try:
                 vg = int(args[0])
-                values = [float(a) for a in args[1:]]
-                if len(values) not in (2, 3) or values[0] <= 0 or values[1] < 0:
+                level = None if args[1] == "default" else int(args[1])
+                if len(args) != 2 or (level is not None and level < 0):
                     raise ValueError
             except (ValueError, IndexError):
                 return {"ok": False, "error": usage}
-            replies = self._ask_workers("filter", values, [vg - 1])
+            replies = self._ask_workers("smoothing", [level], [vg - 1])
             if not replies or not replies[0][1]:
                 return {"ok": False, "error": "no response"}
-            return {"ok": replies[0][1].get("ok", False), "filter": replies[0][1].get("filter")}
+            return {"ok": replies[0][1].get("ok", False),
+                    "smoothing_level": replies[0][1].get("smoothing_level")}
 
         if cmd in ("history", "restore", "accuracy"):
             return self._history_command(cmd, args)

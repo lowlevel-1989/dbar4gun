@@ -256,9 +256,9 @@ class Worker(object):
                 reply["started"] = pipeline.start_calibration(kind, targets)
             elif cmd == "cancel":
                 pipeline.cancel_calibration()
-            elif cmd == "filter":
-                pipeline.set_filter(*args)
-                reply["filter"] = pipeline.filter_params()
+            elif cmd == "smoothing":
+                pipeline.set_smoothing(args[0])
+                reply["smoothing_level"] = pipeline.smoothing_level()
             elif cmd == "usefulzone":
                 pipeline.options.useful_zone = float(args[0])
             elif cmd == "irmode":

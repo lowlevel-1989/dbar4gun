@@ -17,6 +17,8 @@ DEFAULT_FC_MIN = 1.0      # Hz
 DEFAULT_BETA = 10.0       # Hz por (unidad de pantalla / s)
 DEFAULT_D_CUTOFF = 1.0    # Hz
 DEFAULT_LEVEL = 3
+# nivel mas alto que se puede elegir por Wiimote en el calibrator
+MAX_LEVEL = 10
 
 
 def params_for_level(level):
@@ -80,9 +82,3 @@ class OneEuro2D(object):
         self.x = (self.x[0] + a * (p[0] - self.x[0]),
                   self.x[1] + a * (p[1] - self.x[1]))
         return self.x
-
-
-def simulate(samples, fc_min, beta, d_cutoff=DEFAULT_D_CUTOFF, dt=DEFAULT_DT):
-    """Aplica el filter a una lista de puntos equiespaciados (auto-tune de la GUI)."""
-    f = OneEuro2D(fc_min, beta, d_cutoff)
-    return [f(p, i * dt) for i, p in enumerate(samples)]
