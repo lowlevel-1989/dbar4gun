@@ -1,3 +1,23 @@
+1.2.0
+- changed: la sensor bar va encima de la TV. --bar ya no se usa (se sigue
+  aceptando para que no falle un servicio que lo tenga): la calibracion vale con
+  la barra encima o, en una TV pequena, debajo. El hardware check avisa si la
+  barra esta debajo
+- changed: la recalibracion rapida (A + plus ya calibrado) usa siempre las
+  esquinas de arriba
+- changed: el paquete UDP ya no usa el flag 0x04 (barra arriba)
+- fixed: el tiempo de espera por defecto de las respuestas de los workers se
+  fijaba al cargar el modulo (los tests que lo cambiaban no lo cambiaban)
+- changed: codigo reestructurado para que sea mas facil de leer
+- docs: README principal corto con enlaces; guia de RetroPie (retropie/README);
+  en docs/: instalar en Linux, calibracion con capturas, juegos probados, area
+  profiles, opciones y comandos, problemas conocidos y desarrollo
+- docs: donde poner la sensor bar y a que distancia jugar (tabla de alcance
+  segun la TV), con un diagrama propio en lugar de las imagenes de Nintendo
+- docs: diagramas para desarrollo del pipeline, el camera point, el area
+  profile, los modos de calibracion y como se toma un disparo
+- docs: pygame se instala con pip install pygame (el extra [gui] ya no existe)
+
 1.1.2
 - fixed: LED del Wiimote: si el numero de jugador cambiaba mientras se calibraba,
   al terminar volvia el LED del jugador anterior (dos Wiimotes con LED 1)

@@ -1,4 +1,9 @@
-import re
+"""
+VirtualGun: el dispositivo virtual (uinput) que ven los juegos. Mueve el
+raton absoluto a donde apunta el Wiimote y convierte los botones en clicks
+y teclas (auto key por jugador y combos).
+"""
+
 import os
 import time
 

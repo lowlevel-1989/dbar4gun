@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 300" width="820" height="300" font-family="sans-serif" font-size="14">
+  <!-- Calibracion de 3 puntos (modo 2): 3 camera points capturados -> AffineMap -> 3 targets de la pantalla -->
+  <rect width="820" height="300" rx="12" fill="#f4f6f8"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#2b2f36"/>
+    </marker>
+  </defs>
+
+  <!-- camera point -->
+  <text x="150" y="34" text-anchor="middle" font-weight="bold" fill="#2b2f36">camera point (c)</text>
+  <rect x="40" y="50" width="220" height="220" fill="#fff" stroke="#9aa3ad"/>
+  <line x1="150" y1="50" x2="150" y2="270" stroke="#d5dbe1"/>
+  <line x1="40" y1="160" x2="260" y2="160" stroke="#d5dbe1"/>
+  <g stroke="#3e7bd6" stroke-width="3">
+    <path d="M78 98 l10 10 m0 -10 l-10 10"/>
+    <path d="M206 92 l10 10 m0 -10 l-10 10"/>
+    <path d="M140 220 l10 10 m0 -10 l-10 10"/>
+  </g>
+  <text x="70" y="90" fill="#3e7bd6">c1</text>
+  <text x="214" y="86" fill="#3e7bd6">c2</text>
+  <text x="156" y="246" fill="#3e7bd6">c3</text>
+
+  <!-- el mapa -->
+  <line x1="280" y1="160" x2="510" y2="160" stroke="#2b2f36" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="395" y="140" text-anchor="middle" font-weight="bold" fill="#2b2f36">solve_affine_3pt</text>
+  <text x="395" y="186" text-anchor="middle" fill="#2b2f36">screen = A · c + b</text>
+
+  <!-- pantalla -->
+  <text x="660" y="34" text-anchor="middle" font-weight="bold" fill="#2b2f36">screen (0..1)</text>
+  <rect x="530" y="50" width="260" height="146" fill="#2b2f36"/>
+  <line x1="530" y1="174" x2="790" y2="174" stroke="#c9d1db" stroke-dasharray="6 4"/>
+  <g stroke="#f2c94c" stroke-width="2" fill="none">
+    <circle cx="556" cy="65" r="7"/><path d="M546 65 h20 M556 55 v20"/>
+    <circle cx="764" cy="65" r="7"/><path d="M754 65 h20 M764 55 v20"/>
+    <circle cx="660" cy="174" r="7"/><path d="M650 174 h20 M660 164 v20"/>
+  </g>
+  <text x="556" y="90" text-anchor="middle" fill="#f2c94c" font-size="12">TL</text>
+  <text x="764" y="90" text-anchor="middle" fill="#f2c94c" font-size="12">TR</text>
+  <text x="696" y="168" fill="#f2c94c" font-size="12">BC</text>
+  <text x="530" y="218" fill="#5b6472" font-size="12">TL (0.1, 0.1) | TR (0.9, 0.1)</text>
+  <text x="530" y="236" fill="#5b6472" font-size="12">BC (0.5, useful zone 0.85)</text>
+</svg>

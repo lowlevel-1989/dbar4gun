@@ -1,14 +1,18 @@
+"""
+Entrada/salida: rumble, LEDs, status, socket de control y calibraciones
+guardadas.
+"""
+
 import json
 import time
 import os
 import threading
-import time
-import types
 
 import pytest
 
 from dbar4gun.control import ControlServer, send_command, parse_command
-from dbar4gun.core.calibration import CalibrationData, AffineMap
+from dbar4gun.core.calibration.data import CalibrationData
+from dbar4gun.core.calibration.maps import AffineMap
 from dbar4gun.core.gun import BUTTON_A, BUTTON_B, BUTTON_PLUS
 from dbar4gun.store import (
     CalibrationStore, key_from_uevent, parse_uevent, device_key, default_config_dir,
@@ -219,7 +223,7 @@ def test_extended_ir_report(monkeypatch):
 
 def test_irmode_needs_flag(tmp_path):
     import types as _t
-    from dbar4gun.dbar4gun import Dbar4Gun
+    from dbar4gun.daemon.service import Dbar4Gun
     d = Dbar4Gun(_t.SimpleNamespace(width=1920, height=1080, port=1, config_dir=str(tmp_path)), None, None, None)
     try:
         assert not d.handle_command("irmode extended")["ok"]
@@ -309,7 +313,6 @@ def test_read_timeout_does_not_block(monkeypatch):
 
 
 def test_repeated_identical_reports_mean_disconnected(monkeypatch):
-    from dbar4gun import wiimote as W
     wm, io = make_wiimote(monkeypatch)
     wm.update_index(1)
     clock = Clock()

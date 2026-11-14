@@ -1,6 +1,9 @@
+"""
+LEDs del Wiimote segun el numero de jugador.
+"""
+
 import pytest
 
-from dbar4gun import wiimote
 from dbar4gun.wiimote import (
     WIIMOTE_LED_1, WIIMOTE_LED_2, WIIMOTE_LED_3, WIIMOTE_LED_4, WIIMOTE_LED_ALL,
 )

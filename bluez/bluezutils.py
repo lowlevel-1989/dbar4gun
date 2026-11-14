@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
+"""
+Copia de bluezutils.py de BlueZ: busca por D-Bus el adaptador Bluetooth y
+los dispositivos. La usa el script simple-agent para emparejar el Wiimote.
+"""
+
 import dbus
 
 SERVICE_NAME = "org.bluez"

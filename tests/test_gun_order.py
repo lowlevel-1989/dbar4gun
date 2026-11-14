@@ -12,7 +12,7 @@ import shutil
 import types
 
 from dbar4gun import mouseindex
-from dbar4gun.dbar4gun import Dbar4Gun
+from dbar4gun.daemon.service import Dbar4Gun
 
 
 class FakeSys(object):

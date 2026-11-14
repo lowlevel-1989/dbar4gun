@@ -1,3 +1,8 @@
+"""
+Parar el daemon: solo se mata un proceso de dbar4gun y se limpian el
+archivo PID y el socket de control.
+"""
+
 import os
 import subprocess
 import sys
@@ -6,7 +11,8 @@ import types
 
 import pytest
 
-from dbar4gun.dbar4gun import Dbar4Gun, is_dbar4gun_process
+from dbar4gun.daemon.pidfile import is_dbar4gun_process
+from dbar4gun.daemon.service import Dbar4Gun
 
 
 @pytest.fixture
@@ -82,7 +88,7 @@ def test_no_pid_file(daemon):
     (["sleep", "30"], False),
 ])
 def test_daemon_cmdline(args, expected):
-    from dbar4gun.dbar4gun import is_daemon_cmdline
+    from dbar4gun.daemon.pidfile import is_daemon_cmdline
     assert is_daemon_cmdline(args) is expected
 
 

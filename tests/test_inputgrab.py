@@ -122,7 +122,7 @@ def test_disabled_does_nothing(tmp_path):
 
 
 def test_daemon_grabs_only_bluetooth_and_obeys_the_option():
-    from dbar4gun.dbar4gun import Dbar4Gun
+    from dbar4gun.daemon.service import Dbar4Gun
     d = Dbar4Gun(types.SimpleNamespace(width=1920, height=1080, port=35460), None, None, None)
     try:
         assert d.input_grab("bt:aa:bb:cc:dd:ee:ff", "/dev/hidraw1").enabled

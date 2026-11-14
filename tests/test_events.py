@@ -1,10 +1,15 @@
+"""
+Daemon: Wiimotes que se conectan, cambian y desconectan (eventos de udev)
+y reparto de puertos.
+"""
+
 import os
 import types
 
 import pytest
 
-from dbar4gun import dbar4gun as dbar4gun_module
-from dbar4gun.dbar4gun import Dbar4Gun
+from dbar4gun.daemon import devices as devices_module
+from dbar4gun.daemon.service import Dbar4Gun
 from dbar4gun.monitor import classify_event
 
 
@@ -51,13 +56,13 @@ def daemon(monkeypatch):
         next_fd[0] += 1
         return next_fd[0]
 
-    monkeypatch.setattr(dbar4gun_module, "Process", FakeProcess)
-    monkeypatch.setattr(dbar4gun_module, "FileIO", FakeFileIO)
+    monkeypatch.setattr(devices_module, "Process", FakeProcess)
+    monkeypatch.setattr(devices_module, "FileIO", FakeFileIO)
     # solo el os del modulo: parchear os.close global rompe el propio pytest
     fake_os = types.SimpleNamespace(
         open=fake_open, close=closed_fds.append, O_RDWR=os.O_RDWR,
         getpid=os.getpid, kill=os.kill)
-    monkeypatch.setattr(dbar4gun_module, "os", fake_os)
+    monkeypatch.setattr(devices_module, "os", fake_os)
 
     config = types.SimpleNamespace(width=1920, height=1080, port=35460)
     d = Dbar4Gun(config, None, None, None)
@@ -184,11 +189,11 @@ def test_remove_joins_process(daemon):
     daemon.handle_event("add", "/dev/hidraw3")
     proc = FakeProcess.created[0]
     daemon.handle_event("remove", "/dev/hidraw3")
-    assert proc.joined == dbar4gun_module.JOIN_TIMEOUT
+    assert proc.joined == devices_module.JOIN_TIMEOUT
 
 
 def test_preferred_port_and_take_port():
-    from dbar4gun.dbar4gun import preferred_port, take_port
+    from dbar4gun.daemon.ports import preferred_port, take_port
     assert preferred_port("usb:usb-xhci-hcd.1-1/input0") == 0
     assert preferred_port("usb:usb-xhci-hcd.1-1/input3") == 3
     assert preferred_port("bt:00:11:22:33:44:55") is None
@@ -206,7 +211,7 @@ def test_dolphinbar_replug_out_of_order_keeps_slot_numbers(daemon, monkeypatch):
     (hidraw3, 2, 0, 1): cada slot sigue siendo su VirtualGun (slot 1 = 01).
     """
     iface = {"/dev/hidraw0": 0, "/dev/hidraw1": 1, "/dev/hidraw2": 2, "/dev/hidraw3": 3}
-    monkeypatch.setattr(dbar4gun_module, "device_key",
+    monkeypatch.setattr(devices_module, "device_key",
                         lambda path: "usb:usb-xhci-hcd.1-1/input{}".format(iface[path]))
     for path in ("/dev/hidraw3", "/dev/hidraw2", "/dev/hidraw0", "/dev/hidraw1"):
         daemon.handle_event("add", path)

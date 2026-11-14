@@ -1,3 +1,8 @@
+"""
+Construye los reports del Wiimote (IR basico, acelerometro, report 0x37)
+tal como llegan por hidraw.
+"""
+
 import struct
 
 DOT_ABSENT = 0x3FF

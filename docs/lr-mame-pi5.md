@@ -3,7 +3,7 @@
 # lr-mame for Point Blank 2/3, Ghoul Panic and Golgo 13 on a Raspberry Pi 5
 
 The lr-mame that RetroPie installs does not run Point Blank 3 at full speed on a
-Raspberry Pi 5 (see the table in the [README](../README.md#raspberry-pi-5-point-blank-3-and-the-lr-mame-version)).
+Raspberry Pi 5 (see the table in [games.md](games.md#raspberry-pi-5-point-blank-3-and-the-lr-mame-version)).
 This guide builds lr-mame 0.276 with only the Namco System 10 and 12 drivers and
 for the Pi 5 CPU, and adds it to RetroPie as one more emulator. The lr-mame of
 RetroPie stays as it is for the rest of the games.
@@ -55,6 +55,6 @@ Change `lightgun` for the system where you keep these games (for example
 ## 3. Use it for these games
 
 Choose `lr-mame0276-namco-pi5` as the emulator of each game: see
-[Change the emulator of a game with the Wiimote](../README.md#change-the-emulator-of-a-game-with-the-wiimote-retropie).
+[Change the emulator of a game with the Wiimote](games.md#change-the-emulator-of-a-game-with-the-wiimote-retropie).
 
 When RetroPie updates lr-mame, this core does not change.

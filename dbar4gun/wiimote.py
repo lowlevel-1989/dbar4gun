@@ -1,3 +1,9 @@
+"""
+Comunicacion con un Wiimote por hidraw: lo configura (camara IR, LEDs,
+Nunchuk, rumble), lee sus reports y pasa los datos al pipeline
+(dbar4gun.core) que calcula a donde apunta.
+"""
+
 import io
 import logging
 import select

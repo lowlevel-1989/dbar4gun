@@ -1,11 +1,16 @@
+"""
+Filtro One Euro (smoothing) e historial de calibraciones.
+"""
+
 import math
 import random
 
 import pytest
 
-from dbar4gun.core.calibration import CalibrationData, AffineMap
-from dbar4gun.core.filters import OneEuro2D, simulate, params_for_level, DEFAULT_FC_MIN
-from dbar4gun.core.gun import GunOptions, GunPipeline
+from dbar4gun.core.calibration.data import CalibrationData
+from dbar4gun.core.calibration.maps import AffineMap
+from dbar4gun.core.filters import OneEuro2D, params_for_level, DEFAULT_FC_MIN
+from dbar4gun.core.gun import GunOptions
 from dbar4gun.store import CalibrationStore, HISTORY_MAX
 
 from tests.sim.driver import NewDriver

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 190" width="900" height="190" font-family="sans-serif" font-size="13">
+  <!-- Pipeline de un Wiimote (core/gun.py): de cada report al cursor de la VirtualGun -->
+  <rect width="900" height="190" rx="12" fill="#f4f6f8"/>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#2b2f36"/>
+    </marker>
+  </defs>
+  <g fill="#fff" stroke="#9aa3ad">
+    <rect x="20" y="60" width="110" height="80" rx="8"/>
+    <rect x="150" y="60" width="110" height="80" rx="8"/>
+    <rect x="280" y="60" width="110" height="80" rx="8"/>
+    <rect x="410" y="60" width="110" height="80" rx="8"/>
+    <rect x="540" y="60" width="110" height="80" rx="8"/>
+    <rect x="670" y="60" width="100" height="80" rx="8"/>
+    <rect x="790" y="60" width="90" height="80" rx="8"/>
+  </g>
+  <g stroke="#2b2f36" stroke-width="2" marker-end="url(#a)">
+    <line x1="130" y1="100" x2="148" y2="100"/>
+    <line x1="260" y1="100" x2="278" y2="100"/>
+    <line x1="390" y1="100" x2="408" y2="100"/>
+    <line x1="520" y1="100" x2="538" y2="100"/>
+    <line x1="650" y1="100" x2="668" y2="100"/>
+    <line x1="770" y1="100" x2="788" y2="100"/>
+  </g>
+  <g text-anchor="middle" fill="#2b2f36">
+    <text x="75" y="88" font-weight="bold">parser</text>
+    <text x="75" y="112">IR dots 0..1</text>
+    <text x="205" y="88" font-weight="bold">tracker</text>
+    <text x="205" y="112">TL, TR, roll</text>
+    <text x="335" y="88" font-weight="bold">pointer</text>
+    <text x="335" y="112">camera point</text>
+    <text x="465" y="88" font-weight="bold">calibration</text>
+    <text x="465" y="112">screen 0..1</text>
+    <text x="595" y="88" font-weight="bold">filters</text>
+    <text x="595" y="112">One Euro</text>
+    <text x="720" y="88" font-weight="bold">area</text>
+    <text x="720" y="112">clamp 0..1</text>
+    <text x="835" y="96" font-weight="bold">cursor</text>
+    <text x="835" y="114">VirtualGun</text>
+  </g>
+  <g text-anchor="middle" fill="#5b6472" font-size="11">
+    <text x="75" y="158">parser.py</text>
+    <text x="205" y="158">tracker.py</text>
+    <text x="335" y="158">pointer.py</text>
+    <text x="465" y="158">calibration/</text>
+    <text x="595" y="158">filters.py</text>
+    <text x="720" y="158">area.py</text>
+    <text x="835" y="158">virtualgun.py</text>
+  </g>
+  <text x="20" y="36" font-weight="bold" fill="#2b2f36" font-size="14">report 0x37 -> cursor  (gun.py: GunPipeline)</text>
+</svg>

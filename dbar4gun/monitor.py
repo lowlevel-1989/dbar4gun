@@ -1,3 +1,8 @@
+"""
+Avisa con udev cuando se conecta o desconecta un Wiimote (dispositivo
+hidraw del driver wiimote).
+"""
+
 import pyudev
 
 # udevadm info --query=all --name=/dev/hidraw0

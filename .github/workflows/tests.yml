@@ -22,7 +22,7 @@ jobs:
       - name: install
         run: |
           python -m pip install --upgrade pip
-          pip install ".[gui]" pytest
+          pip install . pygame pytest
       - name: pytest
         env:
           SDL_VIDEODRIVER: dummy

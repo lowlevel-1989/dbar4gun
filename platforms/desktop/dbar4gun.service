@@ -1,7 +1,7 @@
 # dbar4gun como servicio en un Linux de escritorio.
 #   sudo cp dbar4gun.service /etc/systemd/system/
 #   sudo systemctl daemon-reload && sudo systemctl enable --now dbar4gun
-# Ajustar la ruta de dbar4gun (pip install dbar4gun, o el venv) y las opciones.
+# Ajustar la ruta de dbar4gun (la del venv donde se instalo) y las opciones.
 [Unit]
 Description=dbar4gun (Wiimote light gun)
 After=bluetooth.target

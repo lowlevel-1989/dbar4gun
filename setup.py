@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+Instalacion de dbar4gun con pip (`pip install .` desde la carpeta del repo).
+"""
+
 from setuptools import setup
 
 import dbar4gun
@@ -18,16 +22,16 @@ setup(name=dbar4gun.__title__,
       packages=[
           "dbar4gun",
           "dbar4gun.core",
-          "dbar4gun.gui"
+          "dbar4gun.core.calibration",
+          "dbar4gun.daemon",
+          "dbar4gun.gui",
+          "dbar4gun.gui.logic",
+          "dbar4gun.gui.screens"
       ],
       install_requires=[
           "evdev>=0.3.0",
           "pyudev>=0.16",
       ],
-      extras_require={
-          # calibrador visual (dbar4gun gui)
-          "gui": ["pygame"],
-      },
       classifiers=[
         "Environment :: Console",
         "License :: OSI Approved :: MIT License",

@@ -2,14 +2,12 @@
 
 import math
 
-import pytest
 
 from tests.fakes import make_wiimote
-from tests.sim.camera import CameraPose, FOCAL_PX
-from tests.sim.metrics import measure_grid, grid_43, GAME_PX
+from tests.sim.camera import FOCAL_PX
+from tests.sim.metrics import grid_43, GAME_PX
 from tests.sim.payload import ir_basic_payload, DOT_ABSENT
 from tests.sim.scene import Scene, TV, trajectory
-from tests.sim.scenarios import run_all, format_table
 
 
 def test_focal():

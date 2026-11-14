@@ -1,3 +1,8 @@
+"""
+Configuracion de pytest: permite ejecutar los tests desde la raiz sin
+instalar el paquete.
+"""
+
 import os
 import sys
 

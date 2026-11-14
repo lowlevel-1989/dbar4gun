@@ -1,3 +1,7 @@
+"""
+Area profile por juego desde runcommand de RetroPie.
+"""
+
 import os
 import stat
 import subprocess
@@ -6,8 +10,8 @@ import sys
 import pytest
 
 from dbar4gun.profiles import (
-    parse_profiles, resolve_profile, install_hooks, uninstall_hooks, hook_block,
-    BLOCK_BEGIN, BLOCK_END, DEFAULT_PROFILES,
+    parse_profiles, resolve_profile, install_hooks, uninstall_hooks, BLOCK_BEGIN,
+    DEFAULT_PROFILES,
 )
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -165,7 +169,7 @@ def test_cli_profile_uses_the_daemon_profiles_path(tmp_path):
 
 def test_status_reports_profiles_path(tmp_path):
     import types
-    from dbar4gun.dbar4gun import Dbar4Gun
+    from dbar4gun.daemon.service import Dbar4Gun
     d = Dbar4Gun(types.SimpleNamespace(width=1920, height=1080, port=35460,
                                       config_dir=str(tmp_path)), None, None, None)
     try:

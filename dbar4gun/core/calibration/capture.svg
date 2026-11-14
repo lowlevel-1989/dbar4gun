@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 280" width="900" height="280" font-family="sans-serif" font-size="13">
+  <!-- Un disparo (capture.py) y la sesion (session.py) -->
+  <rect width="900" height="280" rx="12" fill="#f4f6f8"/>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#2b2f36"/>
+    </marker>
+  </defs>
+
+  <!-- 1. un disparo: los frames antes de B -->
+  <text x="20" y="32" font-weight="bold" fill="#2b2f36">1. CaptureBuffer</text>
+  <g fill="#c9d1db">
+    <rect x="20" y="48" width="26" height="26" rx="3"/><rect x="50" y="48" width="26" height="26" rx="3"/>
+  </g>
+  <g fill="#3e7bd6">
+    <rect x="80" y="48" width="26" height="26" rx="3"/><rect x="110" y="48" width="26" height="26" rx="3"/>
+    <rect x="140" y="48" width="26" height="26" rx="3"/><rect x="170" y="48" width="26" height="26" rx="3"/>
+    <rect x="200" y="48" width="26" height="26" rx="3"/><rect x="230" y="48" width="26" height="26" rx="3"/>
+    <rect x="260" y="48" width="26" height="26" rx="3"/><rect x="290" y="48" width="26" height="26" rx="3"/>
+  </g>
+  <rect x="320" y="48" width="26" height="26" rx="3" fill="#e5484d"/>
+  <text x="333" y="92" text-anchor="middle" fill="#e5484d" font-weight="bold">B</text>
+  <text x="198" y="92" text-anchor="middle" fill="#3e7bd6">RING_SIZE = 8</text>
+  <line x1="360" y1="61" x2="398" y2="61" stroke="#2b2f36" stroke-width="2" marker-end="url(#a)"/>
+  <rect x="403" y="42" width="120" height="38" rx="8" fill="#fff" stroke="#9aa3ad"/>
+  <text x="463" y="66" text-anchor="middle" fill="#2b2f36" font-weight="bold">median(x, y)</text>
+  <text x="548" y="56" fill="#5b6472">&lt; MIN_SAMPLES (4) -&gt; ERR_NO_IR</text>
+  <text x="548" y="76" fill="#5b6472">spread &gt; MAX_SPREAD_SEP (0.15) -&gt; ERR_UNSTABLE</text>
+
+  <!-- 2. la sesion: 2 vueltas y media por target -->
+  <text x="20" y="142" font-weight="bold" fill="#2b2f36">2. CalibrationSession · CALIBRATION_SHOTS = 2</text>
+  <g fill="#fff" stroke="#9aa3ad">
+    <rect x="20" y="158" width="56" height="32" rx="6"/><rect x="82" y="158" width="56" height="32" rx="6"/><rect x="144" y="158" width="56" height="32" rx="6"/>
+    <rect x="216" y="158" width="56" height="32" rx="6"/><rect x="278" y="158" width="56" height="32" rx="6"/><rect x="340" y="158" width="56" height="32" rx="6"/>
+  </g>
+  <g text-anchor="middle" fill="#2b2f36">
+    <text x="48" y="179">TL</text><text x="110" y="179">TR</text><text x="172" y="179">BC</text>
+    <text x="244" y="179">TL</text><text x="306" y="179">TR</text><text x="368" y="179">BC</text>
+  </g>
+  <line x1="408" y1="174" x2="446" y2="174" stroke="#2b2f36" stroke-width="2" marker-end="url(#a)"/>
+  <rect x="451" y="155" width="150" height="38" rx="8" fill="#fff" stroke="#9aa3ad"/>
+  <text x="526" y="179" text-anchor="middle" fill="#2b2f36" font-weight="bold">mean per target</text>
+  <line x1="601" y1="174" x2="639" y2="174" stroke="#2b2f36" stroke-width="2" marker-end="url(#a)"/>
+  <text x="646" y="179" fill="#2b2f36" font-weight="bold">maps.py</text>
+  <text x="20" y="226" fill="#5b6472">|shot 1 - shot 2| &gt; MAX_SHOT_DIFF_SEP (0.4) -&gt; ERR_INCONSISTENT</text>
+  <text x="20" y="248" fill="#5b6472">geometry_ok(map) == False -&gt; ERR_GEOMETRY</text>
+</svg>

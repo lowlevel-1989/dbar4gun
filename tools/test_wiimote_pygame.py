@@ -1,8 +1,10 @@
+"""
+Prueba antigua: lee un Wiimote por hidraw y dibuja el cursor en una
+ventana de pygame (--device /dev/hidraw0).
+"""
+
 import io
 import os
-import sys
-import time
-import signal
 import argparse
 
 import pygame
@@ -11,15 +13,6 @@ import dbar4gun
 
 from dbar4gun import wiimote as wmote
 
-
-def SignalHandler(SignalNumber, Frame):
-    if fd:
-        try:
-            hidraw_io.close()
-            os.close(fd)
-        except:
-            pass
-    sys.kill()
 
 def test_argument():
     parser = argparse.ArgumentParser()
@@ -118,7 +111,4 @@ def test_wiimote():
         pass
 
 if __name__ == '__main__':
-    signal.signal(signal.SIGINT,  SignalHandler)
-    signal.signal(signal.SIGTERM, SignalHandler)
-
     test_wiimote()

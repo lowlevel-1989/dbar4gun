@@ -1,3 +1,8 @@
+"""
+Medidas de precision del simulador: error en px de la TV sobre una
+cuadricula de puntos del area 4:3.
+"""
+
 import math
 
 TV_W_PX = 1920

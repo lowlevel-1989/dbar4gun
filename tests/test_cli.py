@@ -1,3 +1,7 @@
+"""
+Linea de comandos: opciones antiguas, version y comandos al socket de control.
+"""
+
 import json
 import os
 import subprocess
@@ -24,7 +28,7 @@ def test_version_and_help_keep_old_flags():
     out = run("start", "--help").stdout
     for flag in ("--calibration", "--width", "--height", "--disable-tilt-correction",
                  "--port", "--smoothing-level", "--no-distance-compensation", "--area",
-                 "--useful-zone", "--bar", "--calibration-targets", "--config-dir", "--socket"):
+                 "--useful-zone", "--calibration-targets", "--config-dir", "--socket"):
         assert flag in out, flag
 
 
@@ -37,6 +41,16 @@ def test_setup_option_still_accepted():
     for value in ("1", "2", "0", "standard"):
         assert run("--setup", value, "version").returncode == 0, value
     assert "--setup" not in run("start", "--help").stdout
+
+
+def test_bar_option_still_accepted():
+    """
+    La barra va siempre encima de la TV, pero un servicio que arranque con
+    --bar top (o bottom) debe seguir arrancando.
+    """
+    for value in ("top", "bottom"):
+        assert run("--bar", value, "version").returncode == 0, value
+    assert "--bar" not in run("start", "--help").stdout
 
 @pytest.fixture
 def server(tmp_path):

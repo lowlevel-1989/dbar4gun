@@ -1,7 +1,11 @@
+"""
+Calibracion con los botones del Wiimote (A + plus): pasos, errores y modos.
+"""
+
 import pytest
 
-from dbar4gun.core.calibration import (CalibrationData, CALIBRATION_SHOTS, MODE_2PT, MODE_DISABLED,
-                                       MODE_3PT, AffineMap)
+from dbar4gun.core.calibration.data import MODE_2PT, MODE_DISABLED, MODE_3PT
+from dbar4gun.core.calibration.session import CALIBRATION_SHOTS
 from dbar4gun.core.gun import (
     GunOptions, GunPipeline, BUTTON_A, BUTTON_B, BUTTON_PLUS, BUTTON_MINUS, BUTTON_HOME,
     LED_1, LED_2, LED_3, LED_4, edge_point, LOST_HOLD, parse_targets,
@@ -124,9 +128,9 @@ def test_quick_recalibration_without_distance_compensation(monkeypatch):
     assert after.mean_tv < before.mean_tv * 0.6
 
 
-def test_quick_with_bar_bottom_uses_bottom_corners():
-    p = GunPipeline(GunOptions(smoothing_level=0, bar_on_top=False, useful_zone=0.8))
-    assert p.calibration_targets("quick") == [(0.1, 0.8), (0.9, 0.8)]
+def test_quick_uses_the_top_corners():
+    p = GunPipeline(GunOptions(smoothing_level=0, useful_zone=0.8))
+    assert p.calibration_targets("quick") == [(0.1, 0.1), (0.9, 0.1)]
     assert p.calibration_targets("3pt") == [(0.1, 0.1), (0.9, 0.1), (0.5, 0.8)]
 
 

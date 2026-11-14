@@ -1,20 +1,26 @@
+"""
+Pipeline (dbar4gun.core): parser IR, tracker de los dots, camera point,
+area profile, rumble y calibracion.
+"""
+
 import math
 
 import pytest
 
 from dbar4gun.core.parser import parse_ir_basic, parse_ir_basic_raw
-from dbar4gun.core.tracker import Tracker, acc_roll, SQUARE_Y
-from dbar4gun.core.pointer import camera_point, angular_separation, distance_from_separation
+from dbar4gun.core.tracker import Tracker, acc_roll
+from dbar4gun.core.pointer import camera_point, distance_from_separation
 from dbar4gun.core.area import AreaProfile
 from dbar4gun.core.feedback import Rumble
-from dbar4gun.core.calibration import (
-    AffineMap, CaptureBuffer, CalibrationData, CalibrationSession, solve_affine_3pt,
-    solve_scale_offset_2pt, quick_recalibrate, geometry_ok, ERR_NO_IR, ERR_UNSTABLE,
-    ERR_GEOMETRY, MODE_3PT,
+from dbar4gun.core.calibration.capture import CaptureBuffer, ERR_NO_IR, ERR_UNSTABLE
+from dbar4gun.core.calibration.data import CalibrationData, MODE_3PT
+from dbar4gun.core.calibration.maps import (
+    AffineMap, solve_affine_3pt, solve_scale_offset_2pt, quick_recalibrate, geometry_ok,
 )
+from dbar4gun.core.calibration.session import CalibrationSession, ERR_GEOMETRY
 from dbar4gun.core.pointer import CameraPoint
 
-from tests.sim.payload import ir_basic_payload, acc_bytes
+from tests.sim.payload import ir_basic_payload
 from tests.sim.scene import Scene
 
 
@@ -245,7 +251,7 @@ def test_session_rounds_are_averaged():
     Dos vueltas (TL, TR, BC, TL, TR, BC): la captura de cada target es la media
     de sus dos disparos, asi un disparo desviado pesa la mitad.
     """
-    from dbar4gun.core.calibration import MAX_SHOT_DIFF_SEP
+    from dbar4gun.core.calibration.session import MAX_SHOT_DIFF_SEP
     targets = [(0.1, 0.1), (0.9, 0.1), (0.5, 0.85)]
     cams = [(-2.0, 1.0), (2.0, 1.0), (0.0, 4.0)]
     s = CalibrationSession("3pt", targets, shots=2)
@@ -266,7 +272,7 @@ def test_session_rounds_are_averaged():
 
 
 def test_session_inconsistent_shots_are_repeated():
-    from dbar4gun.core.calibration import ERR_INCONSISTENT
+    from dbar4gun.core.calibration.session import ERR_INCONSISTENT
     targets = [(0.1, 0.1), (0.9, 0.1), (0.5, 0.85)]
     cams = [(-2.0, 1.0), (2.0, 1.0), (0.0, 4.0)]
     s = CalibrationSession("3pt", targets, shots=2)
@@ -389,7 +395,8 @@ def test_tracker_recovers_after_sudden_distance_change():
 
 
 # ----------------------------------------------------------------
-from dbar4gun.core.calibration import HomographyMap, solve_homography_4pt, MODE_4PT
+from dbar4gun.core.calibration.data import MODE_4PT
+from dbar4gun.core.calibration.maps import HomographyMap, solve_homography_4pt
 
 
 def test_homography_exact_and_roundtrip():

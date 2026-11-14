@@ -12,7 +12,7 @@ import fcntl
 import json
 import os
 
-from dbar4gun.core.calibration import CalibrationData
+from dbar4gun.core.calibration.data import CalibrationData
 from dbar4gun.core.hardware import HardwareConfig
 
 RETROPIE_CONFIGS = "/opt/retropie/configs/all"

@@ -1,3 +1,8 @@
+"""
+Camara IR del Wiimote simulada: proyecta los LEDs de la barra (posicion 3D)
+en el sensor de 1024x768, con su FOV.
+"""
+
 import math
 
 SENSOR_W = 1024

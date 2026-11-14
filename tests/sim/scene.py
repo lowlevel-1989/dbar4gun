@@ -1,3 +1,8 @@
+"""
+Escena simulada: TV, barra y jugador. Genera los reports que veria el
+Wiimote apuntando a un punto de la TV.
+"""
+
 import math
 import random
 

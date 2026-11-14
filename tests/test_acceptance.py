@@ -6,7 +6,7 @@ area 4:3), de extremo a extremo: report 0x37 -> WiiMoteDevice -> cursor.
 import pytest
 
 from tests.sim.driver import NewDriver
-from tests.sim.metrics import error_tv_px, TV_W_PX, TV_H_PX, AREA_43_X0, AREA_43_W
+from tests.sim.metrics import error_tv_px, AREA_43_X0, AREA_43_W
 from tests.sim.scenarios import run_all, format_table
 from tests.sim.scene import Scene, TV
 

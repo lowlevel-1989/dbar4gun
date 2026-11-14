@@ -1,12 +1,12 @@
-import os
-import io
-import re
-import time
-import struct
-import evdev
-import math
+"""
+Prueba antigua: crea un raton virtual con uinput y busca su numero mouseN
+en /sys.
+"""
 
-from pprint import pprint
+import os
+import re
+import evdev
+
 
 mouse_cap = {
     evdev.ecodes.EV_KEY: [

@@ -6,9 +6,10 @@ import threading
 import time
 import types
 
-import pytest
 
-from dbar4gun import dbar4gun as D
+from dbar4gun.daemon import single as D
+from dbar4gun.daemon.pipes import local_pipe
+from dbar4gun.daemon.service import Dbar4Gun
 from dbar4gun import wiimote as W
 
 from tests.sim.scene import Scene, TV
@@ -72,7 +73,7 @@ class FakeMonitor(object):
 
 
 def test_local_pipe():
-    a, b = D.local_pipe()
+    a, b = local_pipe()
     assert not b.poll()
     a.send((1, "x"))
     assert b.poll(0.1) and b.recv() == (1, "x")
@@ -94,7 +95,7 @@ def test_single_process_two_guns(monkeypatch, tmp_path):
 
     config = types.SimpleNamespace(width=1920, height=1080, port=1, config_dir=str(tmp_path),
                                    smoothing_level=0, single_process=True)
-    d = D.Dbar4Gun(config, FakeMonitor, W.WiiMoteDevice, FakeGun)
+    d = Dbar4Gun(config, FakeMonitor, W.WiiMoteDevice, FakeGun)
     monkeypatch.setattr(d, "open_device", lambda path: (devices[path].r, devices[path]))
     monkeypatch.setattr(D, "device_key", lambda path: "k:" + path)
 
@@ -163,7 +164,7 @@ def test_single_process_empty_slot_and_idle(monkeypatch, tmp_path):
     FakeMonitor.events = [["add", "/dev/hidraw1"], ["add", "/dev/hidraw2"]]
     config = types.SimpleNamespace(width=1920, height=1080, port=1, config_dir=str(tmp_path),
                                    smoothing_level=0, single_process=True)
-    d = D.Dbar4Gun(config, FakeMonitor, W.WiiMoteDevice, FakeGun)
+    d = Dbar4Gun(config, FakeMonitor, W.WiiMoteDevice, FakeGun)
     monkeypatch.setattr(d, "open_device", lambda path: (devices[path].r, devices[path]))
     monkeypatch.setattr(D, "device_key", lambda path: "k:" + path)
 
@@ -227,7 +228,7 @@ def test_single_process_bluetooth_reconnect_keeps_virtualgun(monkeypatch, tmp_pa
     FakeMonitor.events = [["add", "/dev/hidraw6"]]
     config = types.SimpleNamespace(width=1920, height=1080, port=1, config_dir=str(tmp_path),
                                    smoothing_level=0, single_process=True)
-    d = D.Dbar4Gun(config, FakeMonitor, W.WiiMoteDevice, KeepGun)
+    d = Dbar4Gun(config, FakeMonitor, W.WiiMoteDevice, KeepGun)
     monkeypatch.setattr(d, "open_device", lambda path: (devices[path].r, devices[path]))
     monkeypatch.setattr(D, "device_key", lambda path: "bt:00:11:22:33:44:55")
 

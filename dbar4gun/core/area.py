@@ -1,5 +1,5 @@
 """
-M1: perfil de area. MAME (y otros) estiran el rango ABS del gun sobre la imagen
+Perfil de area. MAME (y otros) estiran el rango ABS del gun sobre la imagen
 del juego, que puede no ocupar toda la TV (4:3 dentro de 16:9).
 
     out = (x - x0) / w, con clamp a [0, 1]

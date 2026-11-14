@@ -2,7 +2,6 @@
 
 import types
 
-import pytest
 
 from dbar4gun import mouseindex
 from dbar4gun import virtualgun as V
@@ -86,11 +85,11 @@ def test_refresh_index(monkeypatch):
 
 
 def test_daemon_follows_mouse_index_changes(monkeypatch, tmp_path):
-    from dbar4gun import dbar4gun as D
+    from dbar4gun.daemon.service import Dbar4Gun
     from dbar4gun.wiimote import player_leds
     from tests.fakes import make_wiimote
 
-    d = D.Dbar4Gun(types.SimpleNamespace(width=1920, height=1080, port=35460,
+    d = Dbar4Gun(types.SimpleNamespace(width=1920, height=1080, port=35460,
                                          config_dir=str(tmp_path)), None, None, None)
     try:
         wm, io = make_wiimote(monkeypatch)

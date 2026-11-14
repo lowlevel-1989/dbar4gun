@@ -1,7 +1,7 @@
 """
-Calibrator de dbar4gun (necesita pygame: pip install dbar4gun[gui]).
+Calibrator de dbar4gun (necesita pygame: pip install pygame).
 
-La logica esta en dbar4gun.gui.logic (sin pygame) y el dibujo en dbar4gun.gui.app.
+Que hace cada archivo: README.md de esta carpeta.
 """
 
 

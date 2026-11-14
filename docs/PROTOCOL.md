@@ -40,7 +40,7 @@ Flags generales (`flags`):
 |-----|--------|
 | 0x01 | calibrado (hay calibración guardada o hecha en esta sesión) |
 | 0x02 | distance compensation activa |
-| 0x04 | barra arriba |
+| 0x04 | sin uso |
 | 0x08 | fake cursor (B+plus) |
 | 0x10 | sin dots (`lost`) |
 | 0x20 | camera point válido |

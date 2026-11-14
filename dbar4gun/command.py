@@ -1,3 +1,9 @@
+"""
+Linea de comandos `dbar4gun`: lee las opciones y arranca el servicio
+(start/stop), el calibrator (gui) o manda comandos al servicio que ya esta
+en marcha (area, status, calibrate...).
+"""
+
 import os
 import sys
 import signal
@@ -11,7 +17,7 @@ sys.path.append(PATH_ROOT)
 
 from dbar4gun import info
 
-from dbar4gun.dbar4gun   import Dbar4Gun
+from dbar4gun.daemon.service import Dbar4Gun
 from dbar4gun.wiimote    import WiiMoteDevice
 from dbar4gun.virtualgun import VirtualGunDevice
 from dbar4gun.monitor    import Monitor
@@ -72,8 +78,10 @@ class Command(object):
                             help="gun area profile: full (default), 4:3, custom:x0,y0,w,h")
         parser.add_argument("--useful-zone",     type=float, default=DEFAULT_USEFUL_ZONE,
                             help="fraction of the screen height with targets ({} default)".format(DEFAULT_USEFUL_ZONE))
+        # --bar ya no se usa (la calibracion vale con la barra encima, o debajo de
+        # una TV pequena); se acepta para que no falle un servicio que aun lo tenga
         parser.add_argument("--bar",             type=str, default="top", choices=["top", "bottom"],
-                            help="sensor bar position: top (default) or bottom")
+                            help=argparse.SUPPRESS)
         parser.add_argument("--calibration-targets", type=str, default=None,
                             help="3-point targets in gun space: x1,y1,x2,y2,x3,y3")
         parser.add_argument("--config-dir",      type=str, default=None,
@@ -102,8 +110,8 @@ class Command(object):
 
         command_start   = subparsers.add_parser("start")
         command_attach  = subparsers.add_parser("attach")
-        command_stop    = subparsers.add_parser("stop")
-        command_version = subparsers.add_parser("version")
+        subparsers.add_parser("stop")
+        subparsers.add_parser("version")
         command_gui     = subparsers.add_parser("gui")
 
         # comandos al daemon por el socket de control

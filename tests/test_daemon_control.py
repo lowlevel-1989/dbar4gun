@@ -4,11 +4,11 @@ import types
 
 import pytest
 
-from dbar4gun import dbar4gun as dbar4gun_module
-from dbar4gun.dbar4gun import Dbar4Gun
-from dbar4gun.core.gun import GunPipeline
+from dbar4gun.daemon import commands as commands_module
+from dbar4gun.daemon.pipes import Pipe
+from dbar4gun.daemon.service import Dbar4Gun
 
-from tests.fakes import FakeHidraw, make_wiimote
+from tests.fakes import make_wiimote
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ class Worker(object):
     """Un worker real (_worker_command) atendido en el mismo proceso."""
 
     def __init__(self, daemon, monkeypatch, port, key):
-        self.parent, self.child = dbar4gun_module.Pipe()
+        self.parent, self.child = Pipe()
         self.wm, _ = make_wiimote(monkeypatch, pipeline=daemon.make_pipeline(key))
         self.wm.player = port + 1
         self.port, self.key = port, key
@@ -42,7 +42,6 @@ def ask(daemon, workers, line, monkeypatch):
     real_ask = daemon._ask_workers
 
     def ask_and_serve(cmd, args=(), ports=None):
-        orig_send = []
         for w in workers:
             orig = w.parent.send
 
@@ -76,7 +75,8 @@ def test_status_area_calibrate_reload(daemon, monkeypatch):
     ask(daemon, workers, "cancel", monkeypatch)
     assert not workers[1].wm.pipeline.calibrating
 
-    from dbar4gun.core.calibration import CalibrationData, AffineMap
+    from dbar4gun.core.calibration.data import CalibrationData
+    from dbar4gun.core.calibration.maps import AffineMap
     daemon.store().save("bt:a", CalibrationData(affine=AffineMap(0.1, 0, 0, 0.2, 0.33, 0),
                                                 calibrated=True))
     r = ask(daemon, workers, "reload", monkeypatch)
@@ -89,24 +89,25 @@ def test_unknown_command(daemon):
 
 
 def test_worker_without_reply_times_out(daemon, monkeypatch):
-    parent, child = dbar4gun_module.Pipe()
+    parent, child = Pipe()
     daemon.workers["/dev/hidraw0"] = [parent, 0, "k"]
-    monkeypatch.setattr(dbar4gun_module, "WORKER_REPLY_TIMEOUT", 0.05)
+    monkeypatch.setattr(commands_module, "WORKER_REPLY_TIMEOUT", 0.05)
     st = daemon.handle_command("status")
     assert st["wiimotes"][0]["error"] == "no response"
 
 
 def test_late_replies_are_discarded(daemon, monkeypatch):
-    parent, child = dbar4gun_module.Pipe()
+    parent, child = Pipe()
     daemon.workers["/dev/hidraw0"] = [parent, 0, "k"]
     child.send((-5, {"stale": True}))
-    monkeypatch.setattr(dbar4gun_module, "WORKER_REPLY_TIMEOUT", 0.05)
+    monkeypatch.setattr(commands_module, "WORKER_REPLY_TIMEOUT", 0.05)
     st = daemon.handle_command("status")
     assert "stale" not in st["wiimotes"][0]
 
 
 def test_saved_calibration_loaded_at_start(daemon):
-    from dbar4gun.core.calibration import CalibrationData, AffineMap
+    from dbar4gun.core.calibration.data import CalibrationData
+    from dbar4gun.core.calibration.maps import AffineMap
     daemon.store().save("bt:z", CalibrationData(affine=AffineMap(0.1, 0, 0, 0.2, 0.44, 0),
                                                 calibrated=True))
     p = daemon.make_pipeline("bt:z")
@@ -116,7 +117,8 @@ def test_saved_calibration_loaded_at_start(daemon):
 
 def test_filter_usefulzone_save_history(daemon, monkeypatch, tmp_path):
     workers = [Worker(daemon, monkeypatch, 0, "bt:a")]
-    from dbar4gun.core.calibration import CalibrationData, AffineMap
+    from dbar4gun.core.calibration.data import CalibrationData
+    from dbar4gun.core.calibration.maps import AffineMap
 
     # una calibracion hecha (para que el filter se guarde)
     cal = CalibrationData(affine=AffineMap(0.12, 0, 0, 0.2, 0.5, 0), calibrated=True, timestamp=1.0)
@@ -242,7 +244,7 @@ def test_waiting_worker_answers_status(daemon, monkeypatch):
     daemon.class_wiimotedevice = W.WiiMoteDevice
     daemon.class_virtualgundevice = FakeGun
     slot = EmptySlot()
-    parent, child = dbar4gun_module.Pipe()
+    parent, child = Pipe()
     th = threading.Thread(target=daemon._create_virtualgun,
                           args=(slot, 1, "usb:x/input1", child, "/dev/hidraw3"))
     th.daemon = True
@@ -304,7 +306,7 @@ def test_silent_paired_worker_answers_quickly(daemon, monkeypatch):
             return PipeDevice.readinto(self, buf)
 
     dev = Dev()
-    parent, child = dbar4gun_module.Pipe()
+    parent, child = Pipe()
     th = threading.Thread(target=daemon._create_virtualgun,
                           args=(dev, 0, "usb:x/input0", child, "/dev/hidraw2"))
     th.daemon = True
@@ -414,7 +416,7 @@ def test_bluetooth_worker_keeps_virtualgun_until_the_wiimote_returns(daemon, mon
 
     first, second = BtDevice(), BtDevice()
     monkeypatch.setattr(daemon, "open_device", lambda path: (second.r, second))
-    parent, child = dbar4gun_module.Pipe()
+    parent, child = Pipe()
     th = threading.Thread(target=daemon._create_virtualgun,
                           args=(first, 4, "bt:00:11:22:33:44:55", child, "/dev/hidraw6"))
     th.daemon = True
@@ -462,7 +464,7 @@ def test_bluetooth_worker_keeps_virtualgun_until_the_wiimote_returns(daemon, mon
 
 def test_daemon_routes_bluetooth_remove_and_add(daemon, monkeypatch):
     """remove de un Wiimote bt: no se mata su worker; add de la misma MAC: attach."""
-    from dbar4gun import dbar4gun as D
+    from dbar4gun.daemon import devices as D
 
     class Proc(object):
         killed = False
@@ -506,7 +508,7 @@ def test_daemon_routes_bluetooth_remove_and_add(daemon, monkeypatch):
 
 
 def test_accuracy_stores_gallery_analysis(daemon):
-    from dbar4gun.core.calibration import CalibrationData
+    from dbar4gun.core.calibration.data import CalibrationData
     daemon.workers = {"/dev/hidraw0": [None, 0, "bt:a"]}
     daemon.store().save("bt:a", CalibrationData())
     r = daemon.handle_command("accuracy 1 9.5 30 2.1 6.4 game=ptblank kind=scale "

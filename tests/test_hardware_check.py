@@ -9,8 +9,8 @@ import tests.sim.camera as cam
 from dbar4gun.core.gun import GunOptions
 from dbar4gun.core.hardware import HardwareConfig, focal_norm, fov_from_focal_px, focal_px
 from dbar4gun.core.pointer import FOCAL
-from dbar4gun.gui import logic as L
-from dbar4gun.protocol import Packet, DOT_VALID, DOT_RECONSTRUCTED, RAW_ABSENT, FLAG_CP_VALID
+from dbar4gun.gui.logic import calibration, hardware
+from dbar4gun.protocol import Packet, RAW_ABSENT
 from dbar4gun.store import HardwareStore
 
 from tests.sim.gui_harness import SimGun
@@ -54,12 +54,12 @@ def test_distance_uses_measured_fov_and_bar_width(fov, monkeypatch):
     fov(40.0)
     gun = SimGun(monkeypatch, Scene(player=(0.0, 0.0, 3.0)), options=opts())
     p = gun.packets(3)[-1]
-    nominal = L.distance_m(p)
-    measured = L.distance_m(p, HardwareConfig(fov_h_deg=40.0))
+    nominal = calibration.distance_m(p)
+    measured = calibration.distance_m(p, HardwareConfig(fov_h_deg=40.0))
     assert abs(nominal - 3.0) > 0.4
     assert abs(measured - 3.0) < 0.05
     # el ancho de la barra escala la distancia
-    wide = L.distance_m(p, HardwareConfig(fov_h_deg=40.0, bar_width_m=0.22))
+    wide = calibration.distance_m(p, HardwareConfig(fov_h_deg=40.0, bar_width_m=0.22))
     assert abs(wide / measured - 1.1) < 1e-6
 
 
@@ -77,20 +77,20 @@ def test_pipeline_status_reports_hardware(monkeypatch):
 def test_link_check_dolphinbar_and_bluetooth():
     p = Packet()
     p.hz, p.battery = 175.0, 39
-    r = L.link_check({"key": "usb:usb-0000:00:14.0-3/input2"}, p)
-    assert r["link"] == "dolphinbar" and r["slot"] == 3 and r["verdict"] == L.OK
+    r = hardware.link_check({"key": "usb:usb-0000:00:14.0-3/input2"}, p)
+    assert r["link"] == "dolphinbar" and r["slot"] == 3 and r["verdict"] == hardware.OK
     p.battery = 10
-    r = L.link_check({"key": "bt:00:1f:32:aa:bb:cc"}, p)
-    assert r["link"] == "bluetooth" and r["verdict"] == L.WARN and "low_battery" in r["notes"]
+    r = hardware.link_check({"key": "bt:00:1f:32:aa:bb:cc"}, p)
+    assert r["link"] == "bluetooth" and r["verdict"] == hardware.WARN and "low_battery" in r["notes"]
     p.battery, p.hz = 80, 40.0
-    assert "low_hz" in L.link_check({}, p)["notes"]
+    assert "low_hz" in hardware.link_check({}, p)["notes"]
 
 
 # ----------------------------------------------------------------------
 # paso 2: calidad IR
 def _ir_run(monkeypatch, scene, n=200, drop_every=None, drop_led=1):
     gun = SimGun(monkeypatch, scene, options=opts())
-    q = L.IRQuality()
+    q = hardware.IRQuality()
     for i in range(n):
         drop = (drop_led,) if drop_every and i % drop_every == 0 else ()
         gun.drv.feed(scene.report(0.5, 0.5, 0.0, 0, drop))
@@ -101,14 +101,14 @@ def _ir_run(monkeypatch, scene, n=200, drop_every=None, drop_led=1):
 
 def test_ir_quality_ok(monkeypatch):
     r = _ir_run(monkeypatch, Scene(noise_px=0.5))
-    assert r["verdict"] == L.OK and r["both"] == 1.0 and r["sensitivity"] is None
+    assert r["verdict"] == hardware.OK and r["both"] == 1.0 and r["sensitivity"] is None
     assert 0.2 < r["jitter_px"] < 1.5
 
 
 def test_ir_quality_detects_weak_led(monkeypatch):
     """Un LED que se pierde 1 de cada 3 reports (como uno danado)."""
     r = _ir_run(monkeypatch, Scene(), drop_every=3, drop_led=1)
-    assert r["verdict"] == L.WARN
+    assert r["verdict"] == hardware.WARN
     assert r["weak_led"] == "right"
     assert r["sensitivity"] == "higher"
     r = _ir_run(monkeypatch, Scene(), drop_every=3, drop_led=0)
@@ -122,17 +122,17 @@ def test_ir_quality_detects_extra_source(monkeypatch):
 
 
 def test_ir_quality_no_bar():
-    q = L.IRQuality()
+    q = hardware.IRQuality()
     for _ in range(200):
         q.add(Packet())
-    assert q.result()["verdict"] == L.FAIL
+    assert q.result()["verdict"] == hardware.FAIL
 
 
 # ----------------------------------------------------------------------
 # paso 3: signo del acelerometro
 def _acc_run(monkeypatch, sign):
     gun = SimGun(monkeypatch, Scene(), options=opts(hardware=HardwareConfig(acc_x_sign=sign)))
-    chk = L.AccSignCheck()
+    chk = hardware.AccSignCheck()
     for i in range(120):
         gun.roll = 45.0 * math.sin(i / 120.0 * 2 * math.pi)
         for p in gun.packets(1):
@@ -143,24 +143,24 @@ def _acc_run(monkeypatch, sign):
 
 def test_acc_sign_ok(monkeypatch):
     r = _acc_run(monkeypatch, 1.0)
-    assert r["verdict"] == L.OK and r["acc_x_sign"] == 1.0
+    assert r["verdict"] == hardware.OK and r["acc_x_sign"] == 1.0
     assert abs(r["slope"] + 1.0) < 0.1
 
 
 def test_acc_sign_inverted_is_detected(monkeypatch):
     """Como el hardware real con el signo antiguo (-1): pendiente ~ +1."""
     r = _acc_run(monkeypatch, -1.0)
-    assert r["verdict"] == L.FAIL and r["acc_x_sign"] == 1.0
+    assert r["verdict"] == hardware.FAIL and r["acc_x_sign"] == 1.0
     assert abs(r["slope"] - 1.0) < 0.1
 
 
 def test_acc_sign_needs_rotation(monkeypatch):
     gun = SimGun(monkeypatch, Scene(), options=opts())
-    chk = L.AccSignCheck()
+    chk = hardware.AccSignCheck()
     for p in gun.packets(60):
         chk.add(p)
     assert not chk.ready()
-    assert chk.result(-1.0)["verdict"] == L.NA
+    assert chk.result(-1.0)["verdict"] == hardware.NA
 
 
 # ----------------------------------------------------------------------
@@ -181,17 +181,17 @@ def test_fov_measure(fov, monkeypatch, real_fov, distance):
     gun = SimGun(monkeypatch, scene, options=opts())
     # apuntando cerca de la barra (de frente)
     gun.aim = (0.5, 0.0)
-    m = L.FovMeasure(bar_distance(scene), 0.20)
+    m = hardware.FovMeasure(bar_distance(scene), 0.20)
     for p in gun.packets(80):
         m.add(p)
     assert m.ready()
     r = m.result()
     assert abs(r["fov_h_deg"] - real_fov) < 0.5, r
-    assert r["verdict"] == L.OK
+    assert r["verdict"] == hardware.OK
 
 
 def test_fov_measure_ignores_off_center_and_extra_dots():
-    m = L.FovMeasure(2.0, 0.20)
+    m = hardware.FovMeasure(2.0, 0.20)
     p = Packet()
     p.raw = [(10, 10, 0xFF), (100, 10, 0xFF)] + [(RAW_ABSENT, RAW_ABSENT, 0xFF)] * 2
     m.add(p)
@@ -206,28 +206,26 @@ def test_fov_with_wrong_bar_width_is_proportional(fov, monkeypatch):
     scene = Scene(player=(0.0, 0.0, 2.0))
     gun = SimGun(monkeypatch, scene, options=opts())
     gun.aim = (0.5, 0.0)
-    m = L.FovMeasure(bar_distance(scene), 0.22)
+    m = hardware.FovMeasure(bar_distance(scene), 0.22)
     for p in gun.packets(80):
         m.add(p)
     assert abs(m.result()["focal_px"] / focal_px(33.0) - 1 / 1.1) < 0.01
 
 
 def test_combine_fov():
-    assert L.combine_fov([{"fov_h_deg": 38.0}, {"fov_h_deg": 39.0}, {"verdict": "na"}]) == 38.5
-    assert L.combine_fov([]) is None
+    assert hardware.combine_fov([{"fov_h_deg": 38.0}, {"fov_h_deg": 39.0}, {"verdict": "na"}]) == 38.5
+    assert hardware.combine_fov([]) is None
     assert abs(fov_from_focal_px(focal_px(37.0)) - 37.0) < 1e-9
 
 
 # ----------------------------------------------------------------------
-# paso 5: barra arriba o abajo
-@pytest.mark.parametrize("real_top,configured_top,verdict", [
-    (True, True, L.OK), (False, False, L.OK), (True, False, L.FAIL), (False, True, L.FAIL),
-])
-def test_bar_side(monkeypatch, real_top, configured_top, verdict):
+# paso 5: barra encima de la TV; debajo, un aviso
+@pytest.mark.parametrize("real_top,verdict", [(True, hardware.OK), (False, hardware.WARN)])
+def test_bar_side(monkeypatch, real_top, verdict):
     scene = Scene(bar_on_top=real_top)
-    gun = SimGun(monkeypatch, scene, options=opts(bar_on_top=configured_top))
+    gun = SimGun(monkeypatch, scene, options=opts())
     gun.roll = 10.0
-    chk = L.BarSideCheck()
+    chk = hardware.BarSideCheck()
     for p in gun.packets(40):
         chk.add(p)
     assert chk.ready()
@@ -237,11 +235,11 @@ def test_bar_side(monkeypatch, real_top, configured_top, verdict):
 
 
 def test_bar_side_needs_valid_camera_point():
-    chk = L.BarSideCheck()
+    chk = hardware.BarSideCheck()
     p = Packet()
     p.flags = 0
     chk.add(p)
-    assert chk.result()["verdict"] == L.NA
+    assert chk.result()["verdict"] == hardware.NA
 
 
 # ----------------------------------------------------------------------
@@ -254,7 +252,7 @@ def _pk(roll=0.0):
 
 
 def test_disconnect_stopped_and_back():
-    d = L.DisconnectCheck(0.0)
+    d = hardware.DisconnectCheck(0.0)
     t = 0.0
     for i in range(30):
         t += 0.1
@@ -269,13 +267,13 @@ def test_disconnect_stopped_and_back():
     t += 0.1
     d.update([_pk(1.0)], t)
     r = d.result()
-    assert r["verdict"] == L.OK and r["stopped"] == "stopped"
+    assert r["verdict"] == hardware.OK and r["stopped"] == "stopped"
     assert 3.0 < r["reconnect_s"] < 4.5
 
 
 def test_disconnect_repeating_reports():
     """Una barra que repite el ultimo report al apagar el Wiimote."""
-    d = L.DisconnectCheck(0.0)
+    d = hardware.DisconnectCheck(0.0)
     t = 0.0
     for i in range(10):
         t += 0.1
@@ -286,21 +284,21 @@ def test_disconnect_repeating_reports():
     assert d.state == "wait_on" and d.stopped == "repeating"
     t += 0.1
     d.update([_pk(42.0)], t)
-    assert d.result()["verdict"] == L.OK
+    assert d.result()["verdict"] == hardware.OK
 
 
 def test_disconnect_timeout():
-    d = L.DisconnectCheck(0.0)
+    d = hardware.DisconnectCheck(0.0)
     d.update([_pk()], 0.1)
     d.update([], 2.0)
     d.update([], 100.0)
-    assert d.state == "timeout" and d.result()["verdict"] == L.FAIL
+    assert d.state == "timeout" and d.result()["verdict"] == hardware.FAIL
 
 
 def test_overall():
-    assert L.overall({"a": {"verdict": L.OK}, "b": {"verdict": L.NA}}) == L.OK
-    assert L.overall({"a": {"verdict": L.WARN}, "b": {"verdict": L.OK}}) == L.WARN
-    assert L.overall({"a": {"verdict": L.WARN}, "b": {"verdict": L.FAIL}}) == L.FAIL
+    assert hardware.overall({"a": {"verdict": hardware.OK}, "b": {"verdict": hardware.NA}}) == hardware.OK
+    assert hardware.overall({"a": {"verdict": hardware.WARN}, "b": {"verdict": hardware.OK}}) == hardware.WARN
+    assert hardware.overall({"a": {"verdict": hardware.WARN}, "b": {"verdict": hardware.FAIL}}) == hardware.FAIL
 
 
 # ----------------------------------------------------------------------

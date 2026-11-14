@@ -1,10 +1,14 @@
+"""
+Paquete UDP del daemon al calibrator: empaquetar y desempaquetar.
+"""
+
 import math
 
 import pytest
 
 from dbar4gun.protocol import (
     Packet, build_packet, SIZE, VERSION, RAW_ABSENT, DOT_VALID, DOT_RECONSTRUCTED,
-    FLAG_CALIBRATING, FLAG_CALIBRATED, FLAG_BAR_ON_TOP, FLAG_CP_VALID,
+    FLAG_CALIBRATING, FLAG_CALIBRATED, FLAG_CP_VALID,
 )
 from dbar4gun.core.gun import BUTTON_A, BUTTON_B, BUTTON_PLUS
 
@@ -36,7 +40,7 @@ def test_packet_from_driver(monkeypatch):
     p = Packet.unpack(build_packet(drv.wm, 5, 1).pack())
     assert p.index == 5 and p.virtualgun == 1 and p.battery == 80
     assert p.n_dots == 2
-    assert p.has(FLAG_BAR_ON_TOP) and p.has(FLAG_CP_VALID) and not p.has(FLAG_CALIBRATED)
+    assert p.has(FLAG_CP_VALID) and not p.has(FLAG_CALIBRATED)
     assert all(d[2] == DOT_VALID for d in p.dots)
     assert p.screen == pytest.approx((0.3, 0.4), abs=0.06)    # mapa nominal
     assert abs(p.roll) < 2 and abs(p.angle) < 1

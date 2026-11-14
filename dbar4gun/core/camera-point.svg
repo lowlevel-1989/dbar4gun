@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 275" width="900" height="275" font-family="sans-serif" font-size="13">
+  <!-- Camera point (core/pointer.py): punto medio de los dots, sin roll y sin distancia -->
+  <rect width="900" height="275" rx="12" fill="#f4f6f8"/>
+
+  <!-- 1. punto medio respecto al centro del sensor -->
+  <text x="150" y="30" text-anchor="middle" font-weight="bold" fill="#2b2f36">1. m = midpoint(TL, TR) - center</text>
+  <rect x="40" y="45" width="220" height="165" fill="#2b2f36"/>
+  <circle cx="150" cy="127" r="3" fill="#c9d1db"/>
+  <circle cx="190" cy="80" r="5" fill="#fff"/><circle cx="236" cy="96" r="5" fill="#fff"/>
+  <text x="178" y="70" fill="#fff" font-size="11">TL</text><text x="234" y="86" fill="#fff" font-size="11">TR</text>
+  <circle cx="213" cy="88" r="4" fill="#f2c94c"/>
+  <line x1="150" y1="127" x2="211" y2="89" stroke="#f2c94c" stroke-width="2"/>
+  <text x="196" y="118" fill="#f2c94c" font-size="11">m</text>
+
+  <!-- 2. tilt correction -->
+  <text x="450" y="30" text-anchor="middle" font-weight="bold" fill="#2b2f36">2. tilt correction: rotate(m, -angle)</text>
+  <rect x="340" y="45" width="220" height="165" fill="#2b2f36"/>
+  <circle cx="450" cy="127" r="3" fill="#c9d1db"/>
+  <circle cx="490" cy="79" r="5" fill="#fff"/><circle cx="538" cy="79" r="5" fill="#fff"/>
+  <circle cx="514" cy="79" r="4" fill="#f2c94c"/>
+  <line x1="450" y1="127" x2="512" y2="80" stroke="#f2c94c" stroke-width="2"/>
+
+  <!-- 3. compensacion de distancia -->
+  <text x="750" y="30" text-anchor="middle" font-weight="bold" fill="#2b2f36">3. distance compensation: / θ</text>
+  <rect x="640" y="45" width="220" height="165" fill="#2b2f36"/>
+  <circle cx="750" cy="127" r="3" fill="#c9d1db"/>
+  <circle cx="775" cy="103" r="4" fill="#fff"/><circle cx="799" cy="103" r="4" fill="#fff"/>
+  <circle cx="787" cy="103" r="4" fill="#f2c94c"/>
+  <line x1="750" y1="127" x2="786" y2="104" stroke="#f2c94c" stroke-width="2"/>
+
+  <text x="450" y="250" text-anchor="middle" fill="#2b2f36" font-weight="bold">camera point  c = rotate(m, -angle) / θ</text>
+</svg>

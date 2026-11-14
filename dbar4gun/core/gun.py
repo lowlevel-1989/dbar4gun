@@ -12,10 +12,10 @@ wiimote.py.
 import math
 
 from dbar4gun.core.area import AreaProfile, clamp01
-from dbar4gun.core.calibration import (
-    CalibrationData, CalibrationSession, CALIBRATION_SHOTS, MODE_DISABLED, MODE_2PT,
-    MODE_3PT, MODE_4PT,
+from dbar4gun.core.calibration.data import (
+    CalibrationData, MODE_DISABLED, MODE_2PT, MODE_3PT, MODE_4PT,
 )
+from dbar4gun.core.calibration.session import CalibrationSession, CALIBRATION_SHOTS
 from dbar4gun.core.filters import OneEuro2D, params_for_level, DEFAULT_LEVEL
 from dbar4gun.core.hardware import HardwareConfig
 from dbar4gun.core.pointer import camera_point, FOCAL
@@ -47,7 +47,7 @@ DEFAULT_USEFUL_ZONE = 0.85
 class GunOptions(object):
     def __init__(self, calibration_mode=MODE_3PT, tilt_correction=True,
                  distance_compensation=True, area="full", useful_zone=DEFAULT_USEFUL_ZONE,
-                 bar_on_top=True, targets=None, screen_aspect=16.0 / 9.0,
+                 targets=None, screen_aspect=16.0 / 9.0,
                  smoothing_level=DEFAULT_LEVEL, hardware=None):
         self.calibration_mode = calibration_mode
         self.tilt_correction = tilt_correction
@@ -55,7 +55,6 @@ class GunOptions(object):
         self.screen_aspect = screen_aspect
         self.area = area if isinstance(area, AreaProfile) else AreaProfile.parse(area, screen_aspect)
         self.useful_zone = useful_zone
-        self.bar_on_top = bar_on_top
         # targets de la calibracion de 3 puntos en espacio de salida (TL, TR, BC)
         self.targets = targets
         # One Euro (None = sin filter)
@@ -78,8 +77,7 @@ class GunPipeline(object):
         self.tracker = Tracker(acc_x_sign=self.options.hardware.acc_x_sign)
         self.calibration = calibration or CalibrationData(
             mode=self.options.calibration_mode,
-            distance_compensation=self.options.distance_compensation,
-            bar_on_top=self.options.bar_on_top)
+            distance_compensation=self.options.distance_compensation)
         self.session = None
         self.actions = []
 
@@ -161,9 +159,7 @@ class GunPipeline(object):
         if kind == "2pt":
             return [(0.5, 0.5), (0.1, 0.1)]
         if kind == "quick":
-            if self.options.bar_on_top:
-                return [(0.1, 0.1), (0.9, 0.1)]
-            return [(0.1, uz), (0.9, uz)]
+            return [(0.1, 0.1), (0.9, 0.1)]
         if kind == "4pt":
             # esquinas TL, TR, BR, BL
             return [(0.1, 0.1), (0.9, 0.1), (0.9, uz), (0.1, uz)]
@@ -222,7 +218,7 @@ class GunPipeline(object):
         # la recalibracion rapida (en partida) sigue con un disparo por target
         self.session = CalibrationSession(
             kind, targets, self.options.distance_compensation,
-            base=self.calibration, bar_on_top=self.options.bar_on_top,
+            base=self.calibration,
             shots=1 if kind == "quick" else CALIBRATION_SHOTS)
         self.session.targets_out = targets_out
         self.actions.append(("leds", self._target_leds(kind, 0)))
@@ -238,8 +234,7 @@ class GunPipeline(object):
         self.cancel_calibration()
         self.set_calibration(CalibrationData(
             mode=self.options.calibration_mode,
-            distance_compensation=self.options.distance_compensation,
-            bar_on_top=self.options.bar_on_top))
+            distance_compensation=self.options.distance_compensation))
 
     def _calibration_frame(self, cp, button_b, now):
         session = self.session

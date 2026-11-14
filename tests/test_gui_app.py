@@ -10,7 +10,16 @@ os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 
 from dbar4gun.gui import app as A
-from dbar4gun.gui import logic as L
+from dbar4gun.gui import draw
+from dbar4gun.gui.logic import calibration, gallery, hardware, wiimotes
+from dbar4gun.gui.screens.diagnostics import DiagnosticsScreen
+from dbar4gun.gui.screens.gallery import GalleryScreen
+from dbar4gun.gui.screens.hardware import AIM_COUNTDOWN, HardwareScreen
+from dbar4gun.gui.screens.install import InstallScreen
+from dbar4gun.gui.screens.menu import MenuScreen
+from dbar4gun.gui.screens.players import PlayersScreen
+from dbar4gun.gui.screens.reach import ReachScreen
+from dbar4gun.gui.screens.wizard import WizardScreen
 
 from tests.sim.gui_harness import SimGun, SimSource, SimControl
 from tests.sim.scene import Scene, TV
@@ -49,10 +58,10 @@ def rig(monkeypatch):
 
 def go_menu_item(rig, gun, item):
     menu = rig.app.screen
-    assert isinstance(menu, A.MenuScreen)
-    while A.MenuScreen.ITEMS[menu.sel] != item:
-        rig.press(gun, L.BTN_DOWN)
-    rig.press(gun, L.BTN_A)
+    assert isinstance(menu, MenuScreen)
+    while MenuScreen.ITEMS[menu.sel] != item:
+        rig.press(gun, wiimotes.BTN_DOWN)
+    rig.press(gun, wiimotes.BTN_A)
 
 
 def shoot_gallery(rig, gun, screen):
@@ -60,7 +69,7 @@ def shoot_gallery(rig, gun, screen):
     while screen.summary is None:
         gun.aim = screen.current[1]
         rig.frames(8)
-        rig.press(gun, L.BTN_B)
+        rig.press(gun, wiimotes.BTN_B)
 
 
 def capture_all(rig, gun, max_points=12):
@@ -72,7 +81,7 @@ def capture_all(rig, gun, max_points=12):
             break
         gun.aim = p.target
         rig.frames(8)
-        rig.press(gun, L.BTN_B)
+        rig.press(gun, wiimotes.BTN_B)
 
 
 def test_wizard_full_flow(rig):
@@ -80,9 +89,9 @@ def test_wizard_full_flow(rig):
     rig.frames(3)
     go_menu_item(rig, gun, "menu.wizard")
     wiz = rig.app.screen
-    assert isinstance(wiz, A.WizardScreen) and wiz.state == "intro"
+    assert isinstance(wiz, WizardScreen) and wiz.state == "intro"
 
-    rig.press(gun, L.BTN_A)
+    rig.press(gun, wiimotes.BTN_A)
     assert wiz.state == "capture"
     assert any(l.startswith("calibrate 1 full targets=") for l in rig.control.lines)
     capture_all(rig, gun)
@@ -92,11 +101,11 @@ def test_wizard_full_flow(rig):
 
     gun.aim = wiz.center()
     rig.frames(10)
-    rig.press(gun, L.BTN_B)
-    assert wiz.state == "done" and wiz.error_px <= L.VERIFY_MAX_PX
+    rig.press(gun, wiimotes.BTN_B)
+    assert wiz.state == "done" and wiz.error_px <= calibration.VERIFY_MAX_PX
 
-    rig.press(gun, L.BTN_HOME)
-    assert isinstance(rig.app.screen, A.MenuScreen)
+    rig.press(gun, wiimotes.BTN_HOME)
+    assert isinstance(rig.app.screen, MenuScreen)
 
 
 def test_wizard_shows_capture_error(rig):
@@ -104,14 +113,14 @@ def test_wizard_shows_capture_error(rig):
     rig.frames(3)
     go_menu_item(rig, gun, "menu.wizard")
     wiz = rig.app.screen
-    rig.press(gun, L.BTN_A)
+    rig.press(gun, wiimotes.BTN_A)
     # disparar sin ver la barra
     gun.aim = (0.5, 3.0)
     rig.frames(5)
-    rig.press(gun, L.BTN_B)
+    rig.press(gun, wiimotes.BTN_B)
     assert wiz.message is not None and "No IR" in wiz.message[0]
-    rig.press(gun, L.BTN_HOME)
-    assert isinstance(rig.app.screen, A.MenuScreen)
+    rig.press(gun, wiimotes.BTN_HOME)
+    assert isinstance(rig.app.screen, MenuScreen)
     assert not gun.drv.pipeline.calibrating
 
 
@@ -125,18 +134,18 @@ def test_wizard_two_players(monkeypatch):
             go_menu_item(rig, gun, "menu.wizard")
             wiz = rig.app.screen
             assert wiz.vg == gun.vg
-            rig.press(gun, L.BTN_A)
+            rig.press(gun, wiimotes.BTN_A)
             capture_all(rig, gun)
             rig.frames(2)
             gun.aim = wiz.center()
             rig.frames(10)
-            rig.press(gun, L.BTN_B)
+            rig.press(gun, wiimotes.BTN_B)
             assert wiz.state == "done"
             other = g2 if gun is g1 else g1
-            rig.press(other, L.BTN_A)       # el otro Wiimote no cambia de jugador
+            rig.press(other, wiimotes.BTN_A)       # el otro Wiimote no cambia de jugador
             assert rig.app.screen is wiz
-            rig.press(gun, L.BTN_A)         # vuelve al menu
-            assert isinstance(rig.app.screen, A.MenuScreen)
+            rig.press(gun, wiimotes.BTN_A)         # vuelve al menu
+            assert isinstance(rig.app.screen, MenuScreen)
         assert g1.drv.saved and g2.drv.saved
     finally:
         rig.close()
@@ -154,19 +163,19 @@ def test_reach_screen(monkeypatch):
             gun.aim = (0.5, y)
             rig.frames(1)
             y += 0.02
-        rig.press(gun, L.BTN_A)
+        rig.press(gun, wiimotes.BTN_A)
         reach, uz, factor, dist = screen.result
         assert reach is not None and factor > 1 and dist > 1.8
         assert gun.drv.wm.pipeline is not None
         assert rig.app.hub.guns[1].reach == reach
-        rig.press(gun, L.BTN_A)
-        assert isinstance(rig.app.screen, A.MenuScreen)
+        rig.press(gun, wiimotes.BTN_A)
+        assert isinstance(rig.app.screen, MenuScreen)
     finally:
         rig.close()
 
 
-@pytest.mark.parametrize("item,cls", [("menu.install", A.InstallScreen),
-                                      ("menu.diag", A.DiagnosticsScreen)])
+@pytest.mark.parametrize("item,cls", [("menu.install", InstallScreen),
+                                      ("menu.diag", DiagnosticsScreen)])
 def test_other_screens_draw(rig, item, cls):
     gun = rig.guns[0]
     gun.drv.calibrate(rig.scene)
@@ -178,14 +187,14 @@ def test_other_screens_draw(rig, item, cls):
     # perder un dot: la vista de camara dibuja el reconstruido
     gun.scene = Scene(tv=TV(45))
     rig.frames(5)
-    rig.press(gun, L.BTN_HOME)
-    assert isinstance(rig.app.screen, A.MenuScreen)
+    rig.press(gun, wiimotes.BTN_HOME)
+    assert isinstance(rig.app.screen, MenuScreen)
 
 
 def test_menu_exit(rig):
     gun = rig.guns[0]
     rig.frames(2)
-    rig.press(gun, L.BTN_HOME)
+    rig.press(gun, wiimotes.BTN_HOME)
     assert not rig.app.running
 
 
@@ -204,11 +213,11 @@ def test_diagnostics_irmode_toggle(rig):
     rig.frames(3)
     go_menu_item(rig, gun, "menu.diag")
     screen = rig.app.screen
-    rig.press(gun, L.BTN_ONE)
+    rig.press(gun, wiimotes.BTN_ONE)
     # el control simulado no conoce irmode: se muestra el error y no cambia
     assert rig.control.lines[-1] == "irmode extended"
     assert not screen.extended and screen.message
-    rig.press(gun, L.BTN_HOME)
+    rig.press(gun, wiimotes.BTN_HOME)
 
 
 # ----------------------------------------------------------------------
@@ -227,17 +236,17 @@ def test_gallery_saves_accuracy(rig_store):
     go_menu_item(rig, gun, "menu.gallery")
     screen = rig.app.screen
     assert screen.preset is None                    # primero se elige que simular
-    rig.press(gun, L.BTN_A)                         # el area profile del servicio
+    rig.press(gun, wiimotes.BTN_A)                         # el area profile del servicio
     shoot_gallery(rig, gun, screen)
     s = screen.summary
     assert s is not None and s["mean_tv"] < 15 and s["mean_game"] < 4
     hist = rig.control.store.history("sim:1")
     assert hist[-1]["accuracy"]["mean_tv"] == pytest.approx(s["mean_tv"], abs=0.01)
     assert hist[-1]["accuracy"]["games"]["profile"]["mean_game"] == pytest.approx(s["mean_game"], abs=0.01)
-    rig.press(gun, L.BTN_A)                         # otra prueba: vuelve a la lista
+    rig.press(gun, wiimotes.BTN_A)                         # otra prueba: vuelve a la lista
     assert screen.preset is None
-    rig.press(gun, L.BTN_HOME)
-    assert isinstance(rig.app.screen, A.MenuScreen)
+    rig.press(gun, wiimotes.BTN_HOME)
+    assert isinstance(rig.app.screen, MenuScreen)
 
 
 def test_tune_applies_filter(monkeypatch):
@@ -250,18 +259,18 @@ def test_tune_applies_filter(monkeypatch):
         rig.frames(3)
         go_menu_item(rig, gun, "menu.tune")
         screen = rig.app.screen
-        rig.press(gun, L.BTN_A)
+        rig.press(gun, wiimotes.BTN_A)
         assert screen.state == "still"
         rig.frames(int(3.2 * 60))
         assert screen.state == "move_intro" and screen.fc is not None
-        rig.press(gun, L.BTN_A)
+        rig.press(gun, wiimotes.BTN_A)
         i = 0
         while screen.state == "move":
             gun.aim = (0.5 + 0.3 * math.sin(i / 10.0), 0.5)
             rig.frames(1)
             i += 1
         assert screen.state == "result", screen.state
-        rig.press(gun, L.BTN_A)
+        rig.press(gun, wiimotes.BTN_A)
         assert screen.state == "applied"
         f = gun.drv.pipeline.filter_params()
         assert f["fc_min"] == pytest.approx(screen.fc, abs=1e-3)
@@ -277,9 +286,9 @@ def test_tune_rejects_no_motion(monkeypatch):
         rig.frames(3)
         go_menu_item(rig, gun, "menu.tune")
         screen = rig.app.screen
-        rig.press(gun, L.BTN_A)
+        rig.press(gun, wiimotes.BTN_A)
         rig.frames(200)
-        rig.press(gun, L.BTN_A)
+        rig.press(gun, wiimotes.BTN_A)
         rig.frames(200)
         assert screen.state == "move_again"
     finally:
@@ -290,14 +299,14 @@ def test_players_screen_hold_home(rig):
     gun = rig.guns[0]
     rig.frames(3)
     go_menu_item(rig, gun, "menu.players")
-    assert isinstance(rig.app.screen, A.PlayersScreen)
-    gun.buttons = L.BTN_B | L.BTN_PLUS
+    assert isinstance(rig.app.screen, PlayersScreen)
+    gun.buttons = wiimotes.BTN_B | wiimotes.BTN_PLUS
     rig.frames(5)
-    gun.buttons = L.BTN_HOME
+    gun.buttons = wiimotes.BTN_HOME
     rig.frames(20)
-    assert isinstance(rig.app.screen, A.PlayersScreen)    # un toque de Home no sale
+    assert isinstance(rig.app.screen, PlayersScreen)    # un toque de Home no sale
     rig.frames(60)
-    assert isinstance(rig.app.screen, A.MenuScreen)
+    assert isinstance(rig.app.screen, MenuScreen)
     gun.buttons = 0
 
 
@@ -306,21 +315,21 @@ def test_profiles_edit_and_apply(rig):
     rig.frames(3)
     go_menu_item(rig, gun, "menu.profiles")
     screen = rig.app.screen
-    rig.press(gun, L.BTN_RIGHT)          # preset: full -> 4:3
+    rig.press(gun, wiimotes.BTN_RIGHT)          # preset: full -> 4:3
     assert screen.profile() == "4:3"
-    rig.press(gun, L.BTN_DOWN)           # x0
-    gun.buttons = L.BTN_RIGHT
+    rig.press(gun, wiimotes.BTN_DOWN)           # x0
+    gun.buttons = wiimotes.BTN_RIGHT
     rig.frames(4)
     gun.buttons = 0
     rig.frames(2)
     assert screen.profile().startswith("custom:0.14")
-    rig.press(gun, L.BTN_A)
+    rig.press(gun, wiimotes.BTN_A)
     assert any(l.startswith("area custom:0.14") for l in rig.control.lines)
     assert any(l.startswith("usefulzone 0.850") for l in rig.control.lines)
     assert gun.drv.pipeline.options.area.name.startswith("custom:0.14")
-    rig.press(gun, L.BTN_B)
+    rig.press(gun, wiimotes.BTN_B)
     assert rig.control.lines[-1] == "save"
-    rig.press(gun, L.BTN_HOME)
+    rig.press(gun, wiimotes.BTN_HOME)
 
 
 def test_history_restore(rig_store):
@@ -335,12 +344,12 @@ def test_history_restore(rig_store):
     go_menu_item(rig, gun, "menu.history")
     screen = rig.app.screen
     assert len(screen.entries) == 2 and screen.entries[0]["index"] == 1
-    rig.press(gun, L.BTN_DOWN)            # la mas antigua
-    rig.press(gun, L.BTN_A)
+    rig.press(gun, wiimotes.BTN_DOWN)            # la mas antigua
+    rig.press(gun, wiimotes.BTN_A)
     assert screen.confirm == 1
-    rig.press(gun, L.BTN_A)
+    rig.press(gun, wiimotes.BTN_A)
     assert gun.drv.pipeline.calibration.affine.tx == pytest.approx(first_tx)
-    rig.press(gun, L.BTN_HOME)
+    rig.press(gun, wiimotes.BTN_HOME)
 
 
 
@@ -353,7 +362,7 @@ def test_wizard_other_modes(monkeypatch, mode, points):
         rig.frames(3)
         go_menu_item(rig, gun, "menu.wizard")
         wiz = rig.app.screen
-        rig.press(gun, L.BTN_A)
+        rig.press(gun, wiimotes.BTN_A)
         line = [l for l in rig.control.lines if l.startswith("calibrate")][-1]
         assert len(line.split("targets=")[1].split(",")) == 2 * points
         capture_all(rig, gun)
@@ -380,72 +389,72 @@ def test_hardware_check_full_flow(monkeypatch):
         rig.frames(2)
         go_menu_item(rig, gun, "menu.hardware")
         hs = rig.app.screen
-        assert isinstance(hs, A.HardwareScreen) and hs.step == "intro"
+        assert isinstance(hs, HardwareScreen) and hs.step == "intro"
 
-        rig.press(gun, L.BTN_A)                       # 1: conexion (inmediato)
+        rig.press(gun, wiimotes.BTN_A)                       # 1: conexion (inmediato)
         assert hs.step == "link" and hs.stage == "result"
-        rig.press(gun, L.BTN_A)                       # 2: calidad IR
+        rig.press(gun, wiimotes.BTN_A)                       # 2: calidad IR
         assert hs.step == "ir"
-        rig.press(gun, L.BTN_B)                       # se empieza disparando
+        rig.press(gun, wiimotes.BTN_B)                       # se empieza disparando
         assert hs.stage == "run"
         assert any("3" in line for line, _ in hs.lines())   # cuenta atras
-        rig.frames(int(A.AIM_COUNTDOWN * 60) - 10)
+        rig.frames(int(AIM_COUNTDOWN * 60) - 10)
         assert hs.check.n == 0                        # nada medido durante la cuenta
         rig.frames(100)
-        assert hs.stage == "result" and hs.results["ir"]["verdict"] == L.OK
+        assert hs.stage == "result" and hs.results["ir"]["verdict"] == hardware.OK
 
-        rig.press(gun, L.BTN_A)                       # 3: acelerometro
+        rig.press(gun, wiimotes.BTN_A)                       # 3: acelerometro
         assert hs.step == "acc"
-        rig.press(gun, L.BTN_B)                       # tambien se empieza disparando
+        rig.press(gun, wiimotes.BTN_B)                       # tambien se empieza disparando
         assert hs.stage == "run"
-        rig.frames(int(A.AIM_COUNTDOWN * 60))         # cuenta atras
+        rig.frames(int(AIM_COUNTDOWN * 60))         # cuenta atras
         for i in range(240):
             gun.roll = 45.0 * math.sin(i / 120.0 * 2 * math.pi)
             rig.frames(1)
             if hs.stage == "result":
                 break
         gun.roll = 0.0
-        assert hs.results["acc"]["verdict"] == L.FAIL
-        rig.press(gun, L.BTN_TWO)                     # aplicar
+        assert hs.results["acc"]["verdict"] == hardware.FAIL
+        rig.press(gun, wiimotes.BTN_TWO)                     # aplicar
         assert pipe.tracker.acc_x_sign == 1.0, (hs.stage, hs.message, rig.control.lines[-3:])
         assert hs.results["acc"]["applied"]
 
-        rig.press(gun, L.BTN_A)                       # 4: FOV (el jugador esta a 3.0 m)
+        rig.press(gun, wiimotes.BTN_A)                       # 4: FOV (el jugador esta a 3.0 m)
         assert hs.step == "fov"
         assert hs.distance == 2.0                     # por defecto, 2 m
         for _ in range(10):                           # arriba: +0.1 m
-            rig.press(gun, L.BTN_UP)
-        rig.press(gun, L.BTN_UP)
-        rig.press(gun, L.BTN_DOWN)
+            rig.press(gun, wiimotes.BTN_UP)
+        rig.press(gun, wiimotes.BTN_UP)
+        rig.press(gun, wiimotes.BTN_DOWN)
         assert hs.distance == 3.0 and hs.bar_width == 0.20
         gun.aim = (0.5, 0.0)
-        rig.press(gun, L.BTN_B)
-        rig.frames(int(A.AIM_COUNTDOWN * 60) + 60)
+        rig.press(gun, wiimotes.BTN_B)
+        rig.frames(int(AIM_COUNTDOWN * 60) + 60)
         r = hs.results["fov"]
         assert hs.stage == "result" and abs(r["fov_h_deg"] - 33.0) < 0.6, r
-        rig.press(gun, L.BTN_TWO)
+        rig.press(gun, wiimotes.BTN_TWO)
         assert abs(pipe.options.hardware.fov_h_deg - r["fov_h_deg"]) < 1e-6
         assert abs(rig.app.hardware.fov_h_deg - r["fov_h_deg"]) < 1e-6
 
-        rig.press(gun, L.BTN_A)                       # 5: barra (apuntando al centro)
+        rig.press(gun, wiimotes.BTN_A)                       # 5: barra (apuntando al centro)
         assert hs.step == "bar"
         gun.aim = (0.5, 0.5)
-        rig.press(gun, L.BTN_A)
-        rig.frames(int(A.AIM_COUNTDOWN * 60) + 30)
-        assert hs.results["bar"]["verdict"] == L.OK
+        rig.press(gun, wiimotes.BTN_A)
+        rig.frames(int(AIM_COUNTDOWN * 60) + 30)
+        assert hs.results["bar"]["verdict"] == hardware.OK
         assert hs.results["bar"]["measured"] == "top"
 
-        rig.press(gun, L.BTN_A)                       # 6: desconexion (saltar)
+        rig.press(gun, wiimotes.BTN_A)                       # 6: desconexion (saltar)
         assert hs.step == "disconnect"
-        rig.press(gun, L.BTN_ONE)
+        rig.press(gun, wiimotes.BTN_ONE)
         assert hs.step == "summary"
         rep = rig.control.report
         assert rep["results"]["acc"]["applied"] and rep["results"]["disconnect"]["skipped"]
         assert rep["hardware"]["acc_x_sign"] == 1.0
-        assert rep["overall"] == L.FAIL               # el acelerometro estaba mal
+        assert rep["overall"] == hardware.FAIL               # el acelerometro estaba mal
         assert hs.report_path
-        rig.press(gun, L.BTN_A)
-        assert isinstance(rig.app.screen, A.MenuScreen)
+        rig.press(gun, wiimotes.BTN_A)
+        assert isinstance(rig.app.screen, MenuScreen)
     finally:
         rig.close()
 
@@ -459,7 +468,7 @@ def test_hardware_check_disconnect_step(monkeypatch):
         go_menu_item(rig, gun, "menu.hardware")
         hs = rig.app.screen
         hs.enter(hs.STEPS.index("disconnect"), rig.t)
-        rig.press(gun, L.BTN_A)
+        rig.press(gun, wiimotes.BTN_A)
         assert hs.stage == "run"
         source = rig.app.source
         rig.app.source = SimSource([])                # apagado
@@ -469,8 +478,8 @@ def test_hardware_check_disconnect_step(monkeypatch):
         rig.frames(3)
         assert hs.stage == "result"
         r = hs.results["disconnect"]
-        assert r["verdict"] == L.OK and r["stopped"] == "stopped"
-        rig.press(gun, L.BTN_A)
+        assert r["verdict"] == hardware.OK and r["stopped"] == "stopped"
+        rig.press(gun, wiimotes.BTN_A)
         assert hs.step == "summary"
     finally:
         rig.close()
@@ -516,16 +525,16 @@ def test_hardware_check_tries_ir_sensitivity(monkeypatch):
         hs = rig.app.screen
         hs.enter(hs.STEPS.index("ir"), rig.t)
         gun.drop = (1,)                                # el LED derecho no se ve
-        rig.press(gun, L.BTN_A)
-        rig.frames(int(A.AIM_COUNTDOWN * 60) + 90)
+        rig.press(gun, wiimotes.BTN_A)
+        rig.frames(int(AIM_COUNTDOWN * 60) + 90)
         r = hs.results["ir"]
         assert hs.stage == "result" and r["sensitivity"] == "higher", r
         assert r["ir_sensitivity"] == "marcan" and r["suggest"] == "4"
         assert "2:" in hs.result_hint("ir", r)
-        rig.press(gun, L.BTN_TWO)
+        rig.press(gun, wiimotes.BTN_TWO)
         assert gun.drv.wm.ir_sensitivity == "4"
         assert hs.stage == "run" and hs.ir_tried == ["4"]
-        rig.frames(int(A.AIM_COUNTDOWN * 60) + 120)   # cuenta atras (y settle) + la medida
+        rig.frames(int(AIM_COUNTDOWN * 60) + 120)   # cuenta atras (y settle) + la medida
         r = hs.results["ir"]
         assert hs.stage == "result" and r["ir_sensitivity"] == "4" and r["tried"] == ["4"]
         assert any("hardware.json" in line for line, _ in hs.lines())
@@ -534,22 +543,21 @@ def test_hardware_check_tries_ir_sensitivity(monkeypatch):
 
 
 def test_reach_trail_is_drawn_incrementally(rig):
-    gun = rig.guns[0]
     rig.frames(2)
-    rig.app.go(A.ReachScreen(rig.app, 1))
+    rig.app.go(ReachScreen(rig.app, 1))
     rs = rig.app.screen
     rs.test.trail = [(0.25, 0.5, 2), (0.75, 0.5, 0)]
     rig.frames(1)
     surf = rig.app.surface
     w, h = surf.get_size()
-    assert tuple(surf.get_at((int(0.25 * w), int(0.5 * h))))[:3] == A.GREEN
-    assert tuple(surf.get_at((int(0.75 * w), int(0.5 * h))))[:3] == A.RED
+    assert tuple(surf.get_at((int(0.25 * w), int(0.5 * h))))[:3] == draw.GREEN
+    assert tuple(surf.get_at((int(0.75 * w), int(0.5 * h))))[:3] == draw.RED
     assert rs.trail_drawn == len(rs.test.trail) >= 2
     # puntos nuevos: solo se pintan esos
     rs.test.trail.append((0.5, 0.25, 1))
     rig.frames(1)
-    assert tuple(surf.get_at((int(0.5 * w), int(0.25 * h))))[:3] == A.YELLOW
-    assert tuple(surf.get_at((int(0.25 * w), int(0.5 * h))))[:3] == A.GREEN
+    assert tuple(surf.get_at((int(0.5 * w), int(0.25 * h))))[:3] == draw.YELLOW
+    assert tuple(surf.get_at((int(0.25 * w), int(0.5 * h))))[:3] == draw.GREEN
 
 
 @pytest.mark.parametrize("cur,expected", [
@@ -581,14 +589,14 @@ def test_gallery_4_3_presets(rig_store):
     results = {}
     for key in ("4:3-320x240", "4:3-640x480"):
         while screen.presets[screen.sel][0] != key:
-            rig.press(gun, L.BTN_DOWN)
-        rig.press(gun, L.BTN_A)
+            rig.press(gun, wiimotes.BTN_DOWN)
+        rig.press(gun, wiimotes.BTN_A)
         x0, y0, w, h = screen.area
         assert abs(w - 0.75) < 1e-6 and abs(x0 - 0.125) < 1e-6      # 4:3 dentro de 16:9
         assert all(x0 <= tx <= x0 + w for tx, ty in screen.targets)
         shoot_gallery(rig, gun, screen)
         results[key] = screen.summary
-        rig.press(gun, L.BTN_A)
+        rig.press(gun, wiimotes.BTN_A)
     # el mismo error en TV son el doble de px en un juego de 640x480 que en uno de 320x240
     ratio = results["4:3-640x480"]["mean_game"] / results["4:3-320x240"]["mean_game"]
     assert 1.5 < ratio < 2.6, results
@@ -600,9 +608,9 @@ def test_gallery_4_3_presets(rig_store):
 def test_shot_error_uses_the_game_resolution():
     area = (0.125, 0.0, 0.75, 1.0)
     samples = [(0.5 + 0.75 / 320.0, 0.5)]            # 1 px de un juego de 320 de ancho
-    tv, game, d = L.shot_error(samples, (0.5, 0.5), (1920, 1080), area, (320, 240))
+    tv, game, d = gallery.shot_error(samples, (0.5, 0.5), (1920, 1080), area, (320, 240))
     assert abs(game - 1.0) < 1e-6
-    tv, game, d = L.shot_error(samples, (0.5, 0.5), (1920, 1080), area, (640, 480))
+    tv, game, d = gallery.shot_error(samples, (0.5, 0.5), (1920, 1080), area, (640, 480))
     assert abs(game - 2.0) < 1e-6
 
 
@@ -613,8 +621,8 @@ def _gallery_run(rig, gun, scene_after, key="4:3-320x240"):
     go_menu_item(rig, gun, "menu.gallery")
     screen = rig.app.screen
     while screen.presets[screen.sel][0] != key:
-        rig.press(gun, L.BTN_DOWN)
-    rig.press(gun, L.BTN_A)
+        rig.press(gun, wiimotes.BTN_DOWN)
+    rig.press(gun, wiimotes.BTN_A)
     shoot_gallery(rig, gun, screen)
     return screen
 
@@ -661,8 +669,8 @@ def test_gallery_separates_bad_aim_from_the_calibration(rig_store):
     go_menu_item(rig, gun, "menu.gallery")
     screen = rig.app.screen
     while screen.presets[screen.sel][0] != "4:3-320x240":
-        rig.press(gun, L.BTN_DOWN)
-    rig.press(gun, L.BTN_A)
+        rig.press(gun, wiimotes.BTN_DOWN)
+    rig.press(gun, wiimotes.BTN_A)
     px, py = 0.75 / 320, 1.0 / 240                 # 1 px de juego
     positions = set()
     while screen.summary is None:
@@ -670,7 +678,7 @@ def test_gallery_separates_bad_aim_from_the_calibration(rig_store):
         positions.add((round(tx, 4), round(ty, 4)))
         gun.aim = (tx + rng.gauss(0, 6 * px), ty + rng.gauss(0, 6 * py))
         rig.frames(8)
-        rig.press(gun, L.BTN_B)
+        rig.press(gun, wiimotes.BTN_B)
     a = screen.analysis
     assert screen.rounds == 3 and len(screen.shots) == 45
     assert len(positions) > 30                     # los targets no salen en el mismo sitio
@@ -688,7 +696,7 @@ def test_gallery_stops_early_with_steady_aim(rig_store):
     rig.frames(3)
     go_menu_item(rig, gun, "menu.gallery")
     screen = rig.app.screen
-    rig.press(gun, L.BTN_A)
+    rig.press(gun, wiimotes.BTN_A)
     shoot_gallery(rig, gun, screen)
     assert screen.rounds == 2 and len(screen.shots) == 30
     assert screen.analysis["margin"] is not None and screen.analysis["margin"] < 1.0
@@ -703,16 +711,16 @@ def test_gallery_home_finishes_after_the_first_round(rig_store):
     rig.frames(3)
     go_menu_item(rig, gun, "menu.gallery")
     screen = rig.app.screen
-    rig.press(gun, L.BTN_A)
+    rig.press(gun, wiimotes.BTN_A)
     px = 0.75 / 320
     while screen.rounds < 1 or len(screen.shots) < 20:
         tx, ty = screen.current[1]
         gun.aim = (tx + rng.gauss(0, 8 * px), ty)
         rig.frames(8)
-        rig.press(gun, L.BTN_B)
+        rig.press(gun, wiimotes.BTN_B)
         assert screen.summary is None
-    rig.press(gun, L.BTN_HOME)                     # cortar en la segunda vuelta
-    assert screen.summary is not None and isinstance(rig.app.screen, A.GalleryScreen)
+    rig.press(gun, wiimotes.BTN_HOME)                     # cortar en la segunda vuelta
+    assert screen.summary is not None and isinstance(rig.app.screen, GalleryScreen)
     assert len(screen.shots) == 20
 
 
@@ -724,16 +732,16 @@ def test_players_screen_only_the_opener_exits(monkeypatch):
         rig.frames(3)
         go_menu_item(rig, g1, "menu.players")
         screen = rig.app.screen
-        assert isinstance(screen, A.PlayersScreen) and screen.vg == g1.vg
-        g2.buttons |= L.BTN_HOME                  # el otro jugador prueba Home
+        assert isinstance(screen, PlayersScreen) and screen.vg == g1.vg
+        g2.buttons |= wiimotes.BTN_HOME                  # el otro jugador prueba Home
         rig.frames(90)
-        g2.buttons &= ~L.BTN_HOME
+        g2.buttons &= ~wiimotes.BTN_HOME
         rig.frames(2)
         assert rig.app.screen is screen
-        g1.buttons |= L.BTN_HOME                  # el que la abrio, 1 s
+        g1.buttons |= wiimotes.BTN_HOME                  # el que la abrio, 1 s
         rig.frames(90)
-        g1.buttons &= ~L.BTN_HOME
-        assert isinstance(rig.app.screen, A.MenuScreen)
+        g1.buttons &= ~wiimotes.BTN_HOME
+        assert isinstance(rig.app.screen, MenuScreen)
     finally:
         rig.close()
 
@@ -763,7 +771,7 @@ def test_wizard_4_points_skips_the_ratio_check(monkeypatch):
         rig.frames(3)
         go_menu_item(rig, gun, "menu.wizard")
         wiz = rig.app.screen
-        rig.press(gun, L.BTN_A)
+        rig.press(gun, wiimotes.BTN_A)
         capture_all(rig, gun)
         rig.frames(2)
         assert gun.drv.saved and gun.drv.saved[-1].mode == 3
@@ -779,18 +787,18 @@ def test_wizard_can_calibrate_again(rig):
     rig.frames(3)
     go_menu_item(rig, gun, "menu.wizard")
     wiz = rig.app.screen
-    rig.press(gun, L.BTN_A)
+    rig.press(gun, wiimotes.BTN_A)
     capture_all(rig, gun)
     rig.frames(2)
     assert wiz.state == "verify"
-    rig.press(gun, L.BTN_ONE)                     # repetir desde la comprobacion
+    rig.press(gun, wiimotes.BTN_ONE)                     # repetir desde la comprobacion
     assert wiz.state == "capture"
     capture_all(rig, gun)
     rig.frames(2)
     gun.aim = wiz.center()
     rig.frames(10)
-    rig.press(gun, L.BTN_B)
+    rig.press(gun, wiimotes.BTN_B)
     assert wiz.state == "done"
-    rig.press(gun, L.BTN_ONE)                     # repetir desde el final
+    rig.press(gun, wiimotes.BTN_ONE)                     # repetir desde el final
     assert wiz.state == "capture"
-    rig.press(gun, L.BTN_HOME)
+    rig.press(gun, wiimotes.BTN_HOME)

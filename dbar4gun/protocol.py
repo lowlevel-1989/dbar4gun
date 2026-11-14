@@ -15,7 +15,6 @@ DOT_RECONSTRUCTED = 0x02
 # flags generales
 FLAG_CALIBRATED = 0x01
 FLAG_DISTANCE_COMPENSATION = 0x02
-FLAG_BAR_ON_TOP = 0x04
 FLAG_FAKE_CURSOR = 0x08
 FLAG_LOST = 0x10
 FLAG_CP_VALID = 0x20
@@ -177,8 +176,6 @@ def build_packet(wiimote, index, virtualgun):
         flags |= FLAG_CALIBRATED
     if opts.distance_compensation:
         flags |= FLAG_DISTANCE_COMPENSATION
-    if opts.bar_on_top:
-        flags |= FLAG_BAR_ON_TOP
     if pipeline.fake_cursor:
         flags |= FLAG_FAKE_CURSOR
 
