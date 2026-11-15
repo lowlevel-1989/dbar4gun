@@ -1,3 +1,21 @@
+1.3.1
+- changed: shooting gallery: diana nueva (rosa, amarillo y verde, con
+  bordes grises) y mas grande (como minimo 1/16 del alto de la TV). Tras
+  cada disparo la diana se queda un momento con el disparo encima (verde si
+  le diste, rojo si no); un disparo que se repite por moverse se ve en gris
+- fixed: gallery: el temblor al disparar se mide igual en horizontal que en
+  vertical, y una sola muestra con ruido del IR ya no obliga a repetir
+- added: calibracion: "quedate quieto hasta que el circulo se ponga verde y
+  dispara (B)"
+- added: gallery: el mapa avisa de que usa la media de los disparos a cada
+  target, no cada disparo
+- changed: colores del mapa de la gallery por el error medio de cada target
+  (px de juego): cian perfecto (menos de 3), verde bien (hasta 7), amarillo
+  justo (hasta el borde de la diana, 10). Fuera de la diana, gris si lo explica
+  el pulso (no se sabe) y rojo si no
+- fixed: gallery: con una punteria muy irregular el mapa salia verde aunque
+  los disparos fallaran (el margen del pulso subia el limite del verde)
+
 1.3.0
 - added: smoothing por Wiimote: cada jugador elige el suyo en el calibrador
   (Smoothing). Por defecto todos usan --smoothing-level. Se guarda con la

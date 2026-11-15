@@ -5,7 +5,7 @@ Shooting gallery: disparar a targets y ver el error en un mapa.
 import pygame
 import pygame.gfxdraw
 
-from dbar4gun.gui.draw import DARK, GREEN, GREY, RED, WHITE, YELLOW
+from dbar4gun.gui.draw import CYAN, DARK, GREEN, GREY, RED, WHITE, YELLOW
 from dbar4gun.gui.i18n import t
 from dbar4gun.gui.logic.gallery import (
     aggregate_shots, gallery_analysis, gallery_done, gallery_margin, gallery_order,
@@ -31,8 +31,13 @@ def draw_aim_mark(surf, pos, color):
     pygame.draw.line(surf, color, (x, y - int(MARK_R * 1.6)), (x, y + int(MARK_R * 1.6)), 1)
 
 
-TARGET_RED = (214, 62, 62)
-TARGET_WHITE = (240, 240, 240)
+# diana: color de cada zona, de fuera a dentro, y su radio (fraccion del de la diana)
+TARGET_ZONES = (
+    ((240, 160, 160), 1.0),
+    ((246, 212, 132), 0.5),
+    ((150, 212, 130), 0.2),
+)
+TARGET_EDGE = (120, 120, 120)
 
 
 def _disc(surf, pos, r, color):
@@ -43,25 +48,24 @@ def _disc(surf, pos, r, color):
 
 
 def draw_round_target(surf, pos, r):
-    """El target de la galeria: una diana; cualquier disparo dentro es un acierto."""
-    x, y = pos
-    _disc(surf, (x + 3, y + 4), r, DARK)                      # sombra
-    _disc(surf, pos, r, TARGET_WHITE)                         # borde blanco
-    for i, color in enumerate((TARGET_RED, TARGET_WHITE, TARGET_RED)):
-        _disc(surf, pos, max(2, int(r * (0.86 - 0.29 * i))), color)
-    _disc(surf, pos, max(2, r // 8), TARGET_WHITE)            # centro
+    """La diana de radio r (px de la TV): tres zonas de color, cada una con su borde gris."""
+    line = max(2, r // 35)
+    for color, k in TARGET_ZONES:
+        rr = max(3, int(r * k))
+        _disc(surf, pos, rr, TARGET_EDGE)
+        _disc(surf, pos, rr - line, color)
 
 
-# cuanto se ve donde cayo el ultimo disparo (s)
+# cuanto se queda la diana con el disparo antes de pasar a la siguiente (s)
 LAST_SHOT_TIME = 1.2
 
 
-def draw_last_shot(surf, pos, hit):
-    """Donde cayo el ultimo disparo, mientras se dispara: grande para verlo en una TV 4K."""
-    r = max(MARK_R, surf.get_height() // 80)
-    _disc(surf, pos, r + 3, DARK)
-    _disc(surf, pos, r + 1, WHITE)
-    _disc(surf, pos, r - 1, GREEN if hit else RED)
+def draw_shot(surf, pos, r, color):
+    """Donde cayo el disparo, sobre la diana: verde si le dio, rojo si no."""
+    d = max(6, r // 6)
+    _disc(surf, pos, d + 3, DARK)
+    _disc(surf, pos, d + 1, WHITE)
+    _disc(surf, pos, d - 1, color)
 
 
 def draw_hit_mark(surf, pos, color):
@@ -95,8 +99,8 @@ class GalleryScreen(GunScreen):
         self.analysis = None
         self.saved = None
         self.details = False        # pagina del analisis (boton 1)
-        self.unsteady = False       # el ultimo disparo se repite
-        self.last_shot = None       # (posicion, acierto, hora) del ultimo disparo
+        self.unsteady = None        # (posicion, hora) del disparo que se repite
+        self.last_shot = None       # (target, posicion, hora, color) del ultimo disparo
 
     def start(self):
         p = self.packet
@@ -113,7 +117,7 @@ class GalleryScreen(GunScreen):
         self.analysis = None
         self.saved = None
         self.details = False
-        self.unsteady = False
+        self.unsteady = None
         self.last_shot = None
         self.new_round()
 
@@ -194,35 +198,45 @@ class GalleryScreen(GunScreen):
                 self.start()
             return
         if self.summary is None:
+            if self.last_shot is not None:
+                if now - self.last_shot[2] >= LAST_SHOT_TIME:
+                    self.last_shot = None
+                    self.advance()
+                return
             if g.was_pressed(BTN_B):
                 cell, target = self.current
                 samples = g.samples_before_last_b()
-                spread = shot_spread(samples)
-                if spread is not None and spread > MAX_SHOT_SPREAD:
-                    # tiron al disparar: no mide la calibracion, se repite
-                    self.unsteady = True
-                    return
-                self.unsteady = False
+                spread = shot_spread(samples, self.app.size)
                 err = shot_error(samples, target, self.app.size, self.area, self.game)
                 if err is None:
                     return
+                pos = (target[0] + err[2][0], target[1] + err[2][1])
+                if spread is not None and spread > MAX_SHOT_SPREAD:
+                    # tiron al disparar: no mide la calibracion, se repite (se ve en gris)
+                    self.unsteady = (pos, now)
+                    return
+                self.unsteady = None
                 self.shots.append((cell, err))
+                # la diana se queda un momento con el disparo
                 hit = err[0] <= target_radius(self.area, self.game, self.app.size)
-                self.last_shot = ((target[0] + err[2][0], target[1] + err[2][1]), hit, now)
-                if len(self.shots) % len(self.targets) == 0:
-                    self.rounds += 1
-                    if gallery_done(self.rounds):
-                        self.finish()
-                        return
-                    self.new_round()
-                else:
-                    self.next_target()
+                self.last_shot = (target, pos, now, GREEN if hit else RED)
         elif g.was_pressed(BTN_ONE):
             self.details = not self.details        # mapa <-> analisis
         elif g.was_pressed(BTN_A):
             self.preset = None                     # otra prueba
         elif g.was_pressed(BTN_B):
             self.start()                           # repetir la misma
+
+    def advance(self):
+        """Tras un disparo: el siguiente target, otra vuelta o el resultado."""
+        if len(self.shots) % len(self.targets) == 0:
+            self.rounds += 1
+            if gallery_done(self.rounds):
+                self.finish()
+                return
+            self.new_round()
+        else:
+            self.next_target()
 
     def preset_label(self, preset):
         key, area, gw, gh = preset[:4]
@@ -255,15 +269,22 @@ class GalleryScreen(GunScreen):
         x0, y0, aw, ah = self.area
         pygame.draw.rect(surf, DARK, pygame.Rect(int(x0 * w), int(y0 * h), int(aw * w), int(ah * h)), 2)
         if self.summary is None:
-            tx, ty = self.current[1]
-            draw_round_target(surf, (int(tx * w), int(ty * h)),
-                              int(target_radius(self.area, self.game, (w, h))))
-            if self.last_shot and app.now - self.last_shot[2] < LAST_SHOT_TIME:
-                (sx, sy), hit, _ = self.last_shot
-                draw_last_shot(surf, (int(sx * w), int(sy * h)), hit)
+            r = int(target_radius(self.area, self.game, (w, h)))
+            if self.last_shot is not None:
+                (tx, ty), (sx, sy), _, color = self.last_shot
+                draw_round_target(surf, (int(tx * w), int(ty * h)), r)
+                draw_shot(surf, (int(sx * w), int(sy * h)), r, color)
+            else:
+                tx, ty = self.current[1]
+                draw_round_target(surf, (int(tx * w), int(ty * h)), r)
+                if self.unsteady and app.now - self.unsteady[1] < LAST_SHOT_TIME:
+                    (sx, sy), _ = self.unsteady
+                    draw_shot(surf, (int(sx * w), int(sy * h)), r, GREY)
             # los textos arriba; si el target esta en la fila de arriba, mas abajo
             top = h // 12 if ty > 0.25 else int(h * 0.25)
-            app.text(surf, t("gallery.target", i=len(self.shots) % len(self.targets) + 1,
+            # con la diana del disparo aun en pantalla, su numero
+            done = len(self.shots) - (1 if self.last_shot is not None else 0)
+            app.text(surf, t("gallery.target", i=done % len(self.targets) + 1,
                              n=len(self.targets), r=self.rounds + 1), (w // 2, top),
                      app.font_big, WHITE, center=True)
             app.text(surf, self.preset_label(self.preset), (w // 2, top + app.font_big.get_height()),
@@ -282,7 +303,7 @@ class GalleryScreen(GunScreen):
         # mapa de errores: target, impacto y color segun el error en px de juego
         # frente a lo que explica la punteria (target_level)
         margin = (self.analysis or {}).get("margin")
-        colors = {"good": GREEN, "ok": YELLOW, "bad": RED}
+        colors = {"perfect": CYAN, "good": GREEN, "ok": YELLOW, "unknown": GREY, "bad": RED}
         for (tx, ty), e in zip(self.targets, self.errors):
             if e is None:
                 continue
@@ -300,6 +321,7 @@ class GalleryScreen(GunScreen):
         fs = app.font_small.get_height()
         app.text(surf, t("gallery.map_line", mg=s["mean_game"], xg=s["max_game"]), (w // 2, safe),
                  app.font_small, WHITE, center=True)
+        app.text(surf, t("gallery.map_note"), (w // 2, safe + fs + 2), app.font_small, GREY, center=True)
         self.draw_legend(surf, h - safe - fs - fs // 2 - 6)
         app.text(surf, t("gallery.map_hint"), (w // 2, h - safe),
                  app.font_small, GREY, center=True)
@@ -313,8 +335,10 @@ class GalleryScreen(GunScreen):
         parts = [(draw_aim_mark, t("gallery.legend.target"), WHITE),
                  (draw_hit_mark, t("gallery.legend.hit"), WHITE),
                  (None, t("gallery.legend.number"), GREY),
+                 (None, t("gallery.legend.perfect"), CYAN),
                  (None, t("gallery.legend.good"), GREEN),
                  (None, t("gallery.legend.ok"), YELLOW),
+                 (None, t("gallery.legend.unknown"), GREY),
                  (None, t("gallery.legend.bad"), RED)]
         gap = font.size("    ")[0]
         total = sum(font.size(s)[0] + (icon if m else 0) for m, s, _ in parts) + gap * (len(parts) - 1)

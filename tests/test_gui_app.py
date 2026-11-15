@@ -13,6 +13,7 @@ from dbar4gun.gui import app as A
 from dbar4gun.gui import draw
 from dbar4gun.gui.logic import calibration, gallery, hardware, wiimotes
 from dbar4gun.gui.screens.diagnostics import DiagnosticsScreen
+from dbar4gun.gui.screens import gallery as gallery_screen
 from dbar4gun.gui.screens.gallery import GalleryScreen
 from dbar4gun.gui.screens.hardware import AIM_COUNTDOWN, HardwareScreen
 from dbar4gun.gui.screens.install import InstallScreen
@@ -47,6 +48,12 @@ class Rig(object):
 
     def close(self):
         self.app.close()
+
+
+@pytest.fixture(autouse=True)
+def quick_gallery(monkeypatch):
+    """Sin la pausa con el disparo en la diana (la prueba test_gallery_shot_stays)."""
+    monkeypatch.setattr(gallery_screen, "LAST_SHOT_TIME", 0.0)
 
 
 @pytest.fixture
@@ -669,6 +676,27 @@ def test_gallery_separates_bad_aim_from_the_calibration(rig_store):
     assert a["kind"] in ("unknown", "random", "good"), a
     assert 3.0 < a["aim"] < 10.0, a                # la dispersion de la punteria, medida
     assert a["margin"] == pytest.approx(a["aim"] / 2 ** 0.5, abs=0.01)
+
+
+def test_gallery_shot_stays_on_the_target(rig_store, monkeypatch):
+    """Tras disparar, la diana se queda un momento con el disparo y no acepta otro."""
+    monkeypatch.setattr(gallery_screen, "LAST_SHOT_TIME", 0.5)
+    rig = rig_store
+    gun = rig.guns[0]
+    gun.drv.calibrate(rig.scene)
+    rig.frames(3)
+    go_menu_item(rig, gun, "menu.gallery")
+    screen = rig.app.screen
+    rig.press(gun, wiimotes.BTN_A)
+    first = screen.current
+    gun.aim = first[1]
+    rig.frames(8)
+    rig.press(gun, wiimotes.BTN_B)
+    assert screen.last_shot is not None and screen.last_shot[0] == first[1]
+    rig.press(gun, wiimotes.BTN_B)                 # durante la pausa no cuenta
+    assert len(screen.shots) == 1 and screen.current == first
+    rig.frames(30)
+    assert screen.last_shot is None and screen.current != first
 
 
 def test_gallery_two_rounds(rig_store):

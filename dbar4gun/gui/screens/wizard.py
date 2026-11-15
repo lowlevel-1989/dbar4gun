@@ -159,6 +159,7 @@ class WizardScreen(GunScreen):
             radius = int(max(12, min(h // 4, p.spread * h * 0.6))) if p.spread >= 0 else 12
             pygame.draw.circle(surf, color, (tx, ty), radius, 4)
             app.text(surf, t("wiz.point", i=p.step + 1, n=p.total), (cx, h // 2), app.font_big, WHITE, center=True)
+            app.text(surf, t("wiz.steady"), (cx, h - app.font.get_height() * 2), app.font, GREY, center=True)
             # vueltas a los targets (el daemon manda los disparos validos de la sesion)
             if CALIBRATION_SHOTS > 1:
                 n = p.total * CALIBRATION_SHOTS

@@ -101,17 +101,23 @@ def shot_error(samples, target, size, area, game=(GAME_W, GAME_H)):
 
 # un disparo con la mira moviendose no mide la calibracion sino el tiron al
 # apretar el gatillo: si las posiciones antes del disparo se separan mas que
-# esto (fraccion de la TV), se repite (como la captura de la calibracion)
+# esto (fraccion del alto de la TV, igual en los dos ejes), se repite
 MAX_SHOT_SPREAD = 0.03
 
 
-def shot_spread(samples):
-    """Distancia maxima (fraccion de la TV) de las muestras a su mediana."""
+def shot_spread(samples, size):
+    """
+    Dispersion de las muestras (fraccion del alto de la TV): la segunda mayor
+    distancia a su mediana. Una muestra suelta con ruido del IR no mueve la
+    mediana (el error del disparo), asi que no obliga a repetir; un tiron al
+    apretar el gatillo mueve varias.
+    """
     if not samples:
         return None
     mx = median([s[0] for s in samples])
     my = median([s[1] for s in samples])
-    return max(math.sqrt((s[0] - mx) ** 2 + (s[1] - my) ** 2) for s in samples)
+    d = sorted(math.hypot((s[0] - mx) * size[0], (s[1] - my) * size[1]) for s in samples)
+    return d[-2 if len(d) > 1 else -1] / float(size[1])
 
 
 # la galeria dispara por vueltas: en cada una salen todos los targets, en otro
@@ -125,15 +131,14 @@ ROUNDS = 2
 TARGET_JITTER = 0.04     # fraccion del area: cuanto se mueve cada target
 
 
-# radio del target (px de juego): un disparo dentro cuenta como acierto. Es solo
-# para quien dispara; el error se mide igual desde el centro
+# radio del target (px de juego), solo para verlo; el error se mide desde el centro
 HIT_RADIUS_GAME = 10.0
 
 
 def target_radius(area, game, screen_size):
-    """Radio del target en px de la TV (minimo 1/24 del alto, para verlo)."""
+    """Radio del target en px de la TV (minimo 1/16 del alto, para verlo)."""
     r = HIT_RADIUS_GAME / float(game[1]) * area[3] * screen_size[1]
-    return max(r, screen_size[1] / 24.0)
+    return max(r, screen_size[1] / 16.0)
 
 
 def jitter_target(base, area, rng):
@@ -142,20 +147,24 @@ def jitter_target(base, area, rng):
             base[1] + rng.uniform(-TARGET_JITTER, TARGET_JITTER) * area[3])
 
 
-# color de cada target del mapa: juzga la calibracion, no el pulso. Un target
-# esta bien si su error cabe en lo que explica la punteria (2 veces el margen
-# de su media) y mal si pasa de 3 veces; con pulso perfecto, 2 y 5 px de juego
-TARGET_GOOD_PX = 2.0
-TARGET_OK_PX = 5.0
+# color de cada target del mapa, por su error medio (px de juego). Dentro de la
+# diana la precision sobra para jugar: perfecto por debajo de 3 px, bien hasta
+# 7 y justo hasta el borde de la diana. Fuera, gris si lo explica el pulso (no
+# se sabe si es la calibracion) y rojo si no
+TARGET_PERFECT_PX = 3.0
+TARGET_GOOD_PX = 7.0
 
 
 def target_level(error_game, margin):
-    """'good', 'ok' o 'bad' para el error medio de un target (px de juego)."""
-    m = margin or 0.0
-    if error_game <= max(TARGET_GOOD_PX, 2.0 * m):
+    """'perfect', 'good', 'ok', 'unknown' o 'bad' para el error medio de un target."""
+    if error_game < TARGET_PERFECT_PX:
+        return "perfect"
+    if error_game <= TARGET_GOOD_PX:
         return "good"
-    if error_game <= max(TARGET_OK_PX, 3.0 * m):
+    if error_game <= HIT_RADIUS_GAME:
         return "ok"
+    if error_game <= 3.0 * (margin or 0.0):
+        return "unknown"
     return "bad"
 
 
@@ -230,8 +239,8 @@ def summarize(errors):
 # Analisis de la shooting gallery: error segun la distancia al centro y que
 # tipo de error domina (desplazamiento, escala o pulso)
 RING_NAMES = ("center", "middle", "edge")
-# por debajo de esto (px de juego) el error no merece consejo
-GALLERY_GOOD = 2.0
+# por debajo de esto (px de juego) el error no merece consejo: el verde del mapa
+GALLERY_GOOD = TARGET_GOOD_PX
 # un desplazamiento o una escala cuentan si superan 3 veces su error tipico
 # (con 9 targets y punteria irregular, ~8 % de falsos patrones; con 3.5 baja al
 # 4 %, pero ya no se ve un desplazamiento de 6 px con 3 px de punteria)

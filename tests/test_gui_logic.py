@@ -179,14 +179,31 @@ def test_shot_error_units():
 
 # ----------------------------------------------------------------
 def test_target_radius():
-    """El target de la galeria: 10 px de juego, y como minimo 1/24 del alto."""
+    """El target de la galeria: 10 px de juego, y como minimo 1/16 del alto."""
     area43 = (0.125, 0.0, 0.75, 1.0)
-    assert gallery.target_radius(area43, (320, 240), (1920, 1080)) == pytest.approx(45.0)
-    # a pantalla completa (px de la TV) se queda en el minimo
-    assert gallery.target_radius((0.0, 0.0, 1.0, 1.0), (1920, 1080), (1920, 1080)) == pytest.approx(45.0)
-    assert gallery.target_radius(area43, (640, 480), (1920, 1080)) == pytest.approx(45.0)
-    assert gallery.target_radius(area43, (256, 240), (1280, 720)) == pytest.approx(30.0)
+    assert gallery.target_radius(area43, (320, 240), (1920, 1080)) == pytest.approx(67.5)
+    assert gallery.target_radius((0.0, 0.0, 1.0, 1.0), (1920, 1080), (1920, 1080)) == pytest.approx(67.5)
+    # un juego de poca resolucion en una TV grande: los 10 px de juego mandan
+    assert gallery.target_radius(area43, (160, 120), (1920, 1080)) == pytest.approx(90.0)
 
+def test_shot_spread_same_in_both_axes():
+    """El temblor se mide en px de la TV: igual de lado que de arriba abajo."""
+    size = (1920, 1080)
+    def shaky(dx, dy):
+        return [(0.5, 0.5)] * 6 + [(0.5 + dx, 0.5 + dy)] * 2
+    lim = gallery.MAX_SHOT_SPREAD
+    # 40 px de la TV: mas que el limite (32.4 px) en los dos ejes
+    assert gallery.shot_spread(shaky(40 / 1920.0, 0), size) > lim
+    assert gallery.shot_spread(shaky(0, 40 / 1080.0), size) > lim
+
+
+def test_shot_spread_ignores_one_noisy_sample():
+    """Una sola muestra con ruido del IR no obliga a repetir; un tiron (varias) si."""
+    size = (1920, 1080)
+    one = [(0.5, 0.5)] * 7 + [(0.6, 0.5)]
+    assert gallery.shot_spread(one, size) < gallery.MAX_SHOT_SPREAD
+    jerk = [(0.5, 0.5)] * 6 + [(0.6, 0.5)] * 2
+    assert gallery.shot_spread(jerk, size) > gallery.MAX_SHOT_SPREAD
 
 def test_every_gui_text_exists():
     """Cada t("clave") literal del calibrator tiene texto (en ingles)."""
@@ -282,20 +299,20 @@ def test_gallery_analysis_good():
 
 
 def test_gallery_analysis_offset():
-    """Todo desplazado 6 px a la derecha: la calibracion esta corrida."""
-    t, e = _synthetic(lambda ux, uy: (6.0, 0.0))
+    """Todo desplazado 10 px a la derecha: la calibracion esta corrida."""
+    t, e = _synthetic(lambda ux, uy: (10.0, 0.0))
     a = gallery.gallery_analysis(t, e, AREA43, GAME)
-    assert a["kind"] == "offset" and abs(a["offset"][0] - 6.0) < 0.01
+    assert a["kind"] == "offset" and abs(a["offset"][0] - 10.0) < 0.01
     # el mismo error en todas partes: los anillos casi iguales
     assert abs(a["rings"]["center"] - a["rings"]["edge"]) < 0.5
 
 
 def test_gallery_analysis_scale_grows_with_distance():
-    """El gun llega un 5 % mas lejos que la pantalla: bien en el centro, mal en los bordes."""
-    t, e = _synthetic(lambda ux, uy: (0.05 * 160 * ux, 0.05 * 120 * uy))
+    """El gun llega un 10 % mas lejos que la pantalla: bien en el centro, mal en los bordes."""
+    t, e = _synthetic(lambda ux, uy: (0.10 * 160 * ux, 0.10 * 120 * uy))
     a = gallery.gallery_analysis(t, e, AREA43, GAME)
     assert a["kind"] == "scale"
-    assert abs(a["scale"][0] - 5.0) < 0.2 and abs(a["scale"][1] - 5.0) < 0.2
+    assert abs(a["scale"][0] - 10.0) < 0.2 and abs(a["scale"][1] - 10.0) < 0.2
     assert a["rings"]["center"] < a["rings"]["middle"] < a["rings"]["edge"]
 
 
@@ -311,17 +328,17 @@ def test_gallery_analysis_random():
         t, e = _synthetic(lambda ux, uy: (rng.gauss(0, 5), rng.gauss(0, 5)))
         k = gallery.gallery_analysis(t, e, AREA43, GAME)["kind"]
         kinds[k] = kinds.get(k, 0) + 1
-    assert kinds.get("random", 0) >= 0.93 * 300, kinds
+    assert kinds.get("random", 0) + kinds.get("good", 0) >= 0.93 * 300, kinds
 
 
 def test_gallery_analysis_finds_calibration_errors_despite_aim():
-    """Con punteria irregular (3 px), un desplazamiento de 6 px y una escala del 8 % se ven."""
+    """Con punteria irregular (3 px), un desplazamiento de 10 px y una escala del 12 % se ven."""
     import random
     for seed in range(50):
         rng = random.Random(seed)
-        t, e = _synthetic(lambda ux, uy: (6 + rng.gauss(0, 3), rng.gauss(0, 3)))
+        t, e = _synthetic(lambda ux, uy: (10 + rng.gauss(0, 3), rng.gauss(0, 3)))
         assert gallery.gallery_analysis(t, e, AREA43, GAME)["kind"] == "offset"
-        t, e = _synthetic(lambda ux, uy: (0.08 * 160 * ux + rng.gauss(0, 3), 0.08 * 120 * uy + rng.gauss(0, 3)))
+        t, e = _synthetic(lambda ux, uy: (0.12 * 160 * ux + rng.gauss(0, 3), 0.12 * 120 * uy + rng.gauss(0, 3)))
         assert gallery.gallery_analysis(t, e, AREA43, GAME)["kind"] == "scale"
 
 
@@ -368,12 +385,16 @@ def test_gallery_stop_rule():
         assert abs(x - 0.5) <= gallery.TARGET_JITTER * 0.75 + 1e-9 and abs(y - 0.5) <= gallery.TARGET_JITTER + 1e-9
 
 
-def test_target_level_judges_calibration_not_aim():
-    # pulso perfecto: umbrales fijos
-    assert gallery.target_level(1.5, 0.0) == "good"
-    assert gallery.target_level(4.0, None) == "ok"
-    assert gallery.target_level(8.0, 0.0) == "bad"
-    # pulso de ~10 px en 3 vueltas (margen ~6): 11 px lo explica el pulso
-    assert gallery.target_level(11.4, 6.0) == "good"
-    assert gallery.target_level(17.4, 6.0) == "ok"
+def test_target_level():
+    """Dentro de la diana (10 px de juego): perfecto, bien o justo, con cualquier pulso."""
+    assert gallery.target_level(2.9, None) == "perfect"
+    assert gallery.target_level(3.0, 0.0) == "good"
+    assert gallery.target_level(7.0, 9.0) == "good"
+    assert gallery.target_level(7.1, 0.0) == "ok"
+    assert gallery.target_level(9.9, 0.0) == "ok"
+    # fuera de la diana: gris si lo explica el pulso, rojo si no
+    assert gallery.target_level(17.4, 6.0) == "unknown"
     assert gallery.target_level(26.0, 6.0) == "bad"
+    assert gallery.target_level(12.0, 0.0) == "bad"
+    # fallar a proposito, cada vuelta distinto: margen enorme, gris, nunca verde
+    assert gallery.target_level(120.0, 60.0) == "unknown"

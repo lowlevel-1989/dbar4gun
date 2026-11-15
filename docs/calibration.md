@@ -28,8 +28,11 @@ check the result.
 ![Calibrate: shoot at the target](calibrator/wizard-en.png)
 
 **4. Check it with the shooting gallery**: shoot at the targets and look at the
-map. Green is fine, yellow is fair and red means the calibration is off:
-calibrate again.
+map, by the mean error of each target in game pixels. Inside the target circle
+the calibration is good enough to play: cyan is perfect (less than 3 px), green
+is fine (up to 7 px) and yellow is fair (up to the edge, 10 px). Outside it,
+red means the calibration is off: calibrate again. Grey means it cannot tell,
+because your aim was too unsteady: shoot again more calmly.
 
 ![Shooting gallery](calibrator/gallery-en.png)
 

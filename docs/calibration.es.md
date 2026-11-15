@@ -28,8 +28,12 @@ resultado.
 ![Calibrar: dispara al target](calibrator/wizard-es.png)
 
 **4. Compruébalo con la galería de tiro**: dispara a los targets y mira el
-mapa. Verde está bien, amarillo es justo y rojo indica que la calibración está
-desviada: vuelve a calibrar.
+mapa, según el error medio de cada target en píxeles del juego. Dentro de la
+diana la calibración sobra para jugar: cian es perfecto (menos de 3 px), verde
+está bien (hasta 7 px) y amarillo es justo (hasta el borde, 10 px). Fuera, rojo
+indica que la calibración está desviada: vuelve a calibrar. Gris quiere decir
+que no se puede saber, porque tu puntería fue muy irregular: vuelve a disparar
+con más calma.
 
 ![Galería de tiro](calibrator/gallery-es.png)
 

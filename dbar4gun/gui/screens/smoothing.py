@@ -110,7 +110,7 @@ class SmoothingScreen(GunScreen):
                      center=True)
 
         # un target para apuntar y notar el cambio
-        draw_round_target(surf, (w // 2, h * 2 // 3), h // 24)
+        draw_round_target(surf, (w // 2, h * 2 // 3), h // 16)
         p = self.packet
         if p is not None:
             pygame.draw.circle(surf, GUN_COLORS[(self.vg - 1) % 4],
