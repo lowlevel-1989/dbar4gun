@@ -20,13 +20,13 @@ Abre RetroPie-Setup (`sudo ~/RetroPie-Setup/retropie_setup.sh`) y elige:
 
 ## 2. Arrancar el servicio
 
-*Manage packages → driver → dbar4gun → Configuration → Enable dbar4gun*
+El menú de dbar4gun está en *Manage packages → driver → dbar4gun →
+Configuration*, y en EmulationStation en *RetroPie → Light Gun (dbar4gun)*.
 
-1. Elige la resolución de tu TV (1080p, 720p o manual).
-2. Elige el modo de calibración (el primero, 3 puntos, es el de por defecto).
-3. En el menú de opciones, revisa los valores y elige **dbar4gun start**.
-
-Desde entonces el servicio arranca con el sistema. Las opciones de ese menú:
+Revisa el ancho y el alto de tu TV y elige **Enable dbar4gun**. Desde entonces
+el servicio arranca con el sistema. Si cambias una opción con el servicio
+activado, se aplica al momento; **Calibrate Now** abre el calibrator. Las
+opciones:
 
 | opción | qué hace |
 |---|---|

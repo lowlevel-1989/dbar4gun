@@ -1,3 +1,9 @@
+1.3.2
+- changed: modulo de RetroPie: un solo menu con todas las opciones y
+  Calibrate Now, tambien desde EmulationStation (RetroPie → Light Gun). La
+  entrada en Ports pasa a ser opcional (desactivada por defecto) y la
+  calibracion por defecto es la de 4 esquinas
+
 1.3.1
 - changed: shooting gallery: diana nueva (rosa, amarillo y verde, con
   bordes grises) y mas grande (como minimo 1/16 del alto de la TV). Tras

@@ -1,4 +1,4 @@
-# dbar4gun 1.3.1
+# dbar4gun 1.3.2
 
 English | [Español](README.es.md)
 

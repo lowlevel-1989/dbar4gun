@@ -19,6 +19,8 @@ getDepends() { :; }
 mkUserDir() { mkdir -p "$1"; }
 setConfigRoot() { md_conf_root="$configdir${1:+/$1}"; }
 addPort() { echo "ADDPORT mode=$md_mode root=$md_conf_root id=$1 port=$2 title=$3 cmd=$4"; }
+delEmulator() { echo "DELEMULATOR id=$1 system=$2"; }
+delSystem() { echo "DELSYSTEM $1"; }
 __user="$(id -un)"
 __group="$(id -gn)"
 '''
@@ -57,7 +59,7 @@ def test_params_defaults(tmp_path):
     assert "--area full" in out and "--useful-zone 0.85" in out
     assert "--config-dir {}/all/dbar4gun".format(tmp_path / "configs") in out
     assert "--no-distance-compensation" not in out
-    assert "--calibration 2" in out and "--smoothing-level 3" in out
+    assert "--calibration 3" in out and "--smoothing-level 3" in out   # 4 esquinas
 
 
 def test_params_options(tmp_path):
@@ -69,11 +71,7 @@ def test_params_options(tmp_path):
 
 
 def test_calibrator_entry(tmp_path):
-    """
-    El calibrator va a Ports con addPort (runcommand, sin sudo), como el
-    "Desktop" de RetroPie: el menu de RetroPie se lanza con sudo y no funciona
-    si el usuario necesita contrasena.
-    """
+    """La entrada opcional del calibrator en Ports (addPort, runcommand)."""
     old = tmp_path / "home" / "RetroPie" / "retropiemenu" / "dbar4gun-calibrator.sh"
     old.parent.mkdir(parents=True)
     old.write_text("old entry")
@@ -85,9 +83,31 @@ def test_calibrator_entry(tmp_path):
     assert "cmd={}/bin/dbar4gun gui --port 35460".format(tmp_path / "inst") in line
     assert not old.exists()                     # la entrada vieja del menu se quita
 
+    port = tmp_path / "home" / "RetroPie" / "roms" / "ports" / "dbar4gun calibrator.sh"
+    port.parent.mkdir(parents=True)
+    port.write_text("port")
     r = run_bash(tmp_path, '    _calibrator_entry_dbar4gun remove')
-    line = [l for l in r.stdout.splitlines() if l.startswith("ADDPORT")][0]
-    assert "mode=remove" in line and "title=dbar4gun calibrator" in line
+    # sin tocar md_mode: quita el emulador, el script y el sistema ports si queda vacio
+    assert "ADDPORT" not in r.stdout
+    assert "DELEMULATOR id=dbar4gun system=dbar4gun" in r.stdout and "DELSYSTEM ports" in r.stdout
+    assert not port.exists()
+
+
+def test_retropiemenu_entry(tmp_path):
+    """La entrada RetroPie → dbar4gun abre el menu del modulo (con Calibrate Now)."""
+    body = ('    _add_rom_test() { echo "ADDROM $1 $3 $4"; }\n'
+            '    _retropiemenu_entry_dbar4gun install')
+    r = run_bash(tmp_path, body)
+    rp = tmp_path / "home" / "RetroPie" / "retropiemenu" / "dbar4gun.rp"
+    assert r.returncode == 0, r.stdout
+    assert rp.exists() and "ADDROM retropie dbar4gun.rp Light Gun (dbar4gun)" in r.stdout
+    run_bash(tmp_path, '    _retropiemenu_entry_dbar4gun remove')
+    assert not rp.exists()
+
+
+def test_ports_entry_is_off_by_default(tmp_path):
+    out = run_bash(tmp_path, '    echo "entry=$db_calibrator_entry"').stdout
+    assert "entry=0" in out
 
 @pytest.mark.parametrize("size,args", [
     ("native", ""),
@@ -151,15 +171,13 @@ def test_menu_values_are_validated(tmp_path, func, value, ok):
         assert "area=full zone=0.85" in out
 
 
-def test_calibration_menu_offers_4_points():
-    """El menu de RetroPie ofrece el modo 3 (4 puntos, mejor jugando de lado)."""
+def test_calibration_menu_offers_4_corners_first():
+    """El menu de RetroPie ofrece primero el modo 3 (4 esquinas, el de por defecto)."""
     src = open(MODULE).read()
-    menu = src[src.index("function _menu_calibration_mode"):src.index("function _menu_set_resolution")]
-    assert 'iniSet "db_calibration" "3"' in menu
-    assert "BottomRight, BottomLeft" in menu
+    menu = src[src.index("function _menu_calibration_mode_dbar4gun"):src.index("function gui_dbar4gun")]
+    assert menu.index('3 "Top Left, Top Right, Bottom Right, Bottom Left"') < menu.index('2 "Top Left')
     # desactivar la calibracion es la ultima opcion
-    assert menu.index('4 "disabled"') > menu.index("BottomRight, BottomLeft")
-    assert menu.index('iniSet "db_calibration" "0"') > menu.index('iniSet "db_calibration" "3"')
+    assert menu.index('0 "Disabled"') > menu.index('1 "Center, Top Left"')
 
 
 def test_params_calibration_mode_3(tmp_path):
@@ -167,24 +185,22 @@ def test_params_calibration_mode_3(tmp_path):
     assert "--calibration 3" in r.stdout
 
 
-@pytest.mark.parametrize("choice,saved", [("1", "2"), ("2", "1"), ("3", "3"), ("4", "0")])
-def test_calibration_menu_choice_saves_the_right_mode(tmp_path, choice, saved):
-    """Cada opcion del menu guarda el modo que corresponde (4 = desactivada)."""
+@pytest.mark.parametrize("choice", ["3", "2", "1", "0"])
+def test_calibration_menu_choice_saves_the_mode(tmp_path, choice):
+    """La opcion elegida es el modo que se guarda (0 = desactivada)."""
     src = open(MODULE).read().replace(">/dev/tty", ">/dev/null")
     module = tmp_path / "module.sh"
     module.write_text(src)
     script = STUBS + '''
 iniSet() {{ echo "SET $1=$2"; }}
 source '{module}'
-_menu_start_dbar4gun() {{ :; }}
 dialog() {{ echo "{choice}" >&2; }}
-configdir="{cfg}"
-_menu_calibration_mode
-'''.format(module=module, choice=choice, cfg=tmp_path)
+db_calibration=3
+_menu_calibration_mode_dbar4gun
+'''.format(module=module, choice=choice)
     r = subprocess.run(["bash", "-c", script], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                        universal_newlines=True, timeout=60)
-    assert "SET db_calibration={}".format(saved) in r.stdout, r.stdout
-
+    assert "SET db_calibration={}".format(choice) in r.stdout, r.stdout
 
 
 def test_input_grab_is_on_by_default_and_can_be_turned_off(tmp_path):
