@@ -87,10 +87,6 @@ function _calibrator_cmd_dbar4gun() {
 
 function _retropiemenu_entry_dbar4gun() {
     local rpdir="$datadir/retropiemenu"
-    local gamelist="$configdir/all/emulationstation/gamelists/retropie/gamelist.xml"
-    # _add_rom_emulationstation finds an existing entry by its name, so an
-    # entry added with another name is removed first
-    [[ -f "$gamelist" ]] && xmlstarlet ed -L -d "/gameList/game[path='./dbar4gun.rp']" "$gamelist"
     if [[ "$1" == "install" ]]; then
         mkUserDir "$rpdir"
         touch "$rpdir/dbar4gun.rp"
@@ -105,8 +101,6 @@ function _retropiemenu_entry_dbar4gun() {
 }
 
 function _calibrator_entry_dbar4gun() {
-    # the entry of older versions in the RetroPie menu
-    rm -f "$datadir/retropiemenu/dbar4gun-calibrator.sh"
     setConfigRoot "ports"
     if [[ "$1" == "install" ]]; then
         addPort "$md_id" "dbar4gun" "dbar4gun calibrator" "$(_calibrator_cmd_dbar4gun)"
@@ -242,6 +236,8 @@ function gui_dbar4gun() {
     local title=$($md_inst/bin/dbar4gun version)
     local cmd=(dialog --backtitle "$__backtitle" --menu "$title" 22 86 16)
     local modes=("Disabled" "Center, Top Left" "Top Left, Top Right, Bottom Center" "4 Corners")
+    local options
+    local choice
     local cmd_in
     local value
     local enabled
@@ -253,7 +249,7 @@ function gui_dbar4gun() {
         enabled=0
         systemctl -q is-enabled dbar4gun 2>/dev/null && enabled=1
 
-        local options=()
+        options=()
         if [[ "$enabled" -eq 1 ]]; then
             options+=(1 "Disable dbar4gun")
         else
@@ -305,7 +301,7 @@ function gui_dbar4gun() {
 
         options+=(16 "Debug Port: $db_port")
 
-        local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+        choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         [[ -z "$choice" ]] && break
         case "$choice" in
             1)

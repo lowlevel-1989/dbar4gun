@@ -72,16 +72,12 @@ def test_params_options(tmp_path):
 
 def test_calibrator_entry(tmp_path):
     """La entrada opcional del calibrator en Ports (addPort, runcommand)."""
-    old = tmp_path / "home" / "RetroPie" / "retropiemenu" / "dbar4gun-calibrator.sh"
-    old.parent.mkdir(parents=True)
-    old.write_text("old entry")
     r = run_bash(tmp_path, '    _calibrator_entry_dbar4gun install')
     assert r.returncode == 0, r.stdout
     line = [l for l in r.stdout.splitlines() if l.startswith("ADDPORT")][0]
     assert "mode=install" in line and "root={}/ports".format(tmp_path / "configs") in line
     assert "id=dbar4gun port=dbar4gun title=dbar4gun calibrator" in line
     assert "cmd={}/bin/dbar4gun gui --port 35460".format(tmp_path / "inst") in line
-    assert not old.exists()                     # la entrada vieja del menu se quita
 
     port = tmp_path / "home" / "RetroPie" / "roms" / "ports" / "dbar4gun calibrator.sh"
     port.parent.mkdir(parents=True)
